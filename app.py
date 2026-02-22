@@ -470,8 +470,9 @@ app.include_router(super_admin_notifications_router)
 
 # --- Page Routes ---
 @app.get("/")
-async def index(request: Request):
-    return templates.TemplateResponse("pages/chat.html", {"request": request})
+async def index():
+    from starlette.responses import RedirectResponse
+    return RedirectResponse(url="/admin/login")
 
 
 @app.get("/login")
