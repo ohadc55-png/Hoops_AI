@@ -42,7 +42,7 @@ class AuthService:
     async def register(self, name: str, email: str, password: str, **kwargs):
         existing = await self.repo.get_by_email(email)
         if existing:
-            raise ValueError("Email already registered")
+            raise ValueError("כתובת האימייל כבר רשומה במערכת")
         coach = await self.repo.create(
             name=name,
             email=email,
@@ -54,8 +54,10 @@ class AuthService:
 
     async def login(self, email: str, password: str):
         coach = await self.repo.get_by_email(email)
-        if not coach or not verify_password(password, coach.password_hash):
-            raise ValueError("Invalid email or password")
+        if not coach:
+            raise ValueError("כתובת האימייל לא נמצאה במערכת")
+        if not verify_password(password, coach.password_hash):
+            raise ValueError("הסיסמה שגויה, נסה שנית")
         token = create_access_token({"sub": str(coach.id)})
         return {"coach": coach, "token": token}
 
@@ -88,7 +90,7 @@ class AuthService:
         if not team and invite_code:
             team = await team_repo.get_by_coach_invite_code(invite_code.strip().upper())
         if not team:
-            raise ValueError("Invalid invite code or link")
+            raise ValueError("קוד ההזמנה או הלינק אינם תקינים")
 
         pw_hash = hash_password(password)
 

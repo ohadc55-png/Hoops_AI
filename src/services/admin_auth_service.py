@@ -11,7 +11,7 @@ class AdminAuthService:
     async def register_admin(self, name: str, email: str, password: str, phone: str | None = None):
         existing = await self.user_repo.get_by_email_and_role(email, "admin")
         if existing:
-            raise ValueError("Email already registered")
+            raise ValueError("כתובת האימייל כבר רשומה במערכת")
         user = await self.user_repo.create(
             name=name, email=email,
             password_hash=hash_password(password),
@@ -23,8 +23,10 @@ class AdminAuthService:
 
     async def login_admin(self, email: str, password: str):
         user = await self.user_repo.get_by_email_and_role(email, "admin")
-        if not user or not verify_password(password, user.password_hash):
-            raise ValueError("Invalid email or password")
+        if not user:
+            raise ValueError("כתובת האימייל לא נמצאה במערכת")
+        if not verify_password(password, user.password_hash):
+            raise ValueError("הסיסמה שגויה, נסה שנית")
         token = create_access_token({"sub": str(user.id), "role": "admin"})
         return {"user": user, "token": token}
 

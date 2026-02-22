@@ -498,11 +498,14 @@ async def main():
         club1 = r.scalars().first()
 
         if not club1:
-            # Find existing admin
-            r = await db.execute(select(User).where(User.email == "admin@hoops.club"))
+            # Find existing admin (try both possible emails)
+            r = await db.execute(select(User).where(User.email == "ohadc55@gmail.com", User.role == "admin"))
             admin1 = r.scalars().first()
             if not admin1:
-                print("[ERROR] Run seed_data.py first! No admin@hoops.club found.")
+                r = await db.execute(select(User).where(User.email == "admin@hoops.club", User.role == "admin"))
+                admin1 = r.scalars().first()
+            if not admin1:
+                print("[ERROR] Run seed_data.py first! No admin found.")
                 return
 
             hod_hasharon = region_map.get("הוד השרון - כפר סבא")
@@ -758,9 +761,12 @@ async def main():
         # ════════════════════════════════════════════════════════════
         r = await db.execute(select(func.count(SupportTicket.id)))
         if (r.scalar() or 0) == 0:
-            # Club 1: resolved ticket
-            r = await db.execute(select(User).where(User.email == "admin@hoops.club"))
+            # Club 1: resolved ticket (try both possible emails)
+            r = await db.execute(select(User).where(User.email == "ohadc55@gmail.com", User.role == "admin"))
             admin1_user = r.scalars().first()
+            if not admin1_user:
+                r = await db.execute(select(User).where(User.email == "admin@hoops.club", User.role == "admin"))
+                admin1_user = r.scalars().first()
             if admin1_user:
                 t1 = SupportTicket(
                     club_id=club1.id, created_by_user_id=admin1_user.id,
@@ -887,10 +893,9 @@ async def main():
 
         print(f"\n  LOGINS:")
         print(f"    Super Admin: super@hoops.ai / 123456")
-        print(f"    Club 1 Admin: admin@hoops.club / 123456")
+        print(f"    Club 1 Admin: ohadc55@gmail.com / 6279986")
         print(f"    Club 2 Admin: admin@maccabi-netanya.club / 123456")
         print(f"    Club 3 Admin: admin@hapoel-negev.club / 123456")
-        print(f"    All passwords: 123456")
         print("=" * 60)
 
 

@@ -24,7 +24,7 @@ class PlayerAuthService:
         # 1. Check existing email (same email allowed for different roles)
         existing = await self.user_repo.get_by_email_and_role(email, "player")
         if existing:
-            raise ValueError("Email already registered")
+            raise ValueError("כתובת האימייל כבר רשומה במערכת")
 
         # 2. Validate player invite code
         team = None
@@ -34,7 +34,7 @@ class PlayerAuthService:
             team = await self.team_repo.get_by_player_invite_token(invite_link_token)
 
         if not team:
-            raise ValueError("Invalid invite code or link")
+            raise ValueError("קוד ההזמנה או הלינק אינם תקינים")
 
         # 3. Create User with role="player"
         user = await self.user_repo.create(
@@ -108,8 +108,10 @@ class PlayerAuthService:
 
     async def login_player(self, email: str, password: str):
         user = await self.user_repo.get_by_email_and_role(email, "player")
-        if not user or not verify_password(password, user.password_hash):
-            raise ValueError("Invalid email or password")
+        if not user:
+            raise ValueError("כתובת האימייל לא נמצאה במערכת")
+        if not verify_password(password, user.password_hash):
+            raise ValueError("הסיסמה שגויה, נסה שנית")
         token = create_access_token({"sub": str(user.id), "role": "player"})
         return {"user": user, "token": token}
 

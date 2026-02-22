@@ -40,35 +40,41 @@
             <span class="material-symbols-outlined">calendar_month</span>
             Schedule
           </a>
-          <a href="/parent/payments" class="nav-item {% block nav_payments %}{% endblock %}" data-page="payments">
-            <span class="material-symbols-outlined">payments</span>
-            Payments
-            <span class="msg-badge" id="parentPaymentsBadge" style="display:none;"></span>
-          </a>
-          <a href="/parent/scouting" class="nav-item {% block nav_scouting %}{% endblock %}" data-page="scouting">
-            <span class="material-symbols-outlined">videocam</span>
-            Video Feed
-            <span class="msg-badge" id="parentVideosBadge" style="display:none;"></span>
-          </a>
           <a href="/parent/messages" class="nav-item {% block nav_messages %}{% endblock %}" data-page="messages">
             <span class="material-symbols-outlined">mail</span>
             Messages
             <span class="msg-badge" id="parentMsgBadge" style="display:none;"></span>
           </a>
-          <a href="/parent/carpool" class="nav-item {% block nav_carpool %}{% endblock %}" data-page="carpool">
-            <span class="material-symbols-outlined">commute</span>
-            Carpool
-          </a>
         </nav>
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Coming Soon</div>
+        <div class="sidebar-section-title">My Child</div>
         <nav class="sidebar-nav">
           <span class="nav-item disabled">
             <span class="material-symbols-outlined">trending_up</span>
             Child Progress <span class="soon-badge">Soon</span>
           </span>
+          <a href="/parent/scouting" class="nav-item {% block nav_scouting %}{% endblock %}" data-page="scouting">
+            <span class="material-symbols-outlined">videocam</span>
+            Video Feed
+            <span class="msg-badge" id="parentVideosBadge" style="display:none;"></span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">General</div>
+        <nav class="sidebar-nav">
+          <a href="/parent/payments" class="nav-item {% block nav_payments %}{% endblock %}" data-page="payments">
+            <span class="material-symbols-outlined">payments</span>
+            Payments
+            <span class="msg-badge" id="parentPaymentsBadge" style="display:none;"></span>
+          </a>
+          <a href="/parent/carpool" class="nav-item {% block nav_carpool %}{% endblock %}" data-page="carpool">
+            <span class="material-symbols-outlined">commute</span>
+            Carpool
+          </a>
         </nav>
       </div>
 

@@ -39,11 +39,16 @@
             <span class="material-symbols-outlined">calendar_month</span>
             Schedule
           </a>
+          <a href="/messages" class="nav-item {% block nav_messages %}{% endblock %}" data-page="messages">
+            <span class="material-symbols-outlined">mail</span>
+            Messages
+            <span class="msg-badge" id="coachMsgBadge" style="display:none;"></span>
+          </a>
         </nav>
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Coaching</div>
+        <div class="sidebar-section-title">Coaching Tools</div>
         <nav class="sidebar-nav">
           <a href="/" class="nav-item {% block nav_chat %}{% endblock %}" data-page="chat">
             <span class="material-symbols-outlined">chat</span>
@@ -61,9 +66,19 @@
             <span class="material-symbols-outlined">schema</span>
             Play Creator
           </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Analysis</div>
+        <nav class="sidebar-nav">
           <a href="/scouting" class="nav-item {% block nav_scouting %}{% endblock %}" data-page="scouting">
             <span class="material-symbols-outlined">videocam</span>
             Video Room
+          </a>
+          <a href="/reports" class="nav-item {% block nav_reports %}{% endblock %}" data-page="reports">
+            <span class="material-symbols-outlined">assessment</span>
+            Reports
           </a>
         </nav>
       </div>
@@ -71,18 +86,9 @@
       <div class="sidebar-section">
         <div class="sidebar-section-title">Team</div>
         <nav class="sidebar-nav">
-          <a href="/reports" class="nav-item {% block nav_reports %}{% endblock %}" data-page="reports">
-            <span class="material-symbols-outlined">assessment</span>
-            Reports
-          </a>
           <a href="/logistics" class="nav-item {% block nav_logistics %}{% endblock %}" data-page="logistics">
             <span class="material-symbols-outlined">groups</span>
             Team Management
-          </a>
-          <a href="/messages" class="nav-item {% block nav_messages %}{% endblock %}" data-page="messages">
-            <span class="material-symbols-outlined">mail</span>
-            Messages
-            <span class="msg-badge" id="coachMsgBadge" style="display:none;"></span>
           </a>
         </nav>
       </div>

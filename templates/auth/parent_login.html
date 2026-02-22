@@ -26,7 +26,9 @@
     .auth-form { display:flex; flex-direction:column; gap:var(--sp-4); }
     .auth-footer { text-align:center; margin-top:var(--sp-6); font-size:var(--text-sm); color:var(--text-muted); }
     .auth-footer a { color:var(--primary-light); }
-    .auth-error { background:var(--error-bg); color:var(--error); padding:var(--sp-3); border-radius:var(--r-lg); font-size:var(--text-sm); display:none; }
+    .auth-error { background:rgba(239,68,68,0.1); color:#ef4444; padding:var(--sp-3) var(--sp-4); border-radius:var(--r-lg); border-right:4px solid #ef4444; font-size:var(--text-sm); font-weight:500; display:none; align-items:center; gap:var(--sp-2); direction:rtl; text-align:right; margin-bottom:var(--sp-2); animation:authErrorIn 0.3s ease; }
+    .auth-error .material-symbols-outlined { font-size:20px; flex-shrink:0; }
+    @keyframes authErrorIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
   </style>
 </head>
 <body>
@@ -83,8 +85,8 @@
         window.location.href = '/parent';
       } catch (err) {
         const errEl = document.getElementById('authError');
-        errEl.textContent = err.message || 'Invalid email or password';
-        errEl.style.display = 'block';
+        errEl.innerHTML = '<span class="material-symbols-outlined">error</span>' + (err.message || 'שגיאה בהתחברות');
+        errEl.style.display = 'flex';
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<span class="material-symbols-outlined">login</span> Sign In';

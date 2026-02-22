@@ -30,12 +30,18 @@
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Main</div>
+        <div class="sidebar-section-title">Overview</div>
         <nav class="sidebar-nav">
           <a href="/admin" class="nav-item {% block nav_dashboard %}{% endblock %}" data-page="dashboard">
             <span class="material-symbols-outlined">dashboard</span>
             Dashboard
           </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Day to Day</div>
+        <nav class="sidebar-nav">
           <a href="/admin/schedule" class="nav-item {% block nav_schedule %}{% endblock %}" data-page="schedule">
             <span class="material-symbols-outlined">calendar_month</span>
             Schedule
@@ -44,22 +50,56 @@
             <span class="material-symbols-outlined">groups</span>
             Teams
           </a>
-          <a href="/admin/contacts" class="nav-item {% block nav_contacts %}{% endblock %}" data-page="contacts">
-            <span class="material-symbols-outlined">contacts</span>
-            Contacts
-          </a>
-          <a href="/admin/facilities" class="nav-item {% block nav_facilities %}{% endblock %}" data-page="facilities">
-            <span class="material-symbols-outlined">location_on</span>
-            Facilities
-          </a>
-          <a href="/admin/scouting" class="nav-item {% block nav_scouting %}{% endblock %}" data-page="scouting">
-            <span class="material-symbols-outlined">videocam</span>
-            Video Room
-          </a>
           <a href="/admin/messages" class="nav-item {% block nav_messages %}{% endblock %}" data-page="messages">
             <span class="material-symbols-outlined">mail</span>
             Messages
             <span class="msg-badge" id="adminMsgBadge" style="display:none;"></span>
+          </a>
+          <a href="/admin/contacts" class="nav-item {% block nav_contacts %}{% endblock %}" data-page="contacts">
+            <span class="material-symbols-outlined">contacts</span>
+            Contacts
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Content & Media</div>
+        <nav class="sidebar-nav">
+          <a href="/admin/scouting" class="nav-item {% block nav_scouting %}{% endblock %}" data-page="scouting">
+            <span class="material-symbols-outlined">videocam</span>
+            Video Room
+          </a>
+          <span class="nav-item disabled">
+            <span class="material-symbols-outlined">photo_library</span>
+            Media <span class="soon-badge">Soon</span>
+          </span>
+          <span class="nav-item disabled">
+            <span class="material-symbols-outlined">assessment</span>
+            Reports <span class="soon-badge">Soon</span>
+          </span>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">People & Performance</div>
+        <nav class="sidebar-nav">
+          <a href="/admin/player-development" class="nav-item {% block nav_player_dev %}{% endblock %}" data-page="player-dev">
+            <span class="material-symbols-outlined">trending_up</span>
+            Player Development
+          </a>
+          <a href="/admin/coaches" class="nav-item {% block nav_coaches %}{% endblock %}" data-page="coaches">
+            <span class="material-symbols-outlined">monitoring</span>
+            Coach Engagement
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Operations</div>
+        <nav class="sidebar-nav">
+          <a href="/admin/facilities" class="nav-item {% block nav_facilities %}{% endblock %}" data-page="facilities">
+            <span class="material-symbols-outlined">location_on</span>
+            Facilities
           </a>
           <a href="/admin/transport" class="nav-item {% block nav_transport %}{% endblock %}" data-page="transport">
             <span class="material-symbols-outlined">directions_bus</span>
@@ -69,7 +109,7 @@
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Management</div>
+        <div class="sidebar-section-title">Admin</div>
         <nav class="sidebar-nav">
           <a href="/admin/billing" class="nav-item {% block nav_billing %}{% endblock %}" data-page="billing">
             <span class="material-symbols-outlined">payments</span>
@@ -83,13 +123,15 @@
             <span class="material-symbols-outlined">smart_toy</span>
             AI Insights
           </a>
-          <a href="/admin/player-development" class="nav-item {% block nav_player_dev %}{% endblock %}" data-page="player-dev">
-            <span class="material-symbols-outlined">trending_up</span>
-            Player Development
-          </a>
-          <a href="/admin/coaches" class="nav-item {% block nav_coaches %}{% endblock %}" data-page="coaches">
-            <span class="material-symbols-outlined">monitoring</span>
-            Coach Engagement
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Support & Resources</div>
+        <nav class="sidebar-nav">
+          <a href="/admin/knowledge" class="nav-item {% block nav_knowledge %}{% endblock %}" data-page="knowledge">
+            <span class="material-symbols-outlined">library_books</span>
+            Knowledge Base
           </a>
           <a href="/admin/support" class="nav-item {% block nav_support %}{% endblock %}" data-page="support">
             <span class="material-symbols-outlined">support_agent</span>
@@ -99,16 +141,8 @@
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Coming Soon</div>
+        <div class="sidebar-section-title">Marketplace</div>
         <nav class="sidebar-nav">
-          <span class="nav-item disabled">
-            <span class="material-symbols-outlined">photo_library</span>
-            Media <span class="soon-badge">Soon</span>
-          </span>
-          <span class="nav-item disabled">
-            <span class="material-symbols-outlined">assessment</span>
-            Reports <span class="soon-badge">Soon</span>
-          </span>
           <span class="nav-item disabled">
             <span class="material-symbols-outlined">storefront</span>
             Marketplace <span class="soon-badge">Soon</span>
@@ -117,10 +151,6 @@
       </div>
 
       <div class="sidebar-footer">
-        <a href="/admin/knowledge" class="nav-item {% block nav_knowledge %}{% endblock %}" data-page="knowledge">
-          <span class="material-symbols-outlined">library_books</span>
-          Knowledge Base
-        </a>
         <button class="nav-item" onclick="adminLogout()">
           <span class="material-symbols-outlined">logout</span>
           Logout

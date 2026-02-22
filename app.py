@@ -829,6 +829,14 @@ async def run_seed_once():
     return {"stdout": result.stdout[-1000:], "stderr": result.stderr[-500:], "code": result.returncode}
 
 
+@app.get("/run-platform-seed")
+async def run_platform_seed():
+    """One-time platform seed endpoint — remove after use."""
+    import subprocess
+    result = subprocess.run(["python", "seed_platform.py"], capture_output=True, text=True, timeout=120)
+    return {"stdout": result.stdout[-2000:], "stderr": result.stderr[-500:], "code": result.returncode}
+
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
