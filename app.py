@@ -829,6 +829,18 @@ async def run_seed_once():
     return {"stdout": result.stdout[-1000:], "stderr": result.stderr[-500:], "code": result.returncode}
 
 
+@app.get("/debug-admins")
+async def debug_admins():
+    """Temp: show admin users in DB — remove after use."""
+    from sqlalchemy import select
+    from src.utils.database import AsyncSessionLocal
+    from src.models.user import User
+    async with AsyncSessionLocal() as db:
+        r = await db.execute(select(User).where(User.role == "admin"))
+        admins = [{"id": u.id, "email": u.email, "name": u.name} for u in r.scalars().all()]
+    return {"admins": admins, "count": len(admins)}
+
+
 @app.get("/run-platform-seed")
 async def run_platform_seed():
     """One-time platform seed endpoint — remove after use."""
