@@ -37,6 +37,7 @@ from src.models.drill_assignment import DrillAssignment
 
 # ── Helpers ──────────────────────────────────────────────────────────
 PASSWORD_HASH = bcrypt.hashpw(b"123456", bcrypt.gensalt()).decode("utf-8")
+ADMIN_PASSWORD_HASH = bcrypt.hashpw(b"6279986", bcrypt.gensalt()).decode("utf-8")
 
 def gen_code(n=6):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=n))
@@ -200,9 +201,9 @@ async def seed():
 
         # ── 2. Admin user ────────────────────────────────────────────
         admin_user = User(
-            name="אוהד דדוש",
-            email="admin@hoops.club",
-            password_hash=PASSWORD_HASH,
+            name="Ohad",
+            email="ohadc55@gmail.com",
+            password_hash=ADMIN_PASSWORD_HASH,
             role="admin",
             phone="050-1234567",
             date_of_birth=date(1985, 3, 15),
@@ -211,7 +212,7 @@ async def seed():
         db.add(admin_user)
         await db.flush()
         admin_id = admin_user.id
-        print(f"[OK] Admin: admin@hoops.club (id={admin_id})")
+        print(f"[OK] Admin: ohadc55@gmail.com (id={admin_id})")
 
         # ── 3. Facilities ────────────────────────────────────────────
         facilities = []
@@ -595,7 +596,7 @@ async def seed():
         # ── Commit everything ────────────────────────────────────────
         await db.commit()
         print("\n[DONE] Seed complete!")
-        print(f"   Admin: admin@hoops.club / 123456")
+        print(f"   Admin: ohadc55@gmail.com / 6279986")
         print(f"   Coaches: yossi.cohen@hoops.club ... gil.adri@hoops.club / 123456")
         print(f"   All passwords: 123456")
 
