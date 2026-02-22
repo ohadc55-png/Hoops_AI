@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}HOOPS AI - Schedule{% endblock %}
+{% block nav_schedule %}active{% endblock %}
+{% block styles %}<link rel="stylesheet" href="/static/css/pages/calendar.css">{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Schedule</h1><p class="page-subtitle">Team calendar and events</p></div>
+  <div style="display:flex;gap:var(--sp-2);">
+    <button class="btn btn-secondary" onclick="openRequestModal()"><span class="material-symbols-outlined" style="font-size:18px;">send</span> Request to Admin</button>
+    <button class="btn btn-primary" onclick="openEventModal()"><span class="material-symbols-outlined" style="font-size:18px;">add</span> Add Event</button>
+  </div>
+</div>
+<div id="calendarContainer"></div>
+
+<!-- My Requests Section -->
+<div id="myRequestsSection" style="margin-top:var(--sp-5);"></div>
+
+<!-- Event Modal -->
+<div class="modal-overlay" id="eventModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="eventModalTitle">Add Event</h2>
+      <button class="modal-close" onclick="closeModal('eventModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="eventId">
+      <div class="input-group"><label>Title</label><input type="text" class="input" id="evTitle" placeholder="Event name"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+        <div class="input-group"><label>Date</label><input type="date" class="input" id="evDate"></div>
+        <div class="input-group"><label>Time</label><input type="time" class="input" id="evTime"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+        <div class="input-group"><label>Type</label>
+          <select class="select" id="evType">
+            <option value="practice">Practice</option><option value="game">Game</option>
+            <option value="tournament">Tournament</option><option value="meeting">Meeting</option>
+            <option value="team_building">Team Building</option><option value="team_dinner">Team Dinner</option>
+            <option value="social">Social Activity</option><option value="tactical_video">Tactical / Video</option>
+          </select>
+        </div>
+        <div class="input-group"><label>Opponent (optional)</label><input type="text" class="input" id="evOpponent" placeholder="Opponent team"></div>
+      </div>
+      <div class="repeat-row">
+        <div class="input-group"><label>Facility</label>
+          <select class="select" id="evFacility"><option value="">None</option></select>
+        </div>
+        <div class="input-group" id="repeatGroup"><label>Repeat Weekly</label>
+          <select class="select" id="evRepeat">
+            <option value="">No repeat</option>
+            <option value="2">2 weeks</option><option value="4">4 weeks</option>
+            <option value="6">6 weeks</option><option value="8">8 weeks</option>
+            <option value="10">10 weeks</option><option value="12">12 weeks</option>
+            <option value="15">15 weeks</option><option value="20">20 weeks</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group"><label>Notes</label><textarea class="textarea" id="evNotes" placeholder="Additional notes" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('eventModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEvent()">Save Event</button>
+    </div>
+  </div>
+</div>
+
+<!-- Schedule Request Modal -->
+<div class="modal-overlay" id="requestModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Request Schedule Change</h2>
+      <button class="modal-close" onclick="closeModal('requestModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:var(--text-sm);color:var(--text-muted);margin-bottom:var(--sp-3);">Submit a request to your team admin to add this event to the official team schedule.</p>
+      <div class="input-group"><label>Team</label>
+        <select class="select" id="reqTeam"></select>
+      </div>
+      <div class="input-group"><label>Title</label><input type="text" class="input" id="reqTitle" placeholder="Event name"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+        <div class="input-group"><label>Date</label><input type="date" class="input" id="reqDate"></div>
+        <div class="input-group"><label>Start Time</label><input type="time" class="input" id="reqTimeStart"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+        <div class="input-group"><label>End Time</label><input type="time" class="input" id="reqTimeEnd"></div>
+        <div class="input-group"><label>Type</label>
+          <select class="select" id="reqType">
+            <option value="practice">Practice</option><option value="game">Game</option>
+            <option value="tournament">Tournament</option><option value="meeting">Meeting</option>
+            <option value="team_building">Team Building</option><option value="team_dinner">Team Dinner</option>
+            <option value="social">Social Activity</option><option value="tactical_video">Tactical / Video</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+        <div class="input-group"><label>Location</label><input type="text" class="input" id="reqLocation" placeholder="Location"></div>
+        <div class="input-group"><label>Opponent</label><input type="text" class="input" id="reqOpponent" placeholder="Opponent team"></div>
+      </div>
+      <div class="input-group"><label>Notes</label><textarea class="textarea" id="reqNotes" placeholder="Additional notes or reason for request" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('requestModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitRequest()"><span class="material-symbols-outlined" style="font-size:18px;">send</span> Submit Request</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/calendar-widget.js"></script>
+<script src="/static/js/schedule.js"></script>
+{% endblock %}

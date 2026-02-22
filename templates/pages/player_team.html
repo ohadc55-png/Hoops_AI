@@ -1,0 +1,60 @@
+{% extends "player_base.html" %}
+{% block title %}HOOPS AI — Team{% endblock %}
+{% block nav_team %}active{% endblock %}
+{% block header_title %}Team{% endblock %}
+{% block content %}
+<div class="player-dashboard">
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2><span class="material-symbols-outlined">groups</span> Team</h2>
+    </div>
+    <div class="section-content" id="teamContent">
+      <div class="loading-state">Loading team info...</div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if (!PlayerAPI.token) return;
+  loadTeam();
+});
+
+async function loadTeam() {
+  const el = document.getElementById('teamContent');
+  try {
+    const res = await PlayerAPI.get('/api/player/team');
+    const data = res.data || {};
+    const roster = data.roster || [];
+    const teams = data.teams || [];
+
+    if (roster.length === 0 && teams.length === 0) {
+      el.innerHTML = '<div class="empty-state-player"><span class="material-symbols-outlined">groups</span>No team info available</div>';
+      return;
+    }
+
+    let html = '';
+    if (teams.length > 0) {
+      html += teams.map(t => `<div style="margin-bottom:var(--sp-4);">
+        <strong>${esc(t.name)}</strong>${t.club_name ? ' — ' + esc(t.club_name) : ''}
+        <span class="text-sm text-secondary" style="margin-left:var(--sp-2);">${t.member_count} members</span>
+      </div>`).join('');
+    }
+
+    if (roster.length > 0) {
+      html += '<div class="roster-grid">' + roster.map(p => `<div class="roster-player">
+        <div class="roster-jersey">#${p.jersey_number || '-'}</div>
+        <div class="roster-name">${esc(p.name)}</div>
+        <div class="roster-pos">${p.position || ''}</div>
+      </div>`).join('') + '</div>';
+    }
+
+    el.innerHTML = html;
+  } catch {
+    el.innerHTML = '<div class="empty-state-player">Could not load team info</div>';
+  }
+}
+</script>
+{% endblock %}

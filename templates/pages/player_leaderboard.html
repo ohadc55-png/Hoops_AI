@@ -1,0 +1,15 @@
+{% extends "player_base.html" %}
+{% block title %}HOOPS AI — Leaderboard{% endblock %}
+{% block nav_leaderboard %}active{% endblock %}
+{% block header_title %}Leaderboard{% endblock %}
+{% block content %}
+<div class="player-dashboard">
+  <div class="lb-grid" id="leaderboardGrid">
+    <div class="loading-state">Loading leaderboard...</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/player_leaderboard.js"></script>
+{% endblock %}

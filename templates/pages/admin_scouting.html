@@ -1,0 +1,83 @@
+{% extends "admin_base.html" %}
+{% block title %}HOOPS AI — Video Room{% endblock %}
+{% block nav_scouting %}active{% endblock %}
+{% block header_title %}Video Room{% endblock %}
+{% block styles %}
+<link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/pages/scouting.css">
+<link rel="stylesheet" href="/static/css/pages/admin-scouting.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-content" style="padding: var(--sp-6);">
+
+  <!-- ═══ VIDEO GRID (Landing) ═══ -->
+  <div id="gridView">
+    <div class="scouting-header">
+      <select class="input" id="teamPicker" style="max-width:220px;">
+        <option value="">All Teams</option>
+      </select>
+      <div class="scouting-filters" id="typeFilters">
+        <button class="filter-btn active" data-type="">All</button>
+        <button class="filter-btn" data-type="game">Game</button>
+        <button class="filter-btn" data-type="practice">Practice</button>
+        <button class="filter-btn" data-type="opponent_scout">Scout</button>
+        <button class="filter-btn" data-type="highlight">Highlight</button>
+      </div>
+      <input type="text" class="input scouting-search" id="videoSearch" placeholder="Search videos...">
+    </div>
+    <div class="video-grid" id="videoGrid">
+      <p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: var(--sp-8);">Loading videos...</p>
+    </div>
+  </div>
+
+  <!-- ═══ ANALYSIS VIEW (Video Selected) ═══ -->
+  <div id="analysisView" class="analysis-view">
+    <div class="analysis-header">
+      <button class="btn btn-ghost" onclick="backToGrid()">
+        <span class="material-symbols-outlined">arrow_back</span> Back
+      </button>
+      <h2 id="analysisTitle">Video Title</h2>
+      <span class="admin-coach-badge" id="coachBadge"></span>
+    </div>
+
+    <div class="analysis-layout">
+      <!-- Left: Player + Timeline (read-only, no tools) -->
+      <div class="player-area">
+        <div class="video-container" id="videoContainer">
+          <video id="scoutingPlayer" class="video-js vjs-default-skin" playsinline></video>
+          <canvas id="telestratorCanvas" class="telestrator-canvas"></canvas>
+        </div>
+
+        <div class="timeline-section">
+          <div class="timeline-row">
+            <div class="timeline-bar" id="timelineBar" onclick="seekTimeline(event)" style="flex:1;">
+              <div class="timeline-progress" id="timelineProgress"></div>
+            </div>
+          </div>
+          <div class="timeline-row">
+            <div class="timeline-time" style="flex:1;">
+              <span id="timelineCurrent">0:00</span>
+              <span id="timelineDuration">0:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Clips Sidebar (read-only) -->
+      <div class="clips-sidebar">
+        <div class="clips-sidebar-title">
+          <span class="material-symbols-outlined">movie_filter</span>
+          Clips <span id="clipCount" style="color:var(--text-muted);font-weight:400;"></span>
+        </div>
+        <div id="clipsList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+<script src="/static/js/admin_scouting.js"></script>
+{% endblock %}

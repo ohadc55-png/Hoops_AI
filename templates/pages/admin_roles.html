@@ -1,0 +1,80 @@
+{% extends "admin_base.html" %}
+{% block title %}HOOPS AI — Roles{% endblock %}
+{% block nav_roles %}active{% endblock %}
+{% block header_title %}Roles{% endblock %}
+{% block content %}
+<div class="admin-dashboard">
+
+  <!-- Tabs -->
+  <div class="roles-tabs">
+    <button class="roles-tab active" data-tab="admin-roles" onclick="switchRolesTab('admin-roles')">
+      <span class="material-symbols-outlined">badge</span>
+      תפקידי הנהלה
+    </button>
+    <button class="roles-tab" data-tab="coaches" onclick="switchRolesTab('coaches')">
+      <span class="material-symbols-outlined">sports</span>
+      צוות מקצועי
+    </button>
+  </div>
+
+  <!-- Admin Roles Tab -->
+  <div class="roles-panel active" id="panel-admin-roles">
+    <section class="dashboard-section">
+      <div class="section-header">
+        <h2><span class="material-symbols-outlined">badge</span> Admin Roles</h2>
+        <button class="btn btn-primary btn-sm" onclick="openCreateRoleModal()">
+          <span class="material-symbols-outlined">add</span> Add Role
+        </button>
+      </div>
+      <div class="section-content" id="rolesContent">
+        <div class="loading-state">Loading roles...</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Professional Staff Tab -->
+  <div class="roles-panel" id="panel-coaches" style="display:none;">
+    <section class="dashboard-section">
+      <div class="section-header">
+        <h2><span class="material-symbols-outlined">sports</span> צוות מקצועי — מאמנים</h2>
+      </div>
+      <div class="section-content" id="coachesContent">
+        <div class="loading-state">טוען מאמנים...</div>
+      </div>
+    </section>
+  </div>
+
+</div>
+
+<!-- Create Role Modal -->
+<div class="modal-overlay" id="createRoleModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add Admin Role</h3>
+      <button class="btn-icon" onclick="closeModal('createRoleModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="createRoleForm" onsubmit="return handleCreateRole(event)">
+        <div class="input-group">
+          <label>Role Name *</label>
+          <input type="text" class="input" id="roleName" placeholder="e.g. Treasurer" required>
+        </div>
+        <div class="input-group">
+          <label>Description</label>
+          <textarea class="input" id="roleDescription" rows="2" placeholder="Optional description"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('createRoleModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="document.getElementById('createRoleForm').requestSubmit()">Create Role</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/admin_roles.js"></script>
+{% endblock %}

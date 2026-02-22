@@ -1,0 +1,41 @@
+{% extends "admin_base.html" %}
+{% block title %}HOOPS AI — Coach Engagement{% endblock %}
+{% block nav_coaches %}active{% endblock %}
+{% block header_title %}Coach Engagement{% endblock %}
+{% block content %}
+<div class="admin-contacts">
+  <!-- Filter Bar -->
+  <div class="contacts-filter-bar">
+    <div class="contacts-filter-left">
+      <select class="select" id="filterTeam" onchange="loadEngagement()" style="min-width:160px;">
+        <option value="">All Teams</option>
+      </select>
+    </div>
+    <div class="contacts-filter-right">
+      <span class="contacts-count" id="coachCount">0 coaches</span>
+    </div>
+  </div>
+
+  <!-- Coaches Grid -->
+  <div id="coachesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:var(--sp-4);margin-top:var(--sp-4);"></div>
+</div>
+
+<!-- Coach Detail Modal -->
+<div class="modal-overlay" id="coachDetailModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <h2 class="modal-title" id="coachDetailTitle">Coach</h2>
+      <button class="modal-close" onclick="closeModal('coachDetailModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+      <div id="coachDetailContent"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/admin_coaches.js"></script>
+{% endblock %}

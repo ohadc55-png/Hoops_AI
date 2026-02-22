@@ -1,0 +1,129 @@
+{% extends "admin_base.html" %}
+{% block title %}HOOPS AI — Player Development{% endblock %}
+{% block nav_player_dev %}active{% endblock %}
+{% block header_title %}Player Development{% endblock %}
+{% block styles %}<link rel="stylesheet" href="/static/css/pages/player-profile.css">{% endblock %}
+{% block content %}
+<div class="admin-contacts">
+  <!-- Filter Bar -->
+  <div class="contacts-filter-bar">
+    <div class="contacts-filter-left">
+      <select class="select" id="filterTeam" onchange="applyFilters()" style="min-width:160px;">
+        <option value="">All Teams</option>
+      </select>
+      <select class="select" id="filterPosition" onchange="applyFilters()" style="min-width:120px;">
+        <option value="">All Positions</option>
+        <option value="PG">PG</option>
+        <option value="SG">SG</option>
+        <option value="SF">SF</option>
+        <option value="PF">PF</option>
+        <option value="C">C</option>
+      </select>
+    </div>
+    <div class="contacts-filter-right">
+      <button class="btn btn-primary btn-xs" onclick="openReportRequestModal()" style="white-space:nowrap;">
+        <span class="material-symbols-outlined" style="font-size:16px;">assignment</span>
+        Request Reports
+      </button>
+      <div class="contacts-search-wrap">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" class="input" id="searchInput" placeholder="Search player name..." oninput="debounceSearch()">
+      </div>
+      <span class="contacts-count" id="playersCount">0 players</span>
+    </div>
+  </div>
+
+  <!-- Players Table -->
+  <div class="contacts-table-wrap" id="playersContent">
+    <div class="empty-state-admin">
+      <span class="material-symbols-outlined">hourglass_empty</span>
+      <h3>Loading...</h3>
+    </div>
+  </div>
+</div>
+
+<!-- Player Detail Modal -->
+<div class="modal-overlay" id="playerDetailModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <h2 class="modal-title" id="detailModalTitle">Player</h2>
+      <button class="modal-close" onclick="closeModal('playerDetailModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <!-- Tabs -->
+    <div class="pd-tabs">
+      <button class="role-tab active" id="tabProfile" onclick="switchTab('profile')">
+        <span class="material-symbols-outlined" style="font-size:18px;">person</span>
+        Profile
+      </button>
+      <button class="role-tab" id="tabReports" onclick="switchTab('reports')">
+        <span class="material-symbols-outlined" style="font-size:18px;">assessment</span>
+        Reports
+        <span class="pd-report-count" id="reportCount" style="display:none;"></span>
+      </button>
+      <button class="role-tab" id="tabEvaluations" onclick="switchTab('evaluations')">
+        <span class="material-symbols-outlined" style="font-size:18px;">analytics</span>
+        Evaluations
+        <span class="pd-report-count" id="evalCount" style="display:none;"></span>
+      </button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+      <div id="profileTabContent"></div>
+      <div id="reportsTabContent" style="display:none;"></div>
+      <div id="evaluationsTabContent" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+<!-- Report Request Modal -->
+<div class="modal-overlay" id="reportRequestModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <h2 class="modal-title">Request Evaluations from Coaches</h2>
+      <button class="modal-close" onclick="closeModal('reportRequestModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <label>Team</label>
+        <select class="select" id="rrTeam">
+          <option value="">Select team...</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Coach (optional — leave empty for all coaches in team)</label>
+        <select class="select" id="rrCoach">
+          <option value="">All coaches in team</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+        <div class="input-group">
+          <label>Period Type</label>
+          <select class="select" id="rrPeriodType">
+            <option value="weekly">Weekly</option>
+            <option value="monthly" selected>Monthly</option>
+            <option value="semi_annual">Semi-Annual</option>
+            <option value="annual">Annual</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Due Date</label>
+          <input type="date" class="input" id="rrDueDate">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Instructions (optional)</label>
+        <textarea class="textarea" id="rrInstructions" rows="2" placeholder="Special instructions for coaches..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('reportRequestModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="sendReportRequest()">Send Request</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/player-profile.js"></script>
+<script src="/static/js/admin_player_development.js"></script>
+{% endblock %}

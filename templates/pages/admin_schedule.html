@@ -1,0 +1,196 @@
+{% extends "admin_base.html" %}
+{% block title %}HOOPS AI — Schedule{% endblock %}
+{% block nav_schedule %}active{% endblock %}
+{% block header_title %}Schedule{% endblock %}
+{% block content %}
+<div class="admin-dashboard">
+  <!-- Schedule Section -->
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2><span class="material-symbols-outlined">calendar_month</span> Schedule</h2>
+      <div style="display:flex;gap:var(--sp-2);align-items:center;">
+        <select class="input" id="scheduleTeamSelect" style="min-width:160px;" onchange="onScheduleTeamChange()">
+          <option value="">All Teams</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="openCreateEventModal()">
+          <span class="material-symbols-outlined">add</span> Add Event
+        </button>
+      </div>
+    </div>
+    <div id="teamColorLegend" style="display:flex;gap:var(--sp-3);align-items:center;flex-wrap:wrap;padding:var(--sp-2) 0;"></div>
+    <div id="adminCalendarContainer"></div>
+    <div class="section-content" id="scheduleContent">
+      <div class="loading-state">Loading schedule...</div>
+    </div>
+  </section>
+
+  <!-- Pending Schedule Requests -->
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2><span class="material-symbols-outlined">pending_actions</span> Schedule Requests <span class="badge badge-warning" id="pendingCount" style="display:none;">0</span></h2>
+    </div>
+    <div class="section-content" id="requestsContent">
+      <div class="loading-state">Loading requests...</div>
+    </div>
+  </section>
+</div>
+
+<!-- Create Event Modal -->
+<div class="modal-overlay" id="createEventModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="eventModalTitle">Add Event</h3>
+      <button class="btn-icon" onclick="closeModal('createEventModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="createEventForm" onsubmit="return handleCreateEvent(event)">
+        <input type="hidden" id="editEventId" value="">
+        <div class="input-group">
+          <label>Team *</label>
+          <select class="input" id="eventTeamId" required>
+            <option value="">Select team...</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Title *</label>
+          <input type="text" class="input" id="eventTitle" placeholder="e.g. Weekly Practice" required>
+        </div>
+        <div class="input-group">
+          <label>Type *</label>
+          <select class="input" id="eventType" required onchange="toggleOpponentField()">
+            <option value="practice">Practice</option>
+            <option value="game">Game</option>
+            <option value="meeting">Meeting</option>
+            <option value="tournament">Tournament</option>
+            <option value="team_building">Team Building</option>
+            <option value="team_dinner">Team Dinner</option>
+            <option value="social">Social Activity</option>
+            <option value="tactical_video">Tactical / Video</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Date *</label>
+          <input type="date" class="input" id="eventDate" required>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+          <div class="input-group">
+            <label>Start Time</label>
+            <input type="time" class="input" id="eventTimeStart">
+          </div>
+          <div class="input-group">
+            <label>End Time</label>
+            <input type="time" class="input" id="eventTimeEnd">
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Facility</label>
+          <select class="input" id="eventFacilityId" onchange="onFacilityChange()">
+            <option value="">No facility</option>
+          </select>
+        </div>
+        <div class="input-group" id="customLocationGroup" style="display:none;">
+          <label>Custom Location</label>
+          <input type="text" class="input" id="eventLocation" placeholder="Enter location name">
+        </div>
+        <div class="input-group" id="opponentGroup" style="display:none;">
+          <label>Opponent</label>
+          <input type="text" class="input" id="eventOpponent" placeholder="Opponent team">
+        </div>
+        <!-- Home / Away Toggle -->
+        <div class="input-group" id="awayGameGroup" style="display:none;">
+          <label>Game Location</label>
+          <input type="hidden" id="eventIsAway" value="0">
+          <div class="home-away-toggle">
+            <button type="button" class="toggle-btn active" id="btnHome" onclick="setHomeAway(false)">
+              <span class="material-symbols-outlined" style="font-size:18px;">home</span> Home (בית)
+            </button>
+            <button type="button" class="toggle-btn" id="btnAway" onclick="setHomeAway(true)">
+              <span class="material-symbols-outlined" style="font-size:18px;">directions_bus</span> Away (חוץ)
+            </button>
+          </div>
+        </div>
+        <!-- Away Game Fields (shown when Away is selected) -->
+        <div id="awayFieldsGroup" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+            <div class="input-group">
+              <label><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">schedule</span> Departure Time (שעת יציאה)</label>
+              <input type="time" class="input" id="eventDepartureTime">
+            </div>
+            <div class="input-group">
+              <label><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">location_on</span> Venue Address (כתובת)</label>
+              <input type="text" class="input" id="eventVenueAddress" placeholder="Full address for Google Maps">
+            </div>
+          </div>
+          <div id="awayTransportLink" style="display:none;margin-top:var(--sp-2);">
+            <a href="#" id="awayTransportLinkHref" target="_blank" style="display:inline-flex;align-items:center;gap:4px;color:var(--primary-light);font-size:var(--text-sm);text-decoration:none;">
+              <span class="material-symbols-outlined" style="font-size:16px;">open_in_new</span> View in Transportation page
+            </a>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Notes</label>
+          <textarea class="input" id="eventNotes" rows="2" placeholder="Optional notes"></textarea>
+        </div>
+        <div class="input-group" id="repeatGroup">
+          <label>Repeat Weekly (weeks)</label>
+          <input type="number" class="input" id="eventRepeatWeeks" min="1" max="52" value="1" placeholder="1 = single event">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('createEventModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="document.getElementById('createEventForm').requestSubmit()">Save Event</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="/static/css/pages/calendar.css">
+<style>
+.home-away-toggle {
+  display: flex;
+  gap: 0;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.home-away-toggle .toggle-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: none;
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  font-family: inherit;
+  transition: all var(--transition-fast);
+}
+.home-away-toggle .toggle-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-secondary);
+}
+.home-away-toggle .toggle-btn.active[id="btnHome"] {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  font-weight: 600;
+}
+.home-away-toggle .toggle-btn.active[id="btnAway"] {
+  background: rgba(248, 113, 113, 0.15);
+  color: #F87171;
+  font-weight: 600;
+}
+</style>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/calendar-widget.js"></script>
+<script src="/static/js/admin_schedule.js"></script>
+{% endblock %}

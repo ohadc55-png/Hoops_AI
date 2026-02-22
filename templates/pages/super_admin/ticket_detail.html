@@ -1,0 +1,57 @@
+{% extends "super_admin_base.html" %}
+{% block title %}HOOPS AI — Ticket Detail{% endblock %}
+{% block nav_tickets %}active{% endblock %}
+{% block header_title %}Ticket Detail{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:var(--sp-3);">
+  <a href="/super-admin/tickets" style="color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+    <span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span> Back to Tickets
+  </a>
+</div>
+
+<!-- Ticket Header -->
+<div class="dashboard-section" id="ticketHeader">
+  <div class="loading-state">Loading ticket...</div>
+</div>
+
+<!-- Conversation -->
+<div class="dashboard-section" id="conversationSection" style="display:none;">
+  <div class="section-header">
+    <h2><span class="material-symbols-outlined">forum</span> Conversation</h2>
+  </div>
+  <div id="messagesContainer" style="max-height:500px;overflow-y:auto;padding:var(--sp-2);"></div>
+
+  <!-- Reply Form -->
+  <div style="padding:var(--sp-3);border-top:1px solid var(--border);">
+    <textarea id="replyBody" class="input" rows="3" placeholder="Type your reply..." style="width:100%;margin-bottom:var(--sp-2);"></textarea>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <label style="display:flex;align-items:center;gap:var(--sp-1);color:var(--text-muted);font-size:0.85rem;cursor:pointer;">
+        <input type="checkbox" id="isInternal"> Internal note (not visible to club)
+      </label>
+      <button class="btn btn-primary" onclick="submitReply()">
+        <span class="material-symbols-outlined">send</span> Send Reply
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Actions -->
+<div class="dashboard-section" id="actionsSection" style="display:none;">
+  <div class="section-header">
+    <h2><span class="material-symbols-outlined">settings</span> Actions</h2>
+  </div>
+  <div id="actionsContent" style="display:flex;gap:var(--sp-2);flex-wrap:wrap;padding:var(--sp-3);"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/super-admin-tickets.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!requireSuperAdminAuth()) return;
+    const id = window.location.pathname.split('/').pop();
+    loadTicketDetail(id);
+  });
+</script>
+{% endblock %}

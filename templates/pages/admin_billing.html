@@ -1,0 +1,255 @@
+{% extends "admin_base.html" %}
+{% block title %}HOOPS AI — Finance{% endblock %}
+{% block nav_billing %}active{% endblock %}
+{% block header_title %}Finance{% endblock %}
+{% block content %}
+<div class="admin-billing">
+
+  <!-- Overview Cards + Team Filter -->
+  <div class="billing-top-bar">
+    <div class="billing-summary" id="billingSummary">
+      <div class="billing-card">
+        <div class="billing-card-label">Total Expected</div>
+        <div class="amount" id="billingTotal">₪0</div>
+      </div>
+      <div class="billing-card paid">
+        <div class="billing-card-label">Paid</div>
+        <div class="amount" id="billingPaid">₪0</div>
+      </div>
+      <div class="billing-card pending">
+        <div class="billing-card-label">Pending</div>
+        <div class="amount" id="billingPending">₪0</div>
+      </div>
+      <div class="billing-card overdue">
+        <div class="billing-card-label">Overdue</div>
+        <div class="amount" id="billingOverdue">₪0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="billing-actions-row" style="margin-top:var(--sp-4);">
+    <button class="btn btn-primary btn-sm" onclick="openModal('planModal')">
+      <span class="material-symbols-outlined" style="font-size:16px;">add</span> Create Payment Plan
+    </button>
+    <button class="btn btn-secondary btn-sm" onclick="openModal('chargeModal')">
+      <span class="material-symbols-outlined" style="font-size:16px;">receipt</span> One-Time Charge
+    </button>
+    <button class="btn btn-secondary btn-sm" onclick="checkOverdue()">
+      <span class="material-symbols-outlined" style="font-size:16px;">schedule</span> Check Overdue
+    </button>
+  </div>
+
+  <!-- Team Billing Detail -->
+  <section class="dashboard-section" style="margin-top:var(--sp-5);">
+    <div class="section-header">
+      <h2><span class="material-symbols-outlined">groups</span> Team Billing</h2>
+      <div style="display:flex;gap:var(--sp-3);align-items:center;flex-wrap:wrap;">
+        <select class="input" id="teamBillingSelect" onchange="loadTeamBilling()" style="width:200px;">
+          <option value="">Select Team...</option>
+        </select>
+        <input type="text" class="input" id="seasonFilter" placeholder="Season (e.g. 2025-2026)" style="width:170px;" onchange="loadTeamBilling()">
+        <label style="display:flex;align-items:center;gap:6px;color:var(--text-secondary);font-size:14px;cursor:pointer;">
+          <input type="checkbox" id="unpaidOnly" onchange="renderTeamBilling()"> Unpaid only
+        </label>
+      </div>
+    </div>
+    <div id="teamBillingContent">
+      <div class="empty-state-admin">Select a team to view billing details</div>
+    </div>
+    <!-- Reminder button (shown only when team selected + unpaid exist) -->
+    <div id="reminderRow" style="display:none;margin-top:var(--sp-4);">
+      <button class="btn btn-secondary btn-sm" onclick="openReminderPreview()">
+        <span class="material-symbols-outlined" style="font-size:16px;">send</span> Send Reminder to Unpaid
+      </button>
+    </div>
+  </section>
+
+</div>
+
+<!-- Create Payment Plan Modal -->
+<div class="modal-overlay" id="planModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h3>Create Payment Plan</h3>
+      <button class="btn-icon" onclick="closeModal('planModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Team</label>
+        <select class="input" id="planTeamId"></select>
+      </div>
+      <div class="form-group">
+        <label>Season</label>
+        <input type="text" class="input" id="planSeason" placeholder="2025-2026">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Annual Amount (₪)</label>
+          <input type="number" class="input" id="planAmount" placeholder="3600" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Installments</label>
+          <select class="input" id="planInstallments">
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10" selected>10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Start Month</label>
+          <input type="month" class="input" id="planStartMonth">
+        </div>
+        <div class="form-group">
+          <label>Billing Day</label>
+          <input type="number" class="input" id="planBillingDay" value="10" min="1" max="28">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Payment Method</label>
+        <select class="input" id="planMethod">
+          <option value="credit_card">אשראי</option>
+          <option value="check">צ'קים</option>
+          <option value="cash">מזומן</option>
+          <option value="bank_transfer">העברה בנקאית</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Description (optional)</label>
+        <input type="text" class="input" id="planDescription" placeholder="e.g. דמי קבוצה עונת 2025-2026">
+      </div>
+      <p style="font-size:13px;color:var(--text-muted);margin-top:var(--sp-2);">
+        Plans will be created for all active players in the team. You can adjust individual amounts after creation.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('planModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="createPlan()">Create Plans</button>
+    </div>
+  </div>
+</div>
+
+<!-- One-Time Charge Modal -->
+<div class="modal-overlay" id="chargeModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <h3>One-Time Charge</h3>
+      <button class="btn-icon" onclick="closeModal('chargeModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Team</label>
+        <select class="input" id="chargeTeamId"></select>
+      </div>
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" class="input" id="chargeTitle" placeholder="e.g. חולצות קבוצה, טורניר חנוכה">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Amount (₪)</label>
+          <input type="number" class="input" id="chargeAmount" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Due Date (optional)</label>
+          <input type="date" class="input" id="chargeDueDate">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description (optional)</label>
+        <textarea class="input" id="chargeDescription" rows="2"></textarea>
+      </div>
+      <p style="font-size:13px;color:var(--text-muted);margin-top:var(--sp-2);">
+        Will be created for all active players in the selected team.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('chargeModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="createCharge()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mark Installment Paid Modal -->
+<div class="modal-overlay" id="markPaidModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h3 id="markPaidTitle">Mark Payment</h3>
+      <button class="btn-icon" onclick="closeModal('markPaidModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="markPaidId">
+      <input type="hidden" id="markPaidType"><!-- "installment" or "charge" -->
+      <div class="form-group">
+        <label>Paid Date</label>
+        <input type="date" class="input" id="markPaidDate">
+      </div>
+      <div class="form-group">
+        <label>Payment Method</label>
+        <select class="input" id="markPaidMethod">
+          <option value="credit_card">אשראי</option>
+          <option value="check">צ'ק</option>
+          <option value="cash">מזומן</option>
+          <option value="bank_transfer">העברה בנקאית</option>
+          <option value="other">אחר</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Note (optional)</label>
+        <input type="text" class="input" id="markPaidNote" placeholder="e.g. צ'ק מס' 1234">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('markPaidModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmMarkPaid()">Confirm Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Player Detail Modal -->
+<div class="modal-overlay" id="playerDetailModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <h3 id="playerDetailName">Player Details</h3>
+      <button class="btn-icon" onclick="closeModal('playerDetailModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body" id="playerDetailBody" style="max-height:60vh;overflow-y:auto;">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('playerDetailModal')">Close</button>
+      <button class="btn btn-secondary btn-sm" id="adjustAmountBtn" onclick="promptAdjustAmount()">Adjust Amount</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reminder Preview Modal -->
+<div class="modal-overlay" id="reminderModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <h3>Send Payment Reminders</h3>
+      <button class="btn-icon" onclick="closeModal('reminderModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--text-secondary);margin-bottom:var(--sp-3);">
+        A reminder message will be sent to the parents of the following players:
+      </p>
+      <div id="reminderPlayerList"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('reminderModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="sendReminders()">
+        <span class="material-symbols-outlined" style="font-size:16px;">send</span> Send Reminders
+      </button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/admin_billing.js"></script>
+{% endblock %}

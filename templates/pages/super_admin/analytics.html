@@ -1,0 +1,48 @@
+{% extends "super_admin_base.html" %}
+{% block title %}HOOPS AI — Analytics{% endblock %}
+{% block nav_analytics %}active{% endblock %}
+{% block header_title %}Analytics{% endblock %}
+
+{% block content %}
+<!-- AI Usage Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">smart_toy</span></div>
+    <div><div class="stat-value" id="statCalls">—</div><div class="stat-label">API Calls (30d)</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">token</span></div>
+    <div><div class="stat-value" id="statTokensIn">—</div><div class="stat-label">Tokens In</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">output</span></div>
+    <div><div class="stat-value" id="statTokensOut">—</div><div class="stat-label">Tokens Out</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">attach_money</span></div>
+    <div><div class="stat-value" id="statCost">—</div><div class="stat-label">Est. Cost ($)</div></div>
+  </div>
+</div>
+
+<div class="dashboard-content-grid">
+  <!-- Usage By Agent -->
+  <div class="dashboard-section">
+    <div class="section-header">
+      <h2><span class="material-symbols-outlined">hub</span> Usage by Agent</h2>
+    </div>
+    <div id="byAgentContent" class="loading-state">Loading...</div>
+  </div>
+
+  <!-- Daily Trend -->
+  <div class="dashboard-section">
+    <div class="section-header">
+      <h2><span class="material-symbols-outlined">trending_up</span> Daily Trend</h2>
+    </div>
+    <div id="dailyTrendContent" class="loading-state">Loading...</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/super-admin-analytics.js"></script>
+{% endblock %}

@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+venv/
+.venv/
+
+# Environment variables (secrets)
+.env
+
+# Database (recreated on deploy)
+database/*.db
+database/*.db-shm
+database/*.db-wal
+database/chroma/
+
+# User uploads (cloud storage on deploy)
+uploads/*
+!uploads/.gitkeep
+
+# Claude Code (personal settings)
+.claude/settings.local.json
+.claude/memory/
+.mcp.json
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+HOOPS_AI_Summary.txt
+*.log

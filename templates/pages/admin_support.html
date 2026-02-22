@@ -1,0 +1,91 @@
+{% extends "admin_base.html" %}
+{% block title %}HOOPS AI — Support{% endblock %}
+{% block nav_support %}active{% endblock %}
+{% block header_title %}Support{% endblock %}
+
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-4);flex-wrap:wrap;gap:var(--sp-2);">
+  <h2 style="margin:0;">My Support Tickets</h2>
+  <button class="btn btn-primary" onclick="openModal('createTicketModal')">
+    <span class="material-symbols-outlined">add</span> New Ticket
+  </button>
+</div>
+
+<!-- Ticket List -->
+<div id="ticketListContainer">
+  <div class="loading-state">Loading tickets...</div>
+</div>
+
+<!-- Ticket Detail View (hidden initially) -->
+<div id="ticketDetailView" style="display:none;">
+  <div style="margin-bottom:var(--sp-3);">
+    <button class="btn btn-sm" onclick="showList()">
+      <span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span> Back to Tickets
+    </button>
+  </div>
+  <div class="card" id="ticketDetailHeader" style="margin-bottom:var(--sp-3);"></div>
+
+  <!-- Messages -->
+  <div class="card" id="ticketMessages" style="margin-bottom:var(--sp-3);">
+    <div id="messagesBody" style="max-height:400px;overflow-y:auto;padding:var(--sp-3);"></div>
+    <div style="padding:var(--sp-3);border-top:1px solid var(--border);">
+      <textarea id="replyInput" class="input" rows="3" placeholder="Type your reply..." style="width:100%;margin-bottom:var(--sp-2);"></textarea>
+      <button class="btn btn-primary" onclick="submitClubReply()">
+        <span class="material-symbols-outlined">send</span> Send
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Ticket Modal -->
+<div class="modal" id="createTicketModal">
+  <div class="modal-backdrop" onclick="closeModal('createTicketModal')"></div>
+  <div class="modal-content" style="max-width:500px;">
+    <div class="modal-header">
+      <h3>Create Support Ticket</h3>
+      <button class="btn-icon" onclick="closeModal('createTicketModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Subject</label>
+        <input type="text" id="ticketSubject" class="input" placeholder="Brief description of your issue">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="ticketCategory" class="input">
+          <option value="general">General</option>
+          <option value="billing">Billing</option>
+          <option value="technical">Technical</option>
+          <option value="feature_request">Feature Request</option>
+          <option value="account">Account</option>
+          <option value="bug_report">Bug Report</option>
+          <option value="onboarding">Onboarding</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Priority</label>
+        <select id="ticketPriority" class="input">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+          <option value="urgent">Urgent</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea id="ticketBody" class="input" rows="4" placeholder="Describe your issue in detail..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('createTicketModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitCreateTicket()">Create Ticket</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/admin_support.js"></script>
+{% endblock %}

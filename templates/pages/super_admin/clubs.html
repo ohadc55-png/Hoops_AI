@@ -1,0 +1,45 @@
+{% extends "super_admin_base.html" %}
+{% block title %}HOOPS AI — Clubs{% endblock %}
+{% block nav_clubs %}active{% endblock %}
+{% block header_title %}Club Management{% endblock %}
+
+{% block content %}
+<!-- Filter Bar -->
+<div class="filter-bar">
+  <input type="text" class="input" id="searchInput" placeholder="Search clubs...">
+  <select class="select" id="statusFilter">
+    <option value="">All Statuses</option>
+    <option value="active">Active</option>
+    <option value="suspended">Suspended</option>
+    <option value="terminated">Terminated</option>
+    <option value="pending">Pending</option>
+  </select>
+  <div style="flex:1;"></div>
+  <a href="/super-admin/clubs/new" class="btn btn-primary">
+    <span class="material-symbols-outlined">add</span> New Club
+  </a>
+</div>
+
+<!-- Clubs Table -->
+<div class="clubs-table-wrap">
+  <table class="clubs-table">
+    <thead>
+      <tr>
+        <th>Club Name</th>
+        <th>Status</th>
+        <th>Tier</th>
+        <th>Users</th>
+        <th>Price (₪)</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody id="clubsTableBody">
+      <tr><td colspan="6" class="loading-state">Loading clubs...</td></tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/super-admin-clubs.js"></script>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}HOOPS AI - Practice Planner{% endblock %}
+{% block nav_practice %}active{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Practice & Training Planner</h1><p class="page-subtitle">Manage your weekly schedule and player workload</p></div>
+  <div class="flex gap-3">
+    <button class="btn btn-secondary" onclick="openModal('generateSessionModal')"><span class="material-symbols-outlined">auto_awesome</span> AI Generate</button>
+    <button class="btn btn-primary" onclick="openModal('sessionModal')"><span class="material-symbols-outlined">add</span> New Session</button>
+  </div>
+</div>
+<div id="sessionsGrid" class="grid" style="grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:var(--sp-4);">
+  <div class="empty-state" style="grid-column:1/-1;"><span class="material-symbols-outlined">calendar_month</span><h3>No practice sessions</h3><p>Create a session or generate one with AI</p></div>
+</div>
+
+<div class="modal-overlay" id="sessionModal"><div class="modal"><div class="modal-header"><h2 class="modal-title">New Practice Session</h2><button class="modal-close" onclick="closeModal('sessionModal')"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body">
+  <div class="input-group"><label>Date</label><input type="date" class="input" id="sessionDate"></div>
+  <div class="input-group"><label>Title</label><input type="text" class="input" id="sessionTitle" placeholder="Morning Practice"></div>
+  <div class="input-group"><label>Focus</label><input type="text" class="input" id="sessionFocus" placeholder="e.g. Defense, Shooting"></div>
+  <div class="input-group"><label>Duration (min)</label><input type="number" class="input" id="sessionDuration" value="90"></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('sessionModal')">Cancel</button><button class="btn btn-primary" onclick="createSession()">Create</button></div></div></div>
+
+<div class="modal-overlay" id="generateSessionModal"><div class="modal"><div class="modal-header"><h2 class="modal-title">AI Session Generator</h2><button class="modal-close" onclick="closeModal('generateSessionModal')"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body">
+  <div class="input-group"><label>Focus</label><input type="text" class="input" id="genSessionFocus" placeholder="Defense fundamentals"></div>
+  <div class="input-group"><label>Duration (min)</label><input type="number" class="input" id="genSessionDuration" value="90"></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('generateSessionModal')">Cancel</button><button class="btn btn-primary" id="genSessionBtn" onclick="generateSession()"><span class="material-symbols-outlined">auto_awesome</span> Generate</button></div></div></div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', loadSessions);
+async function loadSessions() {
+  try {
+    const res = await API.get('/api/practice');
+    const grid = document.getElementById('sessionsGrid');
+    if (!res.data.length) return;
+    grid.innerHTML = res.data.map(s => {
+      const segs = s.segments ? s.segments.map(seg => `<div class="flex items-center gap-2 text-xs" style="padding:var(--sp-1) 0;"><span class="badge badge-neutral" style="font-size:9px;">${seg.segment_type}</span>${seg.title} <span class="text-muted">${seg.duration_minutes}m</span></div>`).join('') : '';
+      return `<div class="card"><div class="flex items-center justify-between" style="margin-bottom:var(--sp-3);"><h3 style="font-weight:700;">${s.title}</h3><span class="badge badge-neutral">${s.date}</span></div><div class="flex gap-3 text-sm text-secondary" style="margin-bottom:var(--sp-3);"><span>${s.focus || ''}</span><span>${s.total_duration} min</span></div>${segs ? '<div style="border-top:1px solid var(--border);padding-top:var(--sp-3);margin-top:var(--sp-2);">'+segs+'</div>' : ''}</div>`;
+    }).join('');
+  } catch(e) {}
+}
+async function createSession() {
+  try {
+    await API.post('/api/practice', { date: document.getElementById('sessionDate').value, title: document.getElementById('sessionTitle').value, focus: document.getElementById('sessionFocus').value, total_duration: parseInt(document.getElementById('sessionDuration').value) });
+    closeModal('sessionModal'); Toast.success('Session created!'); loadSessions();
+  } catch(e) {}
+}
+async function generateSession() {
+  const btn = document.getElementById('genSessionBtn'); btn.disabled = true;
+  try {
+    await API.post('/api/practice/generate', { focus: document.getElementById('genSessionFocus').value, duration: parseInt(document.getElementById('genSessionDuration').value) });
+    closeModal('generateSessionModal'); Toast.success('AI session generated!'); loadSessions();
+  } catch(e) {} finally { btn.disabled = false; }
+}
+</script>
+{% endblock %}

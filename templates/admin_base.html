@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}HOOPS AI — Management{% endblock %}</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/static/css/variables.css">
+  <link rel="stylesheet" href="/static/css/reset.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+  {% block styles %}{% endblock %}
+</head>
+<body>
+  <div class="app admin-app" id="app">
+    <!-- Sidebar -->
+    <aside class="sidebar admin-sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <img src="/static/images/logo.png" alt="HOOPS AI" class="sidebar-logo-img" width="36" height="36">
+        <div>
+          <h1>HOOPS AI</h1>
+          <span>Management Portal</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Main</div>
+        <nav class="sidebar-nav">
+          <a href="/admin" class="nav-item {% block nav_dashboard %}{% endblock %}" data-page="dashboard">
+            <span class="material-symbols-outlined">dashboard</span>
+            Dashboard
+          </a>
+          <a href="/admin/schedule" class="nav-item {% block nav_schedule %}{% endblock %}" data-page="schedule">
+            <span class="material-symbols-outlined">calendar_month</span>
+            Schedule
+          </a>
+          <a href="/admin/teams" class="nav-item {% block nav_teams %}{% endblock %}" data-page="teams">
+            <span class="material-symbols-outlined">groups</span>
+            Teams
+          </a>
+          <a href="/admin/contacts" class="nav-item {% block nav_contacts %}{% endblock %}" data-page="contacts">
+            <span class="material-symbols-outlined">contacts</span>
+            Contacts
+          </a>
+          <a href="/admin/facilities" class="nav-item {% block nav_facilities %}{% endblock %}" data-page="facilities">
+            <span class="material-symbols-outlined">location_on</span>
+            Facilities
+          </a>
+          <a href="/admin/scouting" class="nav-item {% block nav_scouting %}{% endblock %}" data-page="scouting">
+            <span class="material-symbols-outlined">videocam</span>
+            Video Room
+          </a>
+          <a href="/admin/messages" class="nav-item {% block nav_messages %}{% endblock %}" data-page="messages">
+            <span class="material-symbols-outlined">mail</span>
+            Messages
+            <span class="msg-badge" id="adminMsgBadge" style="display:none;"></span>
+          </a>
+          <a href="/admin/transport" class="nav-item {% block nav_transport %}{% endblock %}" data-page="transport">
+            <span class="material-symbols-outlined">directions_bus</span>
+            Transportation
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Management</div>
+        <nav class="sidebar-nav">
+          <a href="/admin/billing" class="nav-item {% block nav_billing %}{% endblock %}" data-page="billing">
+            <span class="material-symbols-outlined">payments</span>
+            Finance
+          </a>
+          <a href="/admin/roles" class="nav-item {% block nav_roles %}{% endblock %}" data-page="roles">
+            <span class="material-symbols-outlined">badge</span>
+            Roles
+          </a>
+          <a href="/admin/insights" class="nav-item {% block nav_insights %}{% endblock %}" data-page="insights">
+            <span class="material-symbols-outlined">smart_toy</span>
+            AI Insights
+          </a>
+          <a href="/admin/knowledge" class="nav-item {% block nav_knowledge %}{% endblock %}" data-page="knowledge">
+            <span class="material-symbols-outlined">library_books</span>
+            Knowledge Base
+          </a>
+          <a href="/admin/player-development" class="nav-item {% block nav_player_dev %}{% endblock %}" data-page="player-dev">
+            <span class="material-symbols-outlined">trending_up</span>
+            Player Development
+          </a>
+          <a href="/admin/coaches" class="nav-item {% block nav_coaches %}{% endblock %}" data-page="coaches">
+            <span class="material-symbols-outlined">monitoring</span>
+            Coach Engagement
+          </a>
+          <a href="/admin/support" class="nav-item {% block nav_support %}{% endblock %}" data-page="support">
+            <span class="material-symbols-outlined">support_agent</span>
+            Support
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Coming Soon</div>
+        <nav class="sidebar-nav">
+          <span class="nav-item disabled">
+            <span class="material-symbols-outlined">photo_library</span>
+            Media <span class="soon-badge">Soon</span>
+          </span>
+          <span class="nav-item disabled">
+            <span class="material-symbols-outlined">assessment</span>
+            Reports <span class="soon-badge">Soon</span>
+          </span>
+          <span class="nav-item disabled">
+            <span class="material-symbols-outlined">storefront</span>
+            Marketplace <span class="soon-badge">Soon</span>
+          </span>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="nav-item" onclick="adminLogout()">
+          <span class="material-symbols-outlined">logout</span>
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="btn-icon sidebar-toggle" id="sidebarToggle">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <h2 class="admin-header-title">{% block header_title %}Dashboard{% endblock %}</h2>
+      </div>
+      <div class="header-right">
+        <div class="header-avatar" id="userAvatar">
+          <span class="material-symbols-outlined">admin_panel_settings</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main" id="mainContent">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Core JS -->
+  <script src="/static/js/admin_main.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

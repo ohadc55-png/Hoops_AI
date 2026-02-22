@@ -1,0 +1,38 @@
+{% extends "parent_base.html" %}
+{% block title %}HOOPS AI — Payments{% endblock %}
+{% block nav_payments %}active{% endblock %}
+{% block header_title %}תשלומים{% endblock %}
+{% block content %}
+<div class="parent-payments">
+
+  <!-- Summary Cards -->
+  <div class="billing-summary" id="paymentSummary">
+    <div class="billing-card">
+      <div class="billing-card-label">סה"כ</div>
+      <div class="amount" id="payTotal">₪0</div>
+    </div>
+    <div class="billing-card paid">
+      <div class="billing-card-label">שולם</div>
+      <div class="amount" id="payPaid">₪0</div>
+    </div>
+    <div class="billing-card pending">
+      <div class="billing-card-label">ממתין</div>
+      <div class="amount" id="payPending">₪0</div>
+    </div>
+    <div class="billing-card overdue">
+      <div class="billing-card-label">באיחור</div>
+      <div class="amount" id="payOverdue">₪0</div>
+    </div>
+  </div>
+
+  <!-- Plans + Charges -->
+  <div id="billingContent">
+    <div class="loading-state">Loading...</div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/parent_payments.js"></script>
+{% endblock %}

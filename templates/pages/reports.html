@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}HOOPS AI - Reports{% endblock %}
+{% block nav_reports %}active{% endblock %}
+{% block styles %}<link rel="stylesheet" href="/static/css/pages/reports.css">{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Reports</h1><p class="page-subtitle">Attendance, game reports, and player assessments</p></div>
+</div>
+<div class="tabs" id="reportTabs">
+  <button class="tab active" data-tab="attendance">Attendance</button>
+  <button class="tab" data-tab="games">Game Reports</button>
+  <button class="tab" data-tab="playerReports">Player Reports</button>
+  <button class="tab" data-tab="evaluations">Player Evaluations</button>
+</div>
+
+<!-- Attendance Tab -->
+<div id="tab-attendance">
+  <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);flex-wrap:wrap;">
+    <select class="select" id="attEventSelect" onchange="loadAttendanceForEvent()" style="max-width:320px;">
+      <option value="">Select practice...</option>
+    </select>
+  </div>
+  <div id="attGrid"></div>
+  <div id="attStats" style="margin-top:var(--sp-6);"></div>
+</div>
+
+<!-- Game Reports Tab -->
+<div id="tab-games" class="hidden">
+  <div style="margin-bottom:var(--sp-4);">
+    <button class="btn btn-primary" onclick="openGameReportModal()"><span class="material-symbols-outlined" style="font-size:18px;">add</span> New Game Report</button>
+  </div>
+  <div id="gameReportsList"></div>
+</div>
+
+<!-- Player Reports Tab -->
+<div id="tab-playerReports" class="hidden">
+  <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);flex-wrap:wrap;">
+    <select class="select player-select" id="prPlayerSelect" onchange="loadPlayerReports()" style="max-width:280px;">
+      <option value="">Select player...</option>
+    </select>
+    <button class="btn btn-primary" id="genReportBtn" onclick="generatePlayerReport()"><span class="material-symbols-outlined" style="font-size:18px;">auto_awesome</span> AI Generate Report</button>
+  </div>
+  <div id="playerReportsList"></div>
+</div>
+
+<!-- Player Evaluations Tab -->
+<div id="tab-evaluations" class="hidden">
+  <div id="evalRequestsBanner"></div>
+  <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);flex-wrap:wrap;">
+    <select class="select player-select" id="evalPlayerSelect" onchange="loadEvaluations()" style="max-width:280px;">
+      <option value="">Select player...</option>
+    </select>
+    <select class="select" id="evalPeriodFilter" style="max-width:180px;">
+      <option value="">All periods</option>
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+      <option value="semi_annual">Semi-Annual</option>
+      <option value="annual">Annual</option>
+    </select>
+    <button class="btn btn-primary" onclick="openEvaluationModal()"><span class="material-symbols-outlined" style="font-size:18px;">add</span> New Evaluation</button>
+  </div>
+  <div id="evaluationsList"></div>
+</div>
+
+<!-- Evaluation Form Modal -->
+<div class="modal-overlay" id="evaluationModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <h2 class="modal-title" id="evalModalTitle">New Player Evaluation</h2>
+      <button class="modal-close" onclick="closeModal('evaluationModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+      <input type="hidden" id="evalId">
+      <input type="hidden" id="evalRequestId">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-4);">
+        <div class="input-group">
+          <label>Player</label>
+          <select class="select player-select" id="evalModalPlayer" required>
+            <option value="">Select player...</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Period Type</label>
+          <select class="select" id="evalModalPeriodType" onchange="updatePeriodLabel()">
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="semi_annual">Semi-Annual</option>
+            <option value="annual">Annual</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom:var(--sp-4);">
+        <label>Period Label</label>
+        <input type="text" class="input" id="evalModalPeriodLabel" placeholder="Auto-calculated" readonly style="max-width:200px;">
+      </div>
+
+      <h3 style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--sp-3);color:var(--primary);">Ratings (1-10)</h3>
+
+      <div class="eval-ratings-grid">
+        <div class="eval-rating-row">
+          <div class="eval-rating-label">Offensive Abilities</div>
+          <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalOffRating" oninput="this.nextElementSibling.textContent=this.value">
+          <span class="eval-rating-value">5</span>
+          <input type="text" class="input eval-note" id="evalOffNotes" placeholder="Notes...">
+        </div>
+        <div class="eval-rating-row">
+          <div class="eval-rating-label">Defensive Abilities</div>
+          <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalDefRating" oninput="this.nextElementSibling.textContent=this.value">
+          <span class="eval-rating-value">5</span>
+          <input type="text" class="input eval-note" id="evalDefNotes" placeholder="Notes...">
+        </div>
+        <div class="eval-rating-row">
+          <div class="eval-rating-label">Basketball IQ</div>
+          <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalIqRating" oninput="this.nextElementSibling.textContent=this.value">
+          <span class="eval-rating-value">5</span>
+          <input type="text" class="input eval-note" id="evalIqNotes" placeholder="Notes...">
+        </div>
+        <div class="eval-rating-row">
+          <div class="eval-rating-label">Social / Teamwork</div>
+          <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalSocialRating" oninput="this.nextElementSibling.textContent=this.value">
+          <span class="eval-rating-value">5</span>
+          <input type="text" class="input eval-note" id="evalSocialNotes" placeholder="Notes...">
+        </div>
+        <div class="eval-rating-row">
+          <div class="eval-rating-label">Leadership</div>
+          <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalLeaderRating" oninput="this.nextElementSibling.textContent=this.value">
+          <span class="eval-rating-value">5</span>
+          <input type="text" class="input eval-note" id="evalLeaderNotes" placeholder="Notes...">
+        </div>
+        <div class="eval-rating-row">
+          <div class="eval-rating-label">Work Ethic</div>
+          <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalWorkRating" oninput="this.nextElementSibling.textContent=this.value">
+          <span class="eval-rating-value">5</span>
+          <input type="text" class="input eval-note" id="evalWorkNotes" placeholder="Notes...">
+        </div>
+        <div class="eval-rating-row">
+          <div class="eval-rating-label">Physical Fitness</div>
+          <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalFitRating" oninput="this.nextElementSibling.textContent=this.value">
+          <span class="eval-rating-value">5</span>
+          <input type="text" class="input eval-note" id="evalFitNotes" placeholder="Notes...">
+        </div>
+        <div class="eval-rating-row">
+          <div class="eval-rating-label">Improvement</div>
+          <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalImpRating" oninput="this.nextElementSibling.textContent=this.value">
+          <span class="eval-rating-value">5</span>
+          <input type="text" class="input eval-note" id="evalImpNotes" placeholder="Notes...">
+        </div>
+        <div class="eval-rating-row">
+          <div class="eval-rating-label" style="color:var(--error)">Leaving Risk</div>
+          <input type="range" min="1" max="10" value="1" class="eval-slider" id="evalLeaveRating" oninput="this.nextElementSibling.textContent=this.value">
+          <span class="eval-rating-value">1</span>
+          <input type="text" class="input eval-note" id="evalLeaveNotes" placeholder="Notes...">
+        </div>
+      </div>
+
+      <div class="input-group" style="margin-top:var(--sp-4);">
+        <label>Overall Notes</label>
+        <textarea class="textarea" id="evalOverall" rows="3" placeholder="General assessment of the player..."></textarea>
+      </div>
+      <div class="input-group">
+        <label>Potential & Development</label>
+        <textarea class="textarea" id="evalPotential" rows="3" placeholder="Player potential, development trajectory..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-error" id="evalDeleteBtn" style="margin-right:auto;display:none;" onclick="deleteEvaluation(document.getElementById('evalId').value)">Delete</button>
+      <button class="btn btn-secondary" onclick="closeModal('evaluationModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEvaluation()">Save Evaluation</button>
+    </div>
+  </div>
+</div>
+
+<!-- Game Report Modal -->
+<div class="modal-overlay" id="gameReportModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="gameReportModalTitle">New Game Report</h2>
+      <button class="modal-close" onclick="closeModal('gameReportModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="grId">
+      <input type="hidden" id="grTeamEventId">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+        <div class="input-group"><label>Date</label><input type="date" class="input" id="grDate"></div>
+        <div class="input-group"><label>Opponent</label><input type="text" class="input" id="grOpponent" placeholder="Opponent team"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-3);">
+        <div class="input-group"><label>Result</label>
+          <select class="select" id="grResult">
+            <option value="win">Win</option><option value="loss">Loss</option><option value="draw">Draw</option>
+          </select>
+        </div>
+        <div class="input-group"><label>Our Score</label><input type="number" class="input" id="grScoreUs" placeholder="0" min="0"></div>
+        <div class="input-group"><label>Their Score</label><input type="number" class="input" id="grScoreThem" placeholder="0" min="0"></div>
+      </div>
+      <div class="input-group"><label>Location</label><input type="text" class="input" id="grLocation" placeholder="Game location"></div>
+      <div class="input-group">
+        <label>Standout Players</label>
+        <div class="multi-select-container" id="grStandoutsContainer">
+          <div class="multi-select-chips" id="grStandoutsChips"></div>
+          <button type="button" class="btn btn-sm btn-secondary" onclick="toggleStandoutDropdown()" style="margin-top:var(--sp-1)">
+            <span class="material-symbols-outlined" style="font-size:16px">person_add</span> Select Players
+          </button>
+          <div class="multi-select-dropdown" id="grStandoutsDropdown"></div>
+        </div>
+      </div>
+      <div class="input-group"><label>Areas to Improve (comma-separated)</label><input type="text" class="input" id="grImprove" placeholder="Area 1, Area 2"></div>
+      <div class="input-group"><label>Notable Events</label><textarea class="textarea" id="grNotable" rows="2" placeholder="Key moments from the game"></textarea></div>
+      <div class="input-group"><label>Notes</label><textarea class="textarea" id="grNotes" rows="2" placeholder="Additional notes"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-error" id="grDeleteBtn" style="margin-right:auto;display:none;" onclick="deleteGameReport(document.getElementById('grId').value)">Delete</button>
+      <button class="btn btn-secondary" onclick="closeModal('gameReportModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGameReport()">Save Report</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/reports.js"></script>
+{% endblock %}

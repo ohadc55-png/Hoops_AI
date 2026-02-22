@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}HOOPS AI — Player{% endblock %}</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/static/css/variables.css">
+  <link rel="stylesheet" href="/static/css/reset.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/player.css">
+  {% block styles %}{% endblock %}
+</head>
+<body>
+  <div class="app player-app" id="app">
+    <!-- Sidebar -->
+    <aside class="sidebar player-sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <img src="/static/images/logo.png" alt="HOOPS AI" class="sidebar-logo-img" width="36" height="36">
+        <div>
+          <h1>HOOPS AI</h1>
+          <span>Player Portal</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Main</div>
+        <nav class="sidebar-nav">
+          <a href="/player/dashboard" class="nav-item {% block nav_dashboard %}{% endblock %}" data-page="dashboard">
+            <span class="material-symbols-outlined">dashboard</span>
+            Dashboard
+          </a>
+          <a href="/player/schedule" class="nav-item {% block nav_schedule %}{% endblock %}" data-page="schedule">
+            <span class="material-symbols-outlined">calendar_month</span>
+            Schedule
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Training</div>
+        <nav class="sidebar-nav">
+          <a href="/player" class="nav-item {% block nav_chat %}{% endblock %}" data-page="chat">
+            <span class="material-symbols-outlined">smart_toy</span>
+            AI Chat
+          </a>
+          <a href="/player/drills" class="nav-item {% block nav_drills %}{% endblock %}" data-page="drills">
+            <span class="material-symbols-outlined">fitness_center</span>
+            Drills
+            <span class="msg-badge" id="playerDrillsBadge" style="display:none;"></span>
+          </a>
+          <a href="/player/plays" class="nav-item {% block nav_plays %}{% endblock %}" data-page="plays">
+            <span class="material-symbols-outlined">sports_basketball</span>
+            Plays
+            <span class="msg-badge" id="playerPlaysBadge" style="display:none;"></span>
+          </a>
+          <a href="/player/scouting" class="nav-item {% block nav_scouting %}{% endblock %}" data-page="scouting">
+            <span class="material-symbols-outlined">videocam</span>
+            Video Feed
+            <span class="msg-badge" id="playerVideosBadge" style="display:none;"></span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">My Info</div>
+        <nav class="sidebar-nav">
+          <a href="/player/reports" class="nav-item {% block nav_reports %}{% endblock %}" data-page="reports">
+            <span class="material-symbols-outlined">assessment</span>
+            My Reports
+          </a>
+          <a href="/player/team" class="nav-item {% block nav_team %}{% endblock %}" data-page="team">
+            <span class="material-symbols-outlined">groups</span>
+            Team
+          </a>
+          <a href="/player/leaderboard" class="nav-item {% block nav_leaderboard %}{% endblock %}" data-page="leaderboard">
+            <span class="material-symbols-outlined">leaderboard</span>
+            Leaderboard
+          </a>
+          <a href="/player/messages" class="nav-item {% block nav_messages %}{% endblock %}" data-page="messages">
+            <span class="material-symbols-outlined">mail</span>
+            Messages
+            <span class="msg-badge" id="playerMsgBadge" style="display:none;"></span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="nav-item" onclick="playerLogout()">
+          <span class="material-symbols-outlined">logout</span>
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="btn-icon sidebar-toggle" id="sidebarToggle">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <h2 class="player-header-title">{% block header_title %}Dashboard{% endblock %}</h2>
+      </div>
+      <div class="header-right">
+        <button class="btn-icon header-notification" id="playerNotifBtn">
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <div class="notif-dropdown" id="playerNotifDropdown">
+          <div class="notif-dropdown-header">התראות</div>
+          <div class="notif-dropdown-empty">
+            <span class="material-symbols-outlined" style="font-size:32px;color:var(--text-muted);">notifications_off</span>
+            <p>אין התראות חדשות</p>
+          </div>
+        </div>
+        <div class="header-avatar" id="userAvatar">
+          <span class="material-symbols-outlined">person</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main" id="mainContent">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Core JS -->
+  <script src="/static/js/player_main.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

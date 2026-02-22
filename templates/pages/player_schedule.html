@@ -1,0 +1,12 @@
+{% extends "player_base.html" %}
+{% block title %}HOOPS AI — Schedule{% endblock %}
+{% block nav_schedule %}active{% endblock %}
+{% block header_title %}Schedule{% endblock %}
+{% block styles %}<link rel="stylesheet" href="/static/css/pages/calendar.css">{% endblock %}
+{% block content %}
+<div id="calendarContainer"></div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/calendar-widget.js"></script>
+<script src="/static/js/player_schedule.js"></script>
+{% endblock %}

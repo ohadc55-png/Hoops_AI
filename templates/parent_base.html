@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}HOOPS AI — Parent{% endblock %}</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/static/css/variables.css">
+  <link rel="stylesheet" href="/static/css/reset.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/parent.css">
+  {% block styles %}{% endblock %}
+</head>
+<body>
+  <div class="app parent-app" id="app">
+    <!-- Sidebar -->
+    <aside class="sidebar parent-sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <img src="/static/images/logo.png" alt="HOOPS AI" class="sidebar-logo-img" width="36" height="36">
+        <div>
+          <h1>HOOPS AI</h1>
+          <span>Parent Portal</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Main</div>
+        <nav class="sidebar-nav">
+          <a href="/parent" class="nav-item {% block nav_dashboard %}{% endblock %}" data-page="dashboard">
+            <span class="material-symbols-outlined">dashboard</span>
+            Dashboard
+          </a>
+          <a href="/parent/schedule" class="nav-item {% block nav_schedule %}{% endblock %}" data-page="schedule">
+            <span class="material-symbols-outlined">calendar_month</span>
+            Schedule
+          </a>
+          <a href="/parent/payments" class="nav-item {% block nav_payments %}{% endblock %}" data-page="payments">
+            <span class="material-symbols-outlined">payments</span>
+            Payments
+            <span class="msg-badge" id="parentPaymentsBadge" style="display:none;"></span>
+          </a>
+          <a href="/parent/scouting" class="nav-item {% block nav_scouting %}{% endblock %}" data-page="scouting">
+            <span class="material-symbols-outlined">videocam</span>
+            Video Feed
+            <span class="msg-badge" id="parentVideosBadge" style="display:none;"></span>
+          </a>
+          <a href="/parent/messages" class="nav-item {% block nav_messages %}{% endblock %}" data-page="messages">
+            <span class="material-symbols-outlined">mail</span>
+            Messages
+            <span class="msg-badge" id="parentMsgBadge" style="display:none;"></span>
+          </a>
+          <a href="/parent/carpool" class="nav-item {% block nav_carpool %}{% endblock %}" data-page="carpool">
+            <span class="material-symbols-outlined">commute</span>
+            Carpool
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Coming Soon</div>
+        <nav class="sidebar-nav">
+          <span class="nav-item disabled">
+            <span class="material-symbols-outlined">trending_up</span>
+            Child Progress <span class="soon-badge">Soon</span>
+          </span>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="nav-item" onclick="parentLogout()">
+          <span class="material-symbols-outlined">logout</span>
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="btn-icon sidebar-toggle" id="sidebarToggle">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <h2 class="parent-header-title">{% block header_title %}Dashboard{% endblock %}</h2>
+      </div>
+      <div class="header-right">
+        <div class="header-avatar" id="userAvatar">
+          <span class="material-symbols-outlined">family_restroom</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main" id="mainContent">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Core JS -->
+  <script src="/static/js/parent_main.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

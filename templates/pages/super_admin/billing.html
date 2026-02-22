@@ -1,0 +1,189 @@
+{% extends "super_admin_base.html" %}
+{% block title %}HOOPS AI — Billing{% endblock %}
+{% block nav_billing %}active{% endblock %}
+{% block header_title %}Billing{% endblock %}
+
+{% block content %}
+<!-- Billing Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">trending_up</span></div>
+    <div><div class="stat-value" id="statMRR">—</div><div class="stat-label">Monthly Revenue</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+    <div><div class="stat-value" id="statInvoiced">—</div><div class="stat-label">Total Invoiced</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">check_circle</span></div>
+    <div><div class="stat-value" id="statPaid">—</div><div class="stat-label">Total Paid</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">warning</span></div>
+    <div><div class="stat-value" id="statOverdue">—</div><div class="stat-label">Overdue</div></div>
+  </div>
+</div>
+
+<!-- Collection Rate -->
+<div class="dashboard-section" style="margin-bottom:var(--sp-4);">
+  <div class="section-header" style="display:flex;align-items:center;gap:var(--sp-2);">
+    <h2><span class="material-symbols-outlined">percent</span> Collection Rate</h2>
+    <span id="collectionRate" style="font-size:1.5rem;font-weight:700;color:var(--primary);">—</span>
+  </div>
+</div>
+
+<!-- Filters + Actions -->
+<div class="dashboard-section">
+  <div class="section-header" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:var(--sp-2);">
+    <h2><span class="material-symbols-outlined">receipt_long</span> Invoices</h2>
+    <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap;">
+      <input type="text" id="searchInput" class="input" placeholder="Search invoices..." style="width:200px;">
+      <select id="typeFilter" class="input" style="width:140px;">
+        <option value="">All Types</option>
+        <option value="tax_invoice">Tax Invoice</option>
+        <option value="receipt">Receipt</option>
+        <option value="credit_note">Credit Note</option>
+        <option value="proforma">Proforma</option>
+        <option value="quote">Quote</option>
+      </select>
+      <select id="statusFilter" class="input" style="width:130px;">
+        <option value="">All Status</option>
+        <option value="draft">Draft</option>
+        <option value="sent">Sent</option>
+        <option value="paid">Paid</option>
+        <option value="overdue">Overdue</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <button class="btn btn-primary" onclick="openCreateModal()">
+        <span class="material-symbols-outlined">add</span> New Invoice
+      </button>
+    </div>
+  </div>
+
+  <!-- Invoice Table -->
+  <div style="overflow-x:auto;">
+    <table class="sa-table" id="invoiceTable">
+      <thead>
+        <tr>
+          <th>Number</th>
+          <th>Type</th>
+          <th>Club</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Issue Date</th>
+          <th>Due Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="invoiceBody">
+        <tr><td colspan="8" class="loading-state">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Quick Pay Modal -->
+<div class="modal" id="quickPayModal">
+  <div class="modal-backdrop" onclick="closeModal('quickPayModal')"></div>
+  <div class="modal-content" style="max-width:440px;">
+    <div class="modal-header">
+      <h3>Mark as Paid</h3>
+      <button class="btn-icon" onclick="closeModal('quickPayModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p id="quickPayInfo" style="color:var(--text-muted);margin-bottom:var(--sp-3);font-size:0.9rem;"></p>
+      <div class="form-group">
+        <label>Payment Method</label>
+        <select id="quickPayMethod" class="input">
+          <option value="bank_transfer">Bank Transfer</option>
+          <option value="cash">Cash</option>
+          <option value="check">Check</option>
+          <option value="credit_card">Credit Card</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Reference Number</label>
+        <input type="text" id="quickPayRef" class="input" placeholder="Check #, transfer ref, etc.">
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="quickPayNotes" class="input" rows="2" placeholder="Optional..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('quickPayModal')">Cancel</button>
+      <button class="btn" style="background:#22c55e;color:#fff;" onclick="confirmQuickPay()">
+        <span class="material-symbols-outlined" style="font-size:18px;">check_circle</span> Confirm Payment
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Invoice Modal -->
+<div class="modal" id="createModal">
+  <div class="modal-backdrop" onclick="closeModal('createModal')"></div>
+  <div class="modal-content" style="max-width:560px;">
+    <div class="modal-header">
+      <h3>Create Invoice</h3>
+      <button class="btn-icon" onclick="closeModal('createModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Club</label>
+        <select id="newClubId" class="input">
+          <option value="">Select club...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="newType" class="input">
+          <option value="tax_invoice">Tax Invoice (חשבונית מס)</option>
+          <option value="proforma">Proforma (חשבון עסקה)</option>
+          <option value="quote">Quote (הצעת מחיר)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Due Date</label>
+        <input type="date" id="newDueDate" class="input">
+      </div>
+
+      <!-- Line Items -->
+      <div class="form-group">
+        <label>Line Items</label>
+        <div id="lineItemsContainer">
+          <div class="line-item-row" style="display:flex;gap:var(--sp-1);margin-bottom:var(--sp-1);">
+            <input type="text" class="input li-desc" placeholder="Description" style="flex:3;">
+            <input type="number" class="input li-qty" placeholder="Qty" value="1" min="1" style="flex:1;">
+            <input type="number" class="input li-price" placeholder="Price" step="0.01" min="0" style="flex:1;">
+          </div>
+        </div>
+        <button class="btn btn-sm" onclick="addLineItem()" style="margin-top:var(--sp-1);">
+          <span class="material-symbols-outlined" style="font-size:16px;">add</span> Add Item
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label>VAT Rate (%)</label>
+        <input type="number" id="newVat" class="input" value="18" step="0.1" min="0" max="100">
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="newNotes" class="input" rows="2" placeholder="Optional notes..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('createModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitCreateInvoice()">Create Invoice</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/super-admin-billing.js"></script>
+{% endblock %}

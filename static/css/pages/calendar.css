@@ -1,0 +1,356 @@
+/* HOOPS AI - Calendar Grid */
+
+.calendar {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) var(--sp-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.calendar-header h2 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  min-width: 200px;
+  text-align: center;
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.calendar-nav button {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--r-md);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.calendar-nav button:hover {
+  background: var(--bg-card-hover);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+
+.calendar-weekday {
+  padding: var(--sp-2) var(--sp-1);
+  text-align: center;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-day {
+  min-height: 90px;
+  padding: var(--sp-1);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  position: relative;
+}
+
+.calendar-day:nth-child(7n) {
+  border-right: none;
+}
+
+.calendar-day:hover {
+  background: var(--bg-card-hover);
+}
+
+.calendar-day.other-month {
+  opacity: 0.3;
+}
+
+.calendar-day.selected {
+  background: var(--primary-ghost);
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+.calendar-day-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-radius: var(--r-full);
+  margin-bottom: var(--sp-1);
+}
+
+.calendar-day.today .calendar-day-num {
+  background: var(--primary);
+  color: var(--text-inverse);
+  font-weight: 700;
+}
+
+.calendar-day.selected .calendar-day-num {
+  color: var(--text);
+}
+
+/* Event pills */
+.calendar-event-pill {
+  display: block;
+  font-size: 10px;
+  line-height: 1.4;
+  padding: 1px 5px;
+  border-radius: var(--r-sm);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #fff;
+  font-weight: 500;
+}
+
+.calendar-event-pill.type-practice { background: var(--success); }
+.calendar-event-pill.type-game { background: var(--error); }
+.calendar-event-pill.type-tournament { background: #A78BFA; }
+.calendar-event-pill.type-meeting { background: var(--info); }
+.calendar-event-pill.type-team_building { background: #FB923C; }
+.calendar-event-pill.type-team_dinner { background: #FBBF24; }
+.calendar-event-pill.type-social { background: #F472B6; }
+.calendar-event-pill.type-tactical_video { background: #2DD4BF; }
+
+/* Team-based coloring (admin calendar) */
+.calendar-event-pill.team-color-0 { background: #22c55e; }
+.calendar-event-pill.team-color-1 { background: #ef4444; }
+.calendar-event-pill.team-color-2 { background: #3b82f6; }
+.calendar-event-pill.team-color-3 { background: #f59e0b; }
+.calendar-event-pill.team-color-4 { background: #8b5cf6; }
+.calendar-event-pill.team-color-5 { background: #ec4899; }
+.calendar-event-pill.team-color-6 { background: #14b8a6; }
+.calendar-event-pill.team-color-7 { background: #f97316; }
+
+.calendar-event-more {
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 0 5px;
+}
+
+/* Day detail panel */
+.calendar-detail {
+  border-top: 2px solid var(--primary);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--bg-raised);
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+}
+
+.calendar-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-3);
+}
+
+.calendar-detail-header h3 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.calendar-detail-event {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  margin-bottom: var(--sp-2);
+}
+
+.calendar-detail-event .event-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--r-full);
+  flex-shrink: 0;
+}
+
+.event-dot.type-practice { background: var(--success); }
+.event-dot.type-game { background: var(--error); }
+.event-dot.type-tournament { background: #A78BFA; }
+.event-dot.type-meeting { background: var(--info); }
+.event-dot.type-team_building { background: #FB923C; }
+.event-dot.type-team_dinner { background: #FBBF24; }
+.event-dot.type-social { background: #F472B6; }
+.event-dot.type-tactical_video { background: #2DD4BF; }
+
+/* Team-based coloring for dots */
+.event-dot.team-color-0 { background: #22c55e; }
+.event-dot.team-color-1 { background: #ef4444; }
+.event-dot.team-color-2 { background: #3b82f6; }
+.event-dot.team-color-3 { background: #f59e0b; }
+.event-dot.team-color-4 { background: #8b5cf6; }
+.event-dot.team-color-5 { background: #ec4899; }
+.event-dot.team-color-6 { background: #14b8a6; }
+.event-dot.team-color-7 { background: #f97316; }
+
+/* Admin event badge */
+.admin-event-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  color: #60A5FA;
+  background: rgba(96,165,250,0.12);
+  padding: 1px 6px;
+  border-radius: var(--r-full);
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.calendar-detail-event.admin-event {
+  border-left: 3px solid #60A5FA;
+}
+
+.calendar-detail-event .event-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.calendar-detail-event .event-title {
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.calendar-detail-event .event-meta {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.calendar-detail-event .event-actions {
+  display: flex;
+  gap: var(--sp-1);
+  flex-shrink: 0;
+}
+
+.calendar-detail-event .event-actions button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: var(--sp-1);
+  border-radius: var(--r-sm);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-detail-event .event-actions button:hover {
+  color: var(--text);
+  background: var(--bg-card-hover);
+}
+
+.calendar-detail-event .event-actions button.delete-btn:hover {
+  color: var(--error);
+}
+
+.calendar-detail-empty {
+  text-align: center;
+  padding: var(--sp-4);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* Recurring badge */
+.recurring-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.recurring-badge .material-symbols-outlined {
+  font-size: 12px;
+}
+
+/* Repeat dropdown in modal */
+.repeat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .calendar-day {
+    min-height: 50px;
+    padding: 2px;
+  }
+
+  .calendar-day-num {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+
+  .calendar-event-pill {
+    font-size: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--r-full);
+    padding: 0;
+    display: inline-block;
+    margin: 0 1px 2px;
+  }
+
+  .calendar-event-more {
+    display: none;
+  }
+
+  .calendar-header h2 {
+    font-size: var(--text-base);
+    min-width: 140px;
+  }
+
+  .calendar-detail-event {
+    flex-wrap: wrap;
+  }
+}
+
+/* Transport info in calendar events */
+.transport-info {
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: rgba(248, 113, 113, 0.08);
+  border-left: 3px solid #F87171;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.transport-info a { text-decoration: none; }
+.transport-info a:hover { text-decoration: underline; }

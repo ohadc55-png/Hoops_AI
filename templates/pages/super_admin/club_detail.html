@@ -1,0 +1,112 @@
+{% extends "super_admin_base.html" %}
+{% block title %}HOOPS AI — Club Detail{% endblock %}
+{% block nav_clubs %}active{% endblock %}
+{% block header_title %}<span id="clubTitle">Club Detail</span>{% endblock %}
+
+{% block content %}
+<!-- Club Header -->
+<div class="dashboard-section" style="margin-bottom:var(--sp-4);">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--sp-3);">
+    <div style="display:flex;align-items:center;gap:var(--sp-3);">
+      <a href="/super-admin/clubs" class="btn btn-sm btn-ghost">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </a>
+      <div>
+        <h2 id="clubName" style="font-size:var(--text-xl);font-weight:700;">Loading...</h2>
+        <span class="status-badge" id="clubStatus">—</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap;" id="actionButtons"></div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="filter-bar" style="border-bottom:1px solid var(--border);padding-bottom:0;margin-bottom:0;">
+  <button class="btn btn-sm btn-ghost tab-btn active" data-tab="overview">Overview</button>
+  <button class="btn btn-sm btn-ghost tab-btn" data-tab="billing">Billing</button>
+  <button class="btn btn-sm btn-ghost tab-btn" data-tab="features">Features</button>
+  <button class="btn btn-sm btn-ghost tab-btn" data-tab="registration">Registration</button>
+</div>
+
+<!-- Tab: Overview -->
+<div class="tab-content active" id="tab-overview">
+  <div class="stats-grid" style="margin-top:var(--sp-5);">
+    <div class="stat-card">
+      <div class="stat-icon"><span class="material-symbols-outlined">groups</span></div>
+      <div><div class="stat-value" id="detailTeams">—</div><div class="stat-label">Teams</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><span class="material-symbols-outlined">person</span></div>
+      <div><div class="stat-value" id="detailCoaches">—</div><div class="stat-label">Coaches</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><span class="material-symbols-outlined">sports_basketball</span></div>
+      <div><div class="stat-value" id="detailPlayers">—</div><div class="stat-label">Players</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><span class="material-symbols-outlined">family_restroom</span></div>
+      <div><div class="stat-value" id="detailParents">—</div><div class="stat-label">Parents</div></div>
+    </div>
+  </div>
+
+  <div class="dashboard-content-grid">
+    <!-- Club Info -->
+    <div class="dashboard-section">
+      <div class="section-header"><h2><span class="material-symbols-outlined">info</span> Club Info</h2></div>
+      <div id="clubInfoContent" class="loading-state">Loading...</div>
+    </div>
+    <!-- Admin Info -->
+    <div class="dashboard-section">
+      <div class="section-header"><h2><span class="material-symbols-outlined">shield_person</span> Admin Info</h2></div>
+      <div id="adminInfoContent" class="loading-state">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Tab: Billing -->
+<div class="tab-content" id="tab-billing" style="display:none;">
+  <div class="dashboard-section" style="margin-top:var(--sp-5);">
+    <div class="section-header"><h2><span class="material-symbols-outlined">receipt_long</span> Billing Configuration</h2></div>
+    <div id="billingContent" class="loading-state">Loading...</div>
+  </div>
+
+  <!-- Payment History -->
+  <div class="dashboard-section" style="margin-top:var(--sp-4);">
+    <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <h2><span class="material-symbols-outlined">history</span> Invoice History</h2>
+      <a id="billingPageLink" href="#" class="btn btn-sm btn-ghost" style="display:none;">
+        View All <span class="material-symbols-outlined" style="font-size:16px;">open_in_new</span>
+      </a>
+    </div>
+    <div id="invoiceHistoryContent" class="loading-state">Loading invoices...</div>
+  </div>
+</div>
+
+<!-- Tab: Features -->
+<div class="tab-content" id="tab-features" style="display:none;">
+  <div class="dashboard-section" style="margin-top:var(--sp-5);">
+    <div class="section-header">
+      <h2><span class="material-symbols-outlined">toggle_on</span> Feature Flags</h2>
+      <button class="btn btn-sm btn-primary" id="saveFlags" style="display:none;">Save Changes</button>
+    </div>
+    <div id="featureFlagsContent" class="loading-state">Loading...</div>
+  </div>
+</div>
+
+<!-- Tab: Registration -->
+<div class="tab-content" id="tab-registration" style="display:none;">
+  <div class="dashboard-section" style="margin-top:var(--sp-5);">
+    <div class="section-header">
+      <h2><span class="material-symbols-outlined">link</span> Registration Links</h2>
+      <button class="btn btn-sm btn-primary" id="generateLinkBtn">
+        <span class="material-symbols-outlined">add_link</span> Generate Link
+      </button>
+    </div>
+    <div id="registrationLinksContent" class="loading-state">Loading...</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/super-admin-club-detail.js"></script>
+{% endblock %}

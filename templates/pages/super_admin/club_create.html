@@ -1,0 +1,96 @@
+{% extends "super_admin_base.html" %}
+{% block title %}HOOPS AI — New Club{% endblock %}
+{% block nav_clubs %}active{% endblock %}
+{% block header_title %}Create Club{% endblock %}
+
+{% block content %}
+<div class="dashboard-section" style="max-width:640px;">
+  <div class="section-header">
+    <h2><span class="material-symbols-outlined">add_business</span> New Club</h2>
+    <a href="/super-admin/clubs" class="btn btn-sm btn-ghost">
+      <span class="material-symbols-outlined">arrow_back</span> Back
+    </a>
+  </div>
+
+  <form id="createClubForm" onsubmit="return handleCreateClub(event)">
+    <div style="display:flex;flex-direction:column;gap:var(--sp-4);">
+      <div class="input-group">
+        <label>Club Name *</label>
+        <input type="text" class="input" id="clubName" placeholder="Enter club name" required>
+      </div>
+
+      <div class="form-row">
+        <div class="input-group">
+          <label>Pricing Tier</label>
+          <select class="select" id="pricingTier">
+            <option value="">Select tier...</option>
+            <option value="1">Basic — up to 150 players (₪350/mo)</option>
+            <option value="2">Growth — up to 250 players (₪550/mo)</option>
+            <option value="3">Pro — up to 350 players (₪750/mo)</option>
+            <option value="4">Enterprise — unlimited (₪950/mo)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Custom Price (₪)</label>
+          <input type="number" class="input" id="customPrice" placeholder="Overrides tier">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="input-group">
+          <label>Max Players</label>
+          <input type="number" class="input" id="maxPlayers" value="150" min="1">
+        </div>
+        <div class="input-group">
+          <label>Billing Email</label>
+          <input type="email" class="input" id="billingEmail" placeholder="billing@club.com">
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Notes</label>
+        <textarea class="input" id="notes" rows="3" placeholder="Internal notes about this club..."></textarea>
+      </div>
+
+      <div style="display:flex;gap:var(--sp-3);justify-content:flex-end;margin-top:var(--sp-2);">
+        <a href="/super-admin/clubs" class="btn btn-ghost">Cancel</a>
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          <span class="material-symbols-outlined">add</span> Create Club
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  requireSuperAdminAuth();
+
+  async function handleCreateClub(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+
+    const tier = document.getElementById('pricingTier').value;
+    const customPrice = document.getElementById('customPrice').value;
+
+    try {
+      const data = {
+        name: document.getElementById('clubName').value,
+        max_players: parseInt(document.getElementById('maxPlayers').value) || 150,
+        billing_email: document.getElementById('billingEmail').value || null,
+        notes: document.getElementById('notes').value || null,
+      };
+      if (tier) data.pricing_tier = parseInt(tier);
+      if (customPrice) data.custom_price = parseFloat(customPrice);
+
+      const res = await SuperAdminAPI.post('/api/super/clubs', data);
+      SuperAdminToast.success(`Club "${res.data.name}" created`);
+      window.location.href = `/super-admin/clubs/${res.data.id}`;
+    } catch (err) {
+      // Toast handled by API wrapper
+    } finally {
+      btn.disabled = false;
+    }
+  }
+</script>
+{% endblock %}

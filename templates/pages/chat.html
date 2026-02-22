@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}HOOPS AI - Chat{% endblock %}
+{% block nav_chat %}active{% endblock %}
+{% block styles %}<link rel="stylesheet" href="/static/css/pages/chat.css">{% endblock %}
+
+{% block content %}
+<div class="agent-strip" id="agentStrip">
+  <div class="agent-chip" data-agent="assistant_coach"><span class="dot" style="background:#f48c25"></span>Assistant Coach</div>
+  <div class="agent-chip" data-agent="tactician"><span class="dot" style="background:#F87171"></span>The Tactician</div>
+  <div class="agent-chip" data-agent="skills_coach"><span class="dot" style="background:#34D399"></span>Skills Coach</div>
+  <div class="agent-chip" data-agent="analyst"><span class="dot" style="background:#2DD4BF"></span>The Analyst</div>
+  <div class="agent-chip" data-agent="strength_coach"><span class="dot" style="background:#A78BFA"></span>Strength &amp; Conditioning</div>
+  <div class="agent-chip" data-agent="nutritionist"><span class="dot" style="background:#FBBF24"></span>Nutritionist</div>
+  <div class="agent-chip" data-agent="youth_coach"><span class="dot" style="background:#FB923C"></span>Youth Coach</div>
+  <div class="agent-chip" data-agent="team_manager"><span class="dot" style="background:#60A5FA"></span>Team Manager</div>
+</div>
+
+<div class="chat-layout">
+  <div style="display:flex;flex-direction:column;height:100%;">
+    <div class="chat-messages" id="chatMessages">
+      <div class="message message-assistant">
+        <div class="message-avatar" style="background:var(--primary-ghost);color:var(--primary);">
+          <span class="material-symbols-outlined">sports_basketball</span>
+        </div>
+        <div>
+          <div class="message-body">
+            <div class="message-agent-badge" style="color:var(--primary);">
+              <span class="material-symbols-outlined" style="font-size:14px;">auto_awesome</span> HOOPS AI
+            </div>
+            <div>Welcome, Coach! I have 8 specialized AI agents ready to help. Ask about strategy, drills, nutrition, analytics, or team management.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-area" id="chatInput">
+      <button class="btn-icon" id="uploadBtn" style="width:36px;height:36px;" title="Upload file">
+        <span class="material-symbols-outlined" style="font-size:20px;">attach_file</span>
+      </button>
+      <input type="file" id="fileInput" style="display:none" accept=".csv,.xlsx,.xls,.png,.jpg,.jpeg">
+      <textarea id="chatTextarea" placeholder="Ask your coaching question..." rows="1"></textarea>
+      <button class="chat-send-btn" id="sendBtn" disabled>
+        <span class="material-symbols-outlined">send</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="chat-panel">
+    <div class="agent-info-card" id="agentInfoCard">
+      <div class="agent-info-header">
+        <div class="agent-info-icon" style="background:var(--primary-ghost);color:var(--primary);">
+          <span class="material-symbols-outlined">auto_awesome</span>
+        </div>
+        <div>
+          <div class="agent-info-name" id="agentName">Auto Routing</div>
+          <div class="badge badge-primary" style="margin-top:4px;">Active</div>
+        </div>
+      </div>
+      <div class="agent-info-desc" id="agentDesc">Your question will be automatically routed to the most relevant specialist agent.</div>
+    </div>
+
+    <div class="card" style="flex:1;display:flex;flex-direction:column;">
+      <div class="card-header">
+        <div class="card-title" style="font-size:var(--text-sm);">
+          <span class="material-symbols-outlined" style="font-size:18px;">history</span> Recent Chats
+        </div>
+        <button class="btn btn-sm btn-ghost" id="newChatBtn">
+          <span class="material-symbols-outlined" style="font-size:16px;">add</span> New
+        </button>
+      </div>
+      <div class="conversation-list" id="conversationList"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/chat.js"></script>
+{% endblock %}

@@ -1,0 +1,220 @@
+{% extends "parent_base.html" %}
+{% block title %}HOOPS AI — Carpool{% endblock %}
+{% block nav_carpool %}active{% endblock %}
+{% block header_title %}Carpool{% endblock %}
+
+{% block content %}
+<div class="parent-carpool">
+
+  <!-- ═══ Standing Carpools Section ═══ -->
+  <div class="sc-section">
+    <div class="sc-section-header">
+      <h2 class="sc-section-title">
+        <span class="material-symbols-outlined">group</span>
+        הסעות קבועות
+      </h2>
+      <button class="btn btn-primary btn-sm" onclick="openCreateStandingModal()">
+        <span class="material-symbols-outlined">add</span>
+        צור הסעה קבועה
+      </button>
+    </div>
+    <div id="standingCarpools">
+      <div class="loading-state">טוען...</div>
+    </div>
+  </div>
+
+  <div class="carpool-divider"></div>
+
+  <!-- ═══ Event Rides Section ═══ -->
+  <div class="sc-section-header" style="margin-bottom:12px;">
+    <h2 class="sc-section-title">
+      <span class="material-symbols-outlined">event</span>
+      הסעות לאירוע ספציפי
+    </h2>
+  </div>
+
+  <!-- Event Chips -->
+  <div class="carpool-event-chips" id="eventChips">
+    <div class="loading-state">טוען אירועים...</div>
+  </div>
+
+  <!-- Actions -->
+  <div class="carpool-actions">
+    <button class="btn btn-primary" onclick="openOfferModal()">
+      <span class="material-symbols-outlined">directions_car</span>
+      הצע הסעה
+    </button>
+    <button class="btn btn-secondary" onclick="showMyRides()">
+      <span class="material-symbols-outlined">person</span>
+      ההסעות שלי
+    </button>
+  </div>
+
+  <!-- Rides List -->
+  <div id="ridesSection">
+    <div class="empty-state-parent">
+      <span class="material-symbols-outlined">commute</span>
+      בחר אירוע כדי לראות הסעות זמינות
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Create Standing Carpool Modal ═══ -->
+<div class="modal-overlay" id="createStandingModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>צור הסעה קבועה</h3>
+      <button class="btn-icon" onclick="closeModal('createStandingModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>קבוצה</label>
+        <select class="input" id="scTeamId"></select>
+      </div>
+      <div class="form-group">
+        <label>שם ההסעה</label>
+        <input type="text" class="input" id="scName" placeholder='למשל: "הסעה מרמת אביב"'>
+      </div>
+      <div class="form-group">
+        <label>שכונה / אזור</label>
+        <input type="text" class="input" id="scNeighborhood" placeholder="שם השכונה">
+      </div>
+      <div class="form-group">
+        <label>מקסימום חברים</label>
+        <input type="number" class="input" id="scMaxMembers" min="2" max="8" value="6">
+      </div>
+      <div class="form-group">
+        <label>נקודת מפגש</label>
+        <input type="text" class="input" id="scMeetingPoint" placeholder="כתובת / ציון דרך">
+      </div>
+      <div class="form-group">
+        <label>הערות</label>
+        <textarea class="input" id="scNotes" rows="2" placeholder="הערות נוספות..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer" id="createStandingFooter">
+      <button class="btn btn-secondary" onclick="closeModal('createStandingModal')">ביטול</button>
+      <button class="btn btn-primary" onclick="submitCreateStanding()">צור הסעה</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Edit Standing Carpool Modal ═══ -->
+<div class="modal-overlay" id="editStandingModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>ערוך הסעה קבועה</h3>
+      <button class="btn-icon" onclick="closeModal('editStandingModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editScId">
+      <div class="form-group">
+        <label>שם ההסעה</label>
+        <input type="text" class="input" id="editScName">
+      </div>
+      <div class="form-group">
+        <label>שכונה / אזור</label>
+        <input type="text" class="input" id="editScNeighborhood">
+      </div>
+      <div class="form-group">
+        <label>מקסימום חברים</label>
+        <input type="number" class="input" id="editScMaxMembers" min="2" max="8">
+      </div>
+      <div class="form-group">
+        <label>נקודת מפגש</label>
+        <input type="text" class="input" id="editScMeetingPoint">
+      </div>
+      <div class="form-group">
+        <label>הערות</label>
+        <textarea class="input" id="editScNotes" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('editStandingModal')">ביטול</button>
+      <button class="btn btn-primary" onclick="submitEditStanding()">שמור שינויים</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Offer Event Ride Modal ═══ -->
+<div class="modal-overlay" id="offerRideModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>הצע הסעה</h3>
+      <button class="btn-icon" onclick="closeModal('offerRideModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>אירוע</label>
+        <select class="input" id="rideEventId"></select>
+      </div>
+      <div class="form-group">
+        <label>שכונה / אזור</label>
+        <input type="text" class="input" id="rideNeighborhood" placeholder="שם השכונה">
+      </div>
+      <div class="form-group">
+        <label>מקומות פנויים</label>
+        <input type="number" class="input" id="rideSeats" min="1" max="8" value="2">
+      </div>
+      <div class="form-group">
+        <label>שעת יציאה</label>
+        <input type="time" class="input" id="rideDepartureTime">
+      </div>
+      <div class="form-group">
+        <label>נקודת מפגש</label>
+        <input type="text" class="input" id="rideMeetingPoint" placeholder="כתובת / ציון דרך">
+      </div>
+      <div class="form-group">
+        <label>כיוון</label>
+        <div class="radio-group">
+          <label><input type="radio" name="rideDirection" value="to_event" checked> לאירוע</label>
+          <label><input type="radio" name="rideDirection" value="from_event"> מהאירוע</label>
+          <label><input type="radio" name="rideDirection" value="both"> הלוך וחזור</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>הערות</label>
+        <textarea class="input" id="rideNotes" rows="2" placeholder="הערות נוספות..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer" id="offerModalFooter">
+      <button class="btn btn-secondary" onclick="closeModal('offerRideModal')">ביטול</button>
+      <button class="btn btn-primary" onclick="submitRide()">פרסם הסעה</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Join Event Ride Modal ═══ -->
+<div class="modal-overlay" id="joinRideModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>הצטרף להסעה</h3>
+      <button class="btn-icon" onclick="closeModal('joinRideModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="joinRideId">
+      <div id="joinRideInfo"></div>
+      <div class="form-group">
+        <label>הערות (אופציונלי)</label>
+        <input type="text" class="input" id="joinNotes" placeholder="כתובת לאיסוף, טלפון...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('joinRideModal')">ביטול</button>
+      <button class="btn btn-primary" onclick="confirmJoin()">הצטרף</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/parent_carpool.js"></script>
+{% endblock %}

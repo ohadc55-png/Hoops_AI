@@ -1,0 +1,60 @@
+{% extends "admin_base.html" %}
+{% block title %}HOOPS AI — Transport Detail{% endblock %}
+{% block nav_transport %}active{% endblock %}
+{% block header_title %}Transport Detail{% endblock %}
+{% block content %}
+<div class="admin-dashboard">
+  <!-- Back Button -->
+  <a href="/admin/transport" style="display:inline-flex;align-items:center;gap:var(--sp-1);color:var(--text-secondary);text-decoration:none;margin-bottom:var(--sp-3);font-size:var(--text-sm);">
+    <span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span> Back to Transportation
+  </a>
+
+  <!-- Event Info Card -->
+  <section class="dashboard-section" id="eventInfoCard">
+    <div class="loading-state">Loading event details...</div>
+  </section>
+
+  <!-- Map + Navigation -->
+  <section class="dashboard-section" id="mapSection" style="display:none;">
+    <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <h2><span class="material-symbols-outlined">map</span> Venue Location</h2>
+      <div id="navButtons" style="display:flex;gap:var(--sp-2);"></div>
+    </div>
+    <div id="mapContainer" style="border-radius:var(--r-lg);overflow:hidden;height:400px;background:var(--bg-raised);">
+    </div>
+  </section>
+
+  <!-- Edit Transport Info -->
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2><span class="material-symbols-outlined">edit</span> Edit Transport Info</h2>
+    </div>
+    <div class="section-content">
+      <form id="transportEditForm" onsubmit="return saveTransportInfo(event)">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+          <div class="input-group">
+            <label>Departure Time (שעת יציאה)</label>
+            <input type="time" class="input" id="editDepartureTime">
+          </div>
+          <div class="input-group">
+            <label>Venue Address (כתובת)</label>
+            <input type="text" class="input" id="editVenueAddress" placeholder="Full address for Google Maps">
+          </div>
+        </div>
+        <div style="margin-top:var(--sp-3);display:flex;gap:var(--sp-2);">
+          <button class="btn btn-primary" type="submit">
+            <span class="material-symbols-outlined" style="font-size:18px;">save</span> Save & Notify Team
+          </button>
+          <button class="btn btn-ghost" type="button" onclick="updateMap()">
+            <span class="material-symbols-outlined" style="font-size:18px;">map</span> Preview Map
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>const EVENT_ID = {{ event_id }};</script>
+<script src="/static/js/admin_transport_detail.js"></script>
+{% endblock %}

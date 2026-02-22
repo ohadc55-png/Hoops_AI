@@ -1,0 +1,86 @@
+{% extends "admin_base.html" %}
+{% block title %}HOOPS AI — Teams{% endblock %}
+{% block nav_teams %}active{% endblock %}
+{% block header_title %}Teams{% endblock %}
+{% block styles %}<link rel="stylesheet" href="/static/css/pages/player-profile.css">{% endblock %}
+{% block content %}
+<div class="admin-dashboard">
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2><span class="material-symbols-outlined">groups</span> Teams</h2>
+      <button class="btn btn-primary btn-sm" onclick="openCreateTeamModal()">
+        <span class="material-symbols-outlined">add</span> Create Team
+      </button>
+    </div>
+    <div class="section-content" id="teamsContent">
+      <div class="loading-state">Loading teams...</div>
+    </div>
+  </section>
+</div>
+
+<!-- Create Team Modal -->
+<div class="modal-overlay" id="createTeamModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Create Team</h3>
+      <button class="btn-icon" onclick="closeModal('createTeamModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="createTeamForm" onsubmit="return handleCreateTeam(event)">
+        <div class="input-group">
+          <label>Team Name *</label>
+          <input type="text" class="input" id="teamName" placeholder="e.g. Warriors U14" required>
+        </div>
+        <div class="input-group">
+          <label>Club Name</label>
+          <input type="text" class="input" id="teamClub" placeholder="e.g. Maccabi Haifa">
+        </div>
+        <div class="input-group">
+          <label>Age Group</label>
+          <select class="input" id="teamAgeGroup">
+            <option value="">Select...</option>
+            <option value="U8">U8</option>
+            <option value="U10">U10</option>
+            <option value="U12">U12</option>
+            <option value="U14">U14</option>
+            <option value="U16">U16</option>
+            <option value="U18">U18</option>
+            <option value="Senior">Senior</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Level</label>
+          <select class="input" id="teamLevel">
+            <option value="">Select...</option>
+            <option value="recreational">Recreational</option>
+            <option value="competitive">Competitive</option>
+            <option value="elite">Elite</option>
+            <option value="professional">Professional</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('createTeamModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="document.getElementById('createTeamForm').requestSubmit()">Create Team</button>
+    </div>
+  </div>
+</div>
+<!-- Player Profile Card Modal -->
+<div class="modal-overlay" id="playerProfileModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header">
+      <h2 class="modal-title" id="profileModalTitle">Player Profile</h2>
+      <button class="modal-close" onclick="closeModal('playerProfileModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body" id="playerProfileContent" style="max-height:70vh;overflow-y:auto;"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/player-profile.js"></script>
+<script src="/static/js/admin_teams.js"></script>
+{% endblock %}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOOPS AI - Club Registration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/variables.css">
+  <link rel="stylesheet" href="/static/css/reset.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <style>
+    .auth-page { min-height:100vh; display:flex; align-items:center; justify-content:center; background:#0b0f1a; padding:var(--sp-4); }
+    .auth-card { width:100%; max-width:480px; background:#111827; border:1px solid rgba(59,130,246,0.15); border-radius:var(--r-2xl); padding:var(--sp-8); }
+    .auth-logo { display:flex; align-items:center; gap:var(--sp-3); margin-bottom:var(--sp-6); justify-content:center; }
+    .auth-logo-img { width:48px;height:48px;max-width:48px;max-height:48px;border-radius:var(--r-xl);object-fit:contain; }
+    .auth-logo h1 { font-size:var(--text-2xl); font-weight:700; color:#f1f5f9; }
+    .auth-subtitle { text-align:center; color:#94a3b8; margin-bottom:var(--sp-4); font-size:var(--text-sm); }
+    .auth-form { display:flex; flex-direction:column; gap:var(--sp-4); }
+    .auth-error { background:rgba(220,38,38,0.15); color:#DC2626; padding:var(--sp-3); border-radius:var(--r-lg); font-size:var(--text-sm); display:none; }
+    .club-name-badge { text-align:center; background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.3); color:#60A5FA; padding:var(--sp-3) var(--sp-4); border-radius:var(--r-lg); font-size:var(--text-sm); font-weight:600; margin-bottom:var(--sp-4); }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-3); }
+    .input-group label { color:#94a3b8; }
+    .input { background:rgba(255,255,255,0.06); border-color:rgba(156,163,175,0.15); color:#f1f5f9; }
+    .input:focus { border-color:#3b82f6; background:rgba(255,255,255,0.1); }
+    .select { background:rgba(255,255,255,0.06); border-color:rgba(156,163,175,0.15); color:#f1f5f9; }
+    .btn-primary { background:#3b82f6; }
+    .auth-footer { text-align:center; margin-top:var(--sp-6); font-size:var(--text-sm); color:#6B7280; }
+    .auth-footer a { color:#60A5FA; }
+    .expired-state { text-align:center; padding:var(--sp-8); }
+    .expired-state .material-symbols-outlined { font-size:48px; color:#DC2626; display:block; margin-bottom:var(--sp-3); }
+  </style>
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <img src="/static/images/logo.png" alt="HOOPS AI" class="auth-logo-img" width="48" height="48">
+        <h1>HOOPS AI</h1>
+      </div>
+
+      <!-- Loading state -->
+      <div id="loadingState" style="text-align:center;color:#94a3b8;padding:var(--sp-6);">Validating link...</div>
+
+      <!-- Expired/invalid state -->
+      <div id="expiredState" class="expired-state" style="display:none;">
+        <span class="material-symbols-outlined">link_off</span>
+        <h3 style="color:#f1f5f9;margin-bottom:var(--sp-2);">Link Unavailable</h3>
+        <p id="expiredMessage" style="color:#94a3b8;font-size:var(--text-sm);">This registration link is no longer valid.</p>
+        <a href="/admin/login" class="btn btn-primary" style="margin-top:var(--sp-4);display:inline-flex;">
+          <span class="material-symbols-outlined">login</span> Go to Admin Login
+        </a>
+      </div>
+
+      <!-- Registration form -->
+      <div id="registerState" style="display:none;">
+        <div class="auth-subtitle">Club Admin Registration</div>
+        <div class="club-name-badge" id="clubNameBadge"></div>
+        <div class="auth-error" id="authError"></div>
+
+        <form class="auth-form" id="registerForm" onsubmit="return handleRegister(event)">
+          <div class="input-group">
+            <label>Full Name *</label>
+            <input type="text" class="input" id="regName" placeholder="Enter your full name" required>
+          </div>
+
+          <div class="form-row">
+            <div class="input-group">
+              <label>Email *</label>
+              <input type="email" class="input" id="regEmail" placeholder="admin@club.com" required>
+            </div>
+            <div class="input-group">
+              <label>Phone</label>
+              <input type="tel" class="input" id="regPhone" placeholder="050-1234567">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Role in Club</label>
+            <select class="select" id="regRole">
+              <option value="">Select role...</option>
+              <option value="chairman">Chairman / יו"ר</option>
+              <option value="ceo">CEO / מנכ"ל</option>
+              <option value="secretary">Secretary / מזכיר</option>
+              <option value="treasurer">Treasurer / גזבר</option>
+              <option value="gm">General Manager / מנהל כללי</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="input-group">
+              <label>Password *</label>
+              <input type="password" class="input" id="regPassword" placeholder="Min 6 characters" required minlength="6">
+            </div>
+            <div class="input-group">
+              <label>Confirm Password *</label>
+              <input type="password" class="input" id="regConfirm" placeholder="Confirm" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg w-full" id="submitBtn">
+            <span class="material-symbols-outlined">person_add</span> Register
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          Already registered? <a href="/admin/login">Sign in here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="/static/js/club-register.js"></script>
+</body>
+</html>

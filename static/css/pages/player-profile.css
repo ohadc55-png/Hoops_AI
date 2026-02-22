@@ -1,0 +1,174 @@
+/* Player Profile Card */
+
+.pp-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4, 16px);
+  padding-bottom: var(--sp-4, 16px);
+  border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
+  margin-bottom: var(--sp-2, 8px);
+}
+
+.pp-jersey {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--primary-ghost, rgba(244,140,37,0.08));
+  border: 2px solid var(--primary, #f48c25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; color: var(--primary, #f48c25);
+  flex-shrink: 0;
+}
+
+.pp-name { font-size: 18px; font-weight: 700; margin: 0; }
+.pp-meta { font-size: 13px; color: var(--text-muted, #7a6f63); margin-top: 4px; }
+
+.pp-section {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
+}
+.pp-section:last-child { border-bottom: none; }
+
+.pp-section-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 600; color: var(--text-muted, #7a6f63);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  margin: 0 0 12px 0;
+}
+.pp-section-title .material-symbols-outlined { font-size: 18px; }
+
+.pp-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 8px;
+}
+
+.pp-info-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--text-secondary, #baab9c);
+}
+.pp-info-item .material-symbols-outlined { font-size: 16px; color: var(--text-muted, #7a6f63); }
+
+/* Contact list */
+.pp-contact-list { display: flex; flex-direction: column; gap: 8px; }
+.pp-contact-row {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px;
+}
+.pp-contact-row .material-symbols-outlined { font-size: 16px; color: var(--text-muted, #7a6f63); flex-shrink: 0; }
+.pp-contact-label { font-size: 10px; color: var(--text-muted, #7a6f63); text-transform: uppercase; letter-spacing: 0.04em; }
+.pp-contact-value { color: var(--text-secondary, #baab9c); word-break: break-all; }
+.pp-contact-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 4px 0; }
+.pp-contact-subtitle {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; color: var(--text-muted, #7a6f63);
+  margin-bottom: 2px;
+}
+
+/* Progress bars */
+.pp-stat-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.pp-stat-bar-wrap {
+  flex: 1; height: 8px;
+  background: var(--bg-input, rgba(255,255,255,0.06));
+  border-radius: 4px; overflow: hidden;
+}
+.pp-stat-bar {
+  height: 100%; border-radius: 4px;
+  transition: width 0.3s ease;
+}
+.pp-stat-value {
+  font-size: 14px; font-weight: 700; min-width: 42px; text-align: right;
+}
+.pp-stat-value.green { color: var(--success, #22c55e); }
+.pp-stat-value.yellow { color: var(--warning, #fbbf24); }
+.pp-stat-value.red { color: var(--error, #ef4444); }
+
+.pp-stat-detail {
+  font-size: 11px; color: var(--text-muted, #7a6f63); margin-top: 4px;
+}
+
+/* Collapsible sections */
+.pp-collapsible .pp-collapse-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+.pp-collapsible.open .pp-collapse-body {
+  max-height: 600px;
+}
+.pp-toggle { cursor: pointer; user-select: none; }
+.pp-toggle:hover { color: var(--text-secondary, #baab9c); }
+.pp-chevron {
+  margin-left: auto; transition: transform 0.25s ease;
+}
+.pp-collapsible.open .pp-chevron { transform: rotate(180deg); }
+
+/* Report sections */
+.pp-report-block { margin-bottom: 12px; }
+.pp-report-block h5 {
+  font-size: 12px; font-weight: 600; margin: 0 0 6px 0;
+  display: flex; align-items: center; gap: 6px;
+}
+.pp-report-list {
+  padding-left: 18px; margin: 0;
+  font-size: 13px; color: var(--text-secondary, #baab9c); line-height: 1.6;
+}
+.pp-report-list li { margin-bottom: 2px; }
+.pp-report-text {
+  font-size: 13px; color: var(--text-secondary, #baab9c);
+  line-height: 1.6; margin: 0;
+  white-space: pre-wrap;
+}
+
+/* Game highlight rows */
+.pp-game-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 0;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.pp-game-row:last-child { border-bottom: none; }
+
+.pp-result-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 4px; min-width: 36px;
+}
+.pp-result-badge.win { background: var(--success-bg, rgba(34,197,94,0.1)); color: var(--success, #22c55e); }
+.pp-result-badge.loss { background: var(--error-bg, rgba(239,68,68,0.1)); color: var(--error, #ef4444); }
+.pp-result-badge.draw { background: var(--warning-bg, rgba(251,191,36,0.1)); color: var(--warning, #fbbf24); }
+
+/* Coach notes */
+.pp-notes {
+  background: var(--bg-card, rgba(255,255,255,0.04));
+  padding: 12px; border-radius: 8px;
+  font-size: 13px; color: var(--text-secondary, #baab9c);
+  line-height: 1.6; white-space: pre-wrap;
+}
+
+/* Clickable player name link */
+.player-name-link {
+  color: var(--primary, #f48c25); text-decoration: none; cursor: pointer;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+.player-name-link:hover { color: var(--primary-light, #ffa94d); text-decoration: underline; }
+
+/* Empty section state */
+.pp-empty {
+  font-size: 12px; color: var(--text-muted, #7a6f63);
+  font-style: italic; padding: 4px 0;
+}
+
+/* Spin animation for loading */
+@keyframes pp-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.pp-spin { animation: pp-spin 1s linear infinite; }
+
+/* Admin theme overrides */
+.admin-app .pp-jersey {
+  background: rgba(59,130,246,0.08);
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+.admin-app .player-name-link { color: #3b82f6; }
+.admin-app .player-name-link:hover { color: #60a5fa; }

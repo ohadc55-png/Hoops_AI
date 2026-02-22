@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}HOOPS AI - Play Creator{% endblock %}
+{% block nav_plays %}active{% endblock %}
+{% block styles %}<link rel="stylesheet" href="/static/css/pages/play-creator.css">{% endblock %}
+{% block content %}
+<div id="play-creator-root"></div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/play-creator.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { new PlayCreator(document.getElementById('play-creator-root')); });</script>
+{% endblock %}

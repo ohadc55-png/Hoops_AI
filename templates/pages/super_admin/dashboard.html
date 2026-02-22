@@ -1,0 +1,50 @@
+{% extends "super_admin_base.html" %}
+{% block title %}HOOPS AI — Dashboard{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+{% block header_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Grid -->
+<div class="stats-grid" id="statsGrid">
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">domain</span></div>
+    <div><div class="stat-value" id="statClubs">—</div><div class="stat-label">Total Clubs</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">group</span></div>
+    <div><div class="stat-value" id="statUsers">—</div><div class="stat-label">Total Users</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">check_circle</span></div>
+    <div><div class="stat-value" id="statActive">—</div><div class="stat-label">Active Clubs</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">payments</span></div>
+    <div><div class="stat-value" id="statMRR">—</div><div class="stat-label">Monthly Revenue (₪)</div></div>
+  </div>
+</div>
+
+<!-- Content Grid -->
+<div class="dashboard-content-grid">
+  <!-- Recent Clubs -->
+  <div class="dashboard-section">
+    <div class="section-header">
+      <h2><span class="material-symbols-outlined">domain</span> Recent Clubs</h2>
+      <a href="/super-admin/clubs" class="btn btn-sm btn-ghost">View All</a>
+    </div>
+    <div id="recentClubsList" class="loading-state">Loading...</div>
+  </div>
+
+  <!-- Users By Role -->
+  <div class="dashboard-section">
+    <div class="section-header">
+      <h2><span class="material-symbols-outlined">pie_chart</span> Users by Role</h2>
+    </div>
+    <div id="usersByRole" class="loading-state">Loading...</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/super-admin-dashboard.js"></script>
+{% endblock %}

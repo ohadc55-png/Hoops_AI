@@ -1,0 +1,309 @@
+/* HOOPS AI - Reports Page */
+
+/* Attendance grid */
+.att-grid {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.att-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 80px 1fr;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.att-row:last-child { border-bottom: none; }
+
+.att-row.att-header {
+  background: var(--bg-card);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.att-row label { cursor: pointer; }
+
+.att-check {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--success);
+  cursor: pointer;
+}
+
+/* Attendance stats */
+.att-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+}
+
+.att-stat-card {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+}
+
+.att-stat-card .player-name {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  flex: 1;
+}
+
+.att-stat-card .att-bar-wrap {
+  width: 80px;
+  height: 6px;
+  background: var(--bg-input);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.att-stat-card .att-bar {
+  height: 100%;
+  border-radius: var(--r-full);
+  transition: width var(--transition);
+}
+
+.att-stat-card .att-pct {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  min-width: 42px;
+  text-align: right;
+}
+
+.att-pct.green { color: var(--success); }
+.att-pct.yellow { color: var(--warning); }
+.att-pct.red { color: var(--error); }
+
+/* Game report cards */
+.game-report-card {
+  padding: var(--sp-4);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-bottom: var(--sp-3);
+}
+
+.game-report-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-strong);
+}
+
+.game-report-card .gr-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-2);
+}
+
+.game-report-card .gr-score {
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+.result-badge {
+  display: inline-flex;
+  padding: 2px 10px;
+  border-radius: var(--r-full);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.result-badge.win { background: var(--success-bg); color: var(--success); }
+.result-badge.loss { background: var(--error-bg); color: var(--error); }
+.result-badge.draw { background: var(--warning-bg); color: var(--warning); }
+
+/* Player report card */
+.player-report-card {
+  padding: var(--sp-4);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  margin-bottom: var(--sp-3);
+}
+
+.player-report-card .pr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-3);
+}
+
+.pr-section {
+  margin-bottom: var(--sp-3);
+}
+
+.pr-section h4 {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--sp-2);
+}
+
+.pr-list {
+  list-style: none;
+  padding: 0;
+}
+
+.pr-list li {
+  padding: var(--sp-1) 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+}
+
+.pr-list li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-full);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.pr-list.strengths li::before { background: var(--success); }
+.pr-list.weaknesses li::before { background: var(--error); }
+.pr-list.focus li::before { background: var(--primary); }
+
+.pr-text {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* Multi-select standout players */
+.multi-select-container { position: relative; }
+.multi-select-chips {
+  display: flex; flex-wrap: wrap; gap: var(--sp-1);
+  min-height: 8px;
+}
+.multi-select-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px 3px 12px;
+  background: var(--primary-ghost); color: var(--primary);
+  border-radius: var(--r-full);
+  font-size: var(--text-xs); font-weight: 600;
+}
+.multi-select-chip .remove-chip {
+  cursor: pointer; font-size: 14px; opacity: 0.7;
+}
+.multi-select-chip .remove-chip:hover { opacity: 1; }
+.multi-select-dropdown {
+  display: none; position: absolute; left: 0; right: 0; z-index: 50;
+  background: #1e1914; border: 1px solid var(--border);
+  border-radius: var(--r-lg); max-height: 220px; overflow-y: auto;
+  box-shadow: var(--shadow-lg); margin-top: var(--sp-1);
+}
+.multi-select-dropdown.open { display: block; }
+.multi-select-option {
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3); cursor: pointer;
+  font-size: var(--text-sm); transition: background var(--transition-fast);
+}
+.multi-select-option:hover { background: var(--bg-card-hover); }
+.multi-select-option.selected { background: var(--primary-ghost); color: var(--primary); }
+.multi-select-option input[type="checkbox"] { accent-color: var(--primary); }
+
+/* Pending games banner */
+.pending-banner {
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  background: rgba(251,191,36,0.08); border: 1px solid var(--warning);
+  border-radius: var(--r-lg); margin-bottom: var(--sp-3);
+  font-size: var(--text-sm); font-weight: 600; color: var(--warning);
+}
+.pending-game-card {
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-left: 3px solid var(--warning); border-radius: var(--r-lg);
+  margin-bottom: var(--sp-2); cursor: pointer;
+  transition: background var(--transition-fast);
+}
+.pending-game-card:hover { background: var(--bg-card-hover); }
+
+/* Evaluation form */
+.eval-ratings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.eval-rating-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 36px 1fr;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.eval-rating-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.eval-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--bg-input);
+  border-radius: var(--r-full);
+  outline: none;
+}
+
+.eval-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  border: 2px solid var(--bg-card);
+  box-shadow: 0 0 4px rgba(244, 140, 37, 0.4);
+}
+
+.eval-rating-value {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-align: center;
+  color: var(--primary);
+  min-width: 24px;
+}
+
+.eval-note {
+  height: 32px !important;
+  font-size: var(--text-xs) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .att-row {
+    grid-template-columns: 32px 1fr 60px;
+  }
+  .att-row > :nth-child(4) { display: none; }
+  .att-stats { grid-template-columns: 1fr; }
+  .eval-rating-row {
+    grid-template-columns: 100px 1fr 30px;
+  }
+  .eval-rating-row .eval-note { display: none; }
+}

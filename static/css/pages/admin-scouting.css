@@ -1,0 +1,68 @@
+/* ═══════════════════════════════════════════════════════════
+   Admin Video Room — Overrides on top of scouting.css
+   ═══════════════════════════════════════════════════════════ */
+
+/* Coach name badge on video cards */
+.video-card-coach {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--sp-1);
+}
+.video-card-coach .material-symbols-outlined {
+  font-size: 0.85rem;
+}
+
+/* Coach badge in analysis header */
+.admin-coach-badge {
+  padding: 4px 12px;
+  border-radius: var(--r-full);
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Parent-shared badge on video cards */
+.video-card-parent-shared {
+  background: rgba(251, 191, 36, 0.15);
+  color: #FBBF24;
+}
+
+/* Read-only telestrator */
+.admin-app .telestrator-canvas {
+  pointer-events: none !important;
+}
+
+/* Blue accent overrides for admin */
+.admin-app .scouting-filters .filter-btn.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+.admin-app .timeline-progress {
+  background: rgba(59, 130, 246, 0.2);
+}
+.admin-app .timeline-marker.neutral {
+  background: #3b82f6;
+}
+.admin-app .video-card:hover {
+  border-color: #3b82f6;
+}
+.admin-app .clip-card:hover,
+.admin-app .clip-card.active {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+/* Share status badges in analysis view */
+.admin-share-badges {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+}
+.admin-share-badges .video-card-badge {
+  font-size: 0.72rem;
+}

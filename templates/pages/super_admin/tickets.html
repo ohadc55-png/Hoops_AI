@@ -1,0 +1,84 @@
+{% extends "super_admin_base.html" %}
+{% block title %}HOOPS AI — Support Tickets{% endblock %}
+{% block nav_tickets %}active{% endblock %}
+{% block header_title %}Support Tickets{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">inbox</span></div>
+    <div><div class="stat-value" id="statOpen">—</div><div class="stat-label">Open</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">pending</span></div>
+    <div><div class="stat-value" id="statInProgress">—</div><div class="stat-label">In Progress</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">hourglass_top</span></div>
+    <div><div class="stat-value" id="statWaiting">—</div><div class="stat-label">Waiting on Club</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><span class="material-symbols-outlined">check_circle</span></div>
+    <div><div class="stat-value" id="statResolved">—</div><div class="stat-label">Resolved</div></div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="dashboard-section">
+  <div class="section-header" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:var(--sp-2);">
+    <h2><span class="material-symbols-outlined">support_agent</span> Ticket Queue</h2>
+    <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap;">
+      <input type="text" id="searchInput" class="input" placeholder="Search tickets..." style="width:200px;">
+      <select id="statusFilter" class="input" style="width:140px;">
+        <option value="">All Status</option>
+        <option value="open">Open</option>
+        <option value="in_progress">In Progress</option>
+        <option value="waiting_on_club">Waiting on Club</option>
+        <option value="resolved">Resolved</option>
+        <option value="closed">Closed</option>
+      </select>
+      <select id="priorityFilter" class="input" style="width:120px;">
+        <option value="">All Priority</option>
+        <option value="urgent">Urgent</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+      <select id="categoryFilter" class="input" style="width:130px;">
+        <option value="">All Categories</option>
+        <option value="billing">Billing</option>
+        <option value="technical">Technical</option>
+        <option value="feature_request">Feature Request</option>
+        <option value="account">Account</option>
+        <option value="bug_report">Bug Report</option>
+        <option value="general">General</option>
+        <option value="onboarding">Onboarding</option>
+      </select>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <table class="sa-table" id="ticketTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Subject</th>
+          <th>Club</th>
+          <th>Category</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody id="ticketBody">
+        <tr><td colspan="7" class="loading-state">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/super-admin-tickets.js"></script>
+{% endblock %}

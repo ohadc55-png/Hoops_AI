@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% block title %}HOOPS AI — Video Room{% endblock %}
+{% block nav_scouting %}active{% endblock %}
+{% block styles %}
+<link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/pages/scouting.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-content" style="padding: var(--sp-6);">
+
+  <!-- ═══ VIDEO GRID (Landing) ═══ -->
+  <div id="gridView">
+    <div class="scouting-header">
+      <button class="btn btn-primary" onclick="openUploadModal()">
+        <span class="material-symbols-outlined">upload</span> Upload Video
+      </button>
+      <div class="scouting-filters" id="typeFilters">
+        <button class="filter-btn active" data-type="">All</button>
+        <button class="filter-btn" data-type="game">Game</button>
+        <button class="filter-btn" data-type="practice">Practice</button>
+        <button class="filter-btn" data-type="opponent_scout">Scout</button>
+        <button class="filter-btn" data-type="highlight">Highlight</button>
+      </div>
+      <input type="text" class="input scouting-search" id="videoSearch" placeholder="Search videos...">
+    </div>
+    <div class="quota-bar" id="quotaBar"></div>
+    <div class="video-grid" id="videoGrid">
+      <p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: var(--sp-8);">Loading videos...</p>
+    </div>
+  </div>
+
+  <!-- ═══ ANALYSIS VIEW (Video Selected) ═══ -->
+  <div id="analysisView" class="analysis-view">
+    <div class="analysis-header">
+      <button class="btn btn-ghost" onclick="backToGrid()">
+        <span class="material-symbols-outlined">arrow_back</span> Back
+      </button>
+      <h2 id="analysisTitle">Video Title</h2>
+      <button class="btn btn-ghost" id="shareBtn" onclick="toggleShare()" title="Share with team">
+        <span class="material-symbols-outlined">share</span>
+      </button>
+      <button class="btn btn-ghost" id="shareParentsBtn" onclick="toggleShareParents()" title="Share with parents">
+        <span class="material-symbols-outlined">family_restroom</span>
+      </button>
+      <span class="video-expiry-info" id="videoExpiryInfo"></span>
+      <button class="btn btn-ghost" id="keepForeverBtn" onclick="toggleKeepForever()" title="Keep forever">
+        <span class="material-symbols-outlined">all_inclusive</span>
+      </button>
+      <button class="btn btn-ghost" style="color:#ef4444" onclick="deleteCurrentVideo()">
+        <span class="material-symbols-outlined">delete</span>
+      </button>
+    </div>
+
+    <div class="analysis-layout">
+      <!-- Left: Toolbar + Player + Timeline -->
+      <div class="player-area">
+        <div class="video-with-tools" id="videoWithTools">
+          <!-- Tools Sidebar (left of video on normal, top on fullscreen) -->
+          <div class="tools-sidebar" id="toolsSidebar">
+            <!-- Drawing Tools -->
+            <div class="tools-section">
+              <div class="tools-section-label">Draw</div>
+              <div class="tools-grid">
+                <button class="draw-tool-btn" data-tool="freehand" onclick="setDrawTool(this)" title="Freehand">
+                  <span class="material-symbols-outlined">draw</span>
+                </button>
+                <button class="draw-tool-btn" data-tool="arrow" onclick="setDrawTool(this)" title="Arrow">
+                  <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+                <button class="draw-tool-btn" data-tool="circle" onclick="setDrawTool(this)" title="Circle">
+                  <span class="material-symbols-outlined">circle</span>
+                </button>
+                <button class="draw-tool-btn" data-tool="text" onclick="setDrawTool(this)" title="Text">
+                  <span class="material-symbols-outlined">text_fields</span>
+                </button>
+                <button class="draw-tool-btn spotlight-tool-btn" data-tool="spotlight" onclick="setDrawTool(this)" title="Spotlight">
+                  <span class="material-symbols-outlined">highlight</span>
+                </button>
+                <input type="color" class="draw-color-input" id="drawColor" value="#FF0000" onchange="setDrawColor(this.value)">
+              </div>
+              <div class="tools-actions">
+                <span class="spotlight-status" id="spotlightStatus"></span>
+                <button class="draw-tool-btn spotlight-done-btn" id="spotlightDoneBtn" onclick="finishSpotlight()" title="Done" style="display:none;">
+                  <span class="material-symbols-outlined">check</span>
+                </button>
+                <button class="draw-tool-btn" onclick="undoDraw()" title="Undo">
+                  <span class="material-symbols-outlined">undo</span>
+                </button>
+                <button class="draw-tool-btn" onclick="clearDrawings()" title="Clear All">
+                  <span class="material-symbols-outlined">delete_sweep</span>
+                </button>
+              </div>
+            </div>
+            <div class="tools-divider"></div>
+            <!-- Tag Buttons -->
+            <div class="tools-section">
+              <div class="tools-section-label">Tag</div>
+              <div class="tools-grid tags-grid">
+                <button class="tag-btn" data-action="pick_and_roll" onclick="quickTag(this)">PnR</button>
+                <button class="tag-btn" data-action="isolation" onclick="quickTag(this)">ISO</button>
+                <button class="tag-btn" data-action="fast_break" onclick="quickTag(this)">Fast Break</button>
+                <button class="tag-btn" data-action="defense" onclick="quickTag(this)">Defense</button>
+                <button class="tag-btn" data-action="three_pointer" onclick="quickTag(this)">3PT</button>
+                <button class="tag-btn" data-action="post_up" onclick="quickTag(this)">Post Up</button>
+                <button class="tag-btn" data-action="screen" onclick="quickTag(this)">Screen</button>
+                <button class="tag-btn" data-action="turnover" onclick="quickTag(this)">TO</button>
+                <button class="tag-btn" data-action="rebound" onclick="quickTag(this)">Reb</button>
+                <button class="tag-btn" data-action="transition" onclick="quickTag(this)">Trans</button>
+                <button class="tag-btn" data-action="free_throw" onclick="quickTag(this)">FT</button>
+                <button class="tag-btn" data-action="out_of_bounds" onclick="quickTag(this)">OOB</button>
+                <button class="tag-btn" data-action="other" onclick="quickTag(this)">Other</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Video -->
+          <div class="video-container" id="videoContainer">
+            <video id="scoutingPlayer" class="video-js vjs-default-skin" playsinline></video>
+            <canvas id="telestratorCanvas" class="telestrator-canvas"></canvas>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline-section">
+          <div class="timeline-row">
+            <div class="ann-track-spacer"></div>
+            <div class="timeline-bar" id="timelineBar" onclick="seekTimeline(event)" style="flex:1;">
+              <div class="timeline-progress" id="timelineProgress"></div>
+            </div>
+          </div>
+          <!-- Annotation Track (resizable bars like video editor) -->
+          <div class="annotation-track" id="annotationTrack"></div>
+          <div class="timeline-row">
+            <div class="ann-track-spacer"></div>
+            <div class="timeline-time" style="flex:1;">
+              <span id="timelineCurrent">0:00</span>
+              <span id="timelineDuration">0:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Clips Sidebar -->
+      <div class="clips-sidebar">
+        <div class="clips-sidebar-title">
+          <span class="material-symbols-outlined">movie_filter</span>
+          Clips <span id="clipCount" style="color:var(--text-muted);font-weight:400;"></span>
+        </div>
+        <div id="clipsList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ UPLOAD MODAL ═══ -->
+<div class="modal-overlay" id="uploadModal">
+  <div class="modal" style="max-width: 520px;">
+    <div class="modal-header">
+      <h2>Upload Video</h2>
+      <button class="modal-close" onclick="cancelUploadModal()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="upload-zone" id="uploadZone">
+        <span class="material-symbols-outlined">cloud_upload</span>
+        <p>Drag & drop video or click to browse</p>
+        <p style="font-size:0.75rem;color:var(--text-muted);">MP4, MOV, WebM — up to 500MB</p>
+        <input type="file" id="videoFileInput" accept=".mp4,.mov,.webm" style="display:none">
+      </div>
+      <div class="upload-progress" id="uploadProgress">
+        <div class="upload-progress-bar"><div class="upload-progress-fill" id="uploadProgressFill"></div></div>
+        <div class="upload-progress-text" id="uploadProgressText">Uploading... 0%</div>
+      </div>
+      <div class="form-group"><label class="label">Title</label><input type="text" class="input" id="uploadTitle" placeholder="e.g. Game vs Maccabi"></div>
+      <div class="form-group"><label class="label">Type</label>
+        <select class="input" id="uploadType"><option value="game">Game</option><option value="practice">Practice</option><option value="opponent_scout">Opponent Scout</option><option value="highlight">Highlight</option><option value="other">Other</option></select>
+      </div>
+      <div class="form-group"><label class="label">Opponent (optional)</label><input type="text" class="input" id="uploadOpponent" placeholder="e.g. Maccabi Tel Aviv"></div>
+      <div class="form-group"><label class="label">Game Date (optional)</label><input type="date" class="input" id="uploadDate"></div>
+      <div class="form-group"><label class="label">Team</label><select class="input" id="uploadTeam"><option value="">Select team...</option></select></div>
+      <div class="form-group">
+        <label class="keep-forever-toggle">
+          <input type="checkbox" id="uploadKeepForever">
+          <span class="material-symbols-outlined" style="font-size:1.1rem;">all_inclusive</span>
+          Keep forever <span style="color:var(--text-muted);font-weight:400;">(no auto-delete after 14 days)</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cancelUploadModal()">Cancel</button>
+      <button class="btn btn-primary" id="uploadSubmitBtn" onclick="submitUpload()" disabled>Upload</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CLIP CREATE MODAL ═══ -->
+<div class="modal-overlay" id="clipModal">
+  <div class="modal" style="max-width: 480px;">
+    <div class="modal-header">
+      <h2>Tag Clip</h2>
+      <button class="modal-close" onclick="closeModal('clipModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:var(--sp-4);margin-bottom:var(--sp-3);align-items:flex-end;">
+        <div class="form-group" style="flex:1">
+          <label class="label">Start</label>
+          <div class="clip-time-control">
+            <button class="clip-time-btn" onclick="adjustClipTime('start',-1)"><span class="material-symbols-outlined">remove</span></button>
+            <input type="text" class="input clip-time-input" id="clipStart" placeholder="0:00" onchange="onClipTimeChange()">
+            <button class="clip-time-btn" onclick="adjustClipTime('start',1)"><span class="material-symbols-outlined">add</span></button>
+          </div>
+        </div>
+        <div class="form-group" style="flex:0 0 auto;">
+          <label class="label" style="text-align:center;">Duration</label>
+          <div class="clip-duration-badge" id="clipDuration">10s</div>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="label">End</label>
+          <div class="clip-time-control">
+            <button class="clip-time-btn" onclick="adjustClipTime('end',-1)"><span class="material-symbols-outlined">remove</span></button>
+            <input type="text" class="input clip-time-input" id="clipEnd" placeholder="0:00" onchange="onClipTimeChange()">
+            <button class="clip-time-btn" onclick="adjustClipTime('end',1)"><span class="material-symbols-outlined">add</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group"><label class="label">Action Type</label><select class="input" id="clipAction"></select></div>
+      <div class="form-group">
+        <label class="label">Rating</label>
+        <div style="display:flex;gap:var(--sp-2);">
+          <button class="tag-btn" id="ratingPos" onclick="setRating('positive')" style="flex:1;justify-content:center;">
+            <span class="material-symbols-outlined">thumb_up</span> Positive
+          </button>
+          <button class="tag-btn" id="ratingNeg" onclick="setRating('negative')" style="flex:1;justify-content:center;">
+            <span class="material-symbols-outlined">thumb_down</span> Negative
+          </button>
+        </div>
+      </div>
+      <div class="form-group"><label class="label">Tag Players</label><div class="clip-modal-players" id="clipPlayers"></div></div>
+      <div class="form-group"><label class="label">Notes (optional)</label><textarea class="input" id="clipNotes" rows="2" placeholder="Quick note..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('clipModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClip()">Save Clip</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+<script src="/static/js/scouting.js"></script>
+{% endblock %}

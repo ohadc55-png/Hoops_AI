@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}HOOPS AI - Team Management{% endblock %}
+{% block nav_logistics %}active{% endblock %}
+{% block styles %}<link rel="stylesheet" href="/static/css/pages/player-profile.css">{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1 class="page-title">Team Management</h1><p class="page-subtitle">Roster management</p></div>
+</div>
+<div id="tab-players"></div>
+
+<!-- Player Modal -->
+<div class="modal-overlay" id="playerModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="playerModalTitle">Add Player</h2>
+      <button class="modal-close" onclick="closeModal('playerModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="plId">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+        <div class="input-group"><label>Name</label><input type="text" class="input" id="plName" placeholder="Player name"></div>
+        <div class="input-group"><label>Jersey #</label><input type="number" class="input" id="plJersey" placeholder="0" min="0" max="99"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+        <div class="input-group"><label>Position</label>
+          <select class="select" id="plPosition">
+            <option value="">Select...</option>
+            <option value="PG">Point Guard (PG)</option><option value="SG">Shooting Guard (SG)</option>
+            <option value="SF">Small Forward (SF)</option><option value="PF">Power Forward (PF)</option>
+            <option value="C">Center (C)</option>
+          </select>
+        </div>
+        <div class="input-group"><label>Gender</label>
+          <select class="select" id="plGender">
+            <option value="">Select...</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-3);">
+        <div class="input-group"><label>Birth Date</label><input type="date" class="input" id="plBirthDate"></div>
+        <div class="input-group"><label>Height (cm)</label><input type="number" class="input" id="plHeight" placeholder="170" min="100" max="250"></div>
+        <div class="input-group"><label>Weight (kg)</label><input type="number" class="input" id="plWeight" placeholder="70" min="20" max="200" step="0.1"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+        <div class="input-group"><label>Player Phone</label><input type="tel" class="input" id="plPlayerPhone" placeholder="Player phone"></div>
+        <div class="input-group"><label>Player Email</label><input type="email" class="input" id="plPlayerEmail" placeholder="Player email"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+        <div class="input-group"><label>Parent Phone</label><input type="tel" class="input" id="plPhone" placeholder="Parent phone"></div>
+        <div class="input-group"><label>Parent Email</label><input type="email" class="input" id="plEmail" placeholder="Parent email"></div>
+      </div>
+      <div class="input-group"><label>Notes</label><textarea class="textarea" id="plNotes" placeholder="Additional notes" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('playerModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePlayer()">Save Player</button>
+    </div>
+  </div>
+</div>
+<!-- Player Profile Card Modal -->
+<div class="modal-overlay" id="playerProfileModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header">
+      <h2 class="modal-title" id="profileModalTitle">Player Profile</h2>
+      <button class="modal-close" onclick="closeModal('playerProfileModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body" id="playerProfileContent" style="max-height:70vh;overflow-y:auto;"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+document.addEventListener('DOMContentLoaded', () => { loadPlayers(); });
+
+// ===== PLAYERS =====
+let _players = [];
+function calcAge(bd) {
+  if (!bd) return '';
+  const d = new Date(bd), now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  if (now.getMonth() < d.getMonth() || (now.getMonth() === d.getMonth() && now.getDate() < d.getDate())) age--;
+  return age;
+}
+
+async function loadPlayers() {
+  try {
+    const r = await API.get('/api/players');
+    _players = r.data;
+    const el = document.getElementById('tab-players');
+    const th = s => `<th style="padding:var(--sp-2);text-align:left;color:var(--text-muted);">${s}</th>`;
+    el.innerHTML = '<button class="btn btn-primary" style="margin-bottom:var(--sp-4);" onclick="openPlayerModal()"><span class="material-symbols-outlined">add</span> Add Player</button>'
+      + (r.data.length ? '<div style="overflow-x:auto;"><table style="width:100%;font-size:var(--text-sm);"><thead><tr style="border-bottom:1px solid var(--border);">'
+      + th('#') + th('Name') + th('Pos') + th('Age') + th('Height') + th('Weight') + th('Phone') + th('Actions')
+      + '</tr></thead><tbody>'
+      + r.data.map(p => {
+        const age = calcAge(p.birth_date);
+        return `<tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:var(--sp-2);">${p.jersey_number||'-'}</td>
+        <td style="padding:var(--sp-2);"><a href="javascript:void(0)" class="player-name-link" onclick="event.stopPropagation();openPlayerProfile(${p.id})">${esc(p.name)}</a></td>
+        <td style="padding:var(--sp-2);">${p.position||'-'}</td>
+        <td style="padding:var(--sp-2);">${age!==''?age:'-'}</td>
+        <td style="padding:var(--sp-2);">${p.height?p.height+'cm':'-'}</td>
+        <td style="padding:var(--sp-2);">${p.weight?p.weight+'kg':'-'}</td>
+        <td style="padding:var(--sp-2);">${p.parent_phone||p.phone||'-'}</td>
+        <td style="padding:var(--sp-2);">
+          <button class="btn-icon" style="width:24px;height:24px;" onclick="editPlayer(${p.id})"><span class="material-symbols-outlined" style="font-size:14px;">edit</span></button>
+          <button class="btn-icon" style="width:24px;height:24px;" onclick="deletePlayer(${p.id})"><span class="material-symbols-outlined" style="font-size:14px;">delete</span></button>
+        </td>
+      </tr>`;}).join('')
+      + '</tbody></table></div>' : '<div class="empty-state"><span class="material-symbols-outlined">groups</span><h3>No players</h3><p>Add your first player to the roster</p></div>');
+  } catch(e){}
+}
+
+function openPlayerModal(data) {
+  document.getElementById('plId').value = data?.id || '';
+  document.getElementById('plName').value = data?.name || '';
+  document.getElementById('plJersey').value = data?.jersey_number || '';
+  document.getElementById('plPosition').value = data?.position || '';
+  document.getElementById('plGender').value = data?.gender || '';
+  document.getElementById('plBirthDate').value = data?.birth_date || '';
+  document.getElementById('plHeight').value = data?.height || '';
+  document.getElementById('plWeight').value = data?.weight || '';
+  document.getElementById('plPlayerPhone').value = data?.phone || '';
+  document.getElementById('plPlayerEmail').value = data?.email || '';
+  document.getElementById('plPhone').value = data?.parent_phone || '';
+  document.getElementById('plEmail').value = data?.parent_email || '';
+  document.getElementById('plNotes').value = data?.notes || '';
+  document.getElementById('playerModalTitle').textContent = data ? 'Edit Player' : 'Add Player';
+  openModal('playerModal');
+}
+
+function editPlayer(id) {
+  const p = _players.find(x => x.id === id);
+  if (p) openPlayerModal(p);
+}
+
+async function savePlayer() {
+  const id = document.getElementById('plId').value;
+  const body = {
+    name: document.getElementById('plName').value,
+    jersey_number: document.getElementById('plJersey').value ? parseInt(document.getElementById('plJersey').value) : null,
+    position: document.getElementById('plPosition').value || null,
+    gender: document.getElementById('plGender').value || null,
+    birth_date: document.getElementById('plBirthDate').value || null,
+    height: document.getElementById('plHeight').value ? parseInt(document.getElementById('plHeight').value) : null,
+    weight: document.getElementById('plWeight').value ? parseFloat(document.getElementById('plWeight').value) : null,
+    phone: document.getElementById('plPlayerPhone').value || null,
+    email: document.getElementById('plPlayerEmail').value || null,
+    parent_phone: document.getElementById('plPhone').value || null,
+    parent_email: document.getElementById('plEmail').value || null,
+    notes: document.getElementById('plNotes').value || null,
+  };
+  if (!body.name) { Toast.error('Name is required'); return; }
+  try {
+    if (id) await API.put(`/api/players/${id}`, body);
+    else await API.post('/api/players', body);
+    closeModal('playerModal');
+    Toast.success(id ? 'Player updated!' : 'Player added!');
+    loadPlayers();
+  } catch(e){}
+}
+
+async function deletePlayer(id) {
+  if (!confirm('Delete this player?')) return;
+  try { await API.del(`/api/players/${id}`); Toast.success('Player deleted'); loadPlayers(); } catch(e){}
+}
+
+async function openPlayerProfile(playerId) {
+  const content = document.getElementById('playerProfileContent');
+  content.innerHTML = '<div style="text-align:center;padding:var(--sp-6);color:var(--text-muted);"><span class="material-symbols-outlined pp-spin" style="font-size:32px;">progress_activity</span><div style="margin-top:var(--sp-2);">Loading player data...</div></div>';
+  openModal('playerProfileModal');
+  try {
+    const r = await API.get(`/api/players/${playerId}/profile`);
+    document.getElementById('profileModalTitle').textContent = r.data.player.name;
+    content.innerHTML = renderPlayerProfile(r.data);
+  } catch(e) {
+    content.innerHTML = '<div style="text-align:center;padding:var(--sp-6);color:var(--text-muted);"><span class="material-symbols-outlined" style="font-size:32px;">error</span><p>Could not load player profile</p></div>';
+  }
+}
+</script>
+<script src="/static/js/player-profile.js"></script>
+{% endblock %}

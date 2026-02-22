@@ -1,0 +1,41 @@
+{% extends "player_base.html" %}
+{% block title %}HOOPS AI — My Drills{% endblock %}
+{% block nav_drills %}active{% endblock %}
+{% block header_title %}My Drills{% endblock %}
+{% block content %}
+<div class="player-dashboard">
+  <section class="dashboard-section">
+    <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;">
+      <h2><span class="material-symbols-outlined">fitness_center</span> Assigned Drills</h2>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="drill-filter-tabs" style="display:flex;gap:var(--sp-2);margin-bottom:var(--sp-4);">
+      <button class="drill-filter-tab active" data-filter="" onclick="switchFilter(this)">All</button>
+      <button class="drill-filter-tab" data-filter="pending" onclick="switchFilter(this)">Pending</button>
+      <button class="drill-filter-tab" data-filter="video_uploaded" onclick="switchFilter(this)">Under Review</button>
+      <button class="drill-filter-tab" data-filter="completed" onclick="switchFilter(this)">Completed</button>
+    </div>
+
+    <div class="section-content" id="drillsContent">
+      <div class="loading-state">Loading drills...</div>
+    </div>
+  </section>
+</div>
+
+<!-- Drill Detail Modal -->
+<div class="modal-overlay" id="drillDetailModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <h2 class="modal-title" id="drillDetailTitle"></h2>
+      <button class="modal-close" onclick="closeDrillModal()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body" id="drillDetailBody" style="max-height:70vh;overflow-y:auto;"></div>
+    <div class="modal-footer" id="drillDetailFooter"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/player_drills.js"></script>
+{% endblock %}

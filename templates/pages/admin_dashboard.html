@@ -1,0 +1,135 @@
+{% extends "admin_base.html" %}
+{% block title %}HOOPS AI — Admin Dashboard{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+{% block header_title %}Dashboard{% endblock %}
+{% block content %}
+<div class="admin-dashboard">
+  <!-- Stats Cards -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card">
+      <div class="stat-icon"><span class="material-symbols-outlined">groups</span></div>
+      <div class="stat-info">
+        <div class="stat-value" id="statTeams">0</div>
+        <div class="stat-label">Teams</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><span class="material-symbols-outlined">sports</span></div>
+      <div class="stat-info">
+        <div class="stat-value" id="statCoaches">0</div>
+        <div class="stat-label">Coaches</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><span class="material-symbols-outlined">person</span></div>
+      <div class="stat-info">
+        <div class="stat-value" id="statPlayers">0</div>
+        <div class="stat-label">Players</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><span class="material-symbols-outlined">family_restroom</span></div>
+      <div class="stat-info">
+        <div class="stat-value" id="statParents">0</div>
+        <div class="stat-label">Parents</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="stats-grid quick-links-grid">
+    <a href="/admin/schedule" class="stat-card stat-card-link">
+      <div class="stat-icon"><span class="material-symbols-outlined">calendar_month</span></div>
+      <div class="stat-info">
+        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;">Schedule</div>
+        <div class="stat-label">Calendar & Requests</div>
+      </div>
+    </a>
+    <a href="/admin/teams" class="stat-card stat-card-link">
+      <div class="stat-icon"><span class="material-symbols-outlined">groups</span></div>
+      <div class="stat-info">
+        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;">Teams</div>
+        <div class="stat-label">Manage & Invite</div>
+      </div>
+    </a>
+    <a href="/admin/roles" class="stat-card stat-card-link">
+      <div class="stat-icon"><span class="material-symbols-outlined">badge</span></div>
+      <div class="stat-info">
+        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;">Roles</div>
+        <div class="stat-label">Admin Permissions</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Dashboard Content Grid -->
+  <div class="dashboard-content-grid">
+    <!-- Today's Activities -->
+    <section class="dashboard-section">
+      <div class="section-header">
+        <h2><span class="material-symbols-outlined">today</span> פעילויות היום</h2>
+        <span class="section-count" id="todayCount" style="display:none;"></span>
+      </div>
+      <div id="todaysEvents">
+        <div class="loading-state">טוען...</div>
+      </div>
+    </section>
+
+    <!-- Pending Approvals -->
+    <section class="dashboard-section">
+      <div class="section-header">
+        <h2><span class="material-symbols-outlined">pending_actions</span> ממתינים לאישור</h2>
+        <span class="pending-badge" id="pendingBadge" style="display:none;">0</span>
+      </div>
+      <div id="pendingRequests">
+        <div class="loading-state">טוען...</div>
+      </div>
+    </section>
+
+    <!-- Upcoming Events -->
+    <section class="dashboard-section">
+      <div class="section-header">
+        <h2><span class="material-symbols-outlined">event_upcoming</span> אירועים קרובים</h2>
+        <a href="/admin/schedule" class="section-link">לוח שנה מלא →</a>
+      </div>
+      <div id="upcomingEvents">
+        <div class="loading-state">טוען...</div>
+      </div>
+    </section>
+
+    <!-- Recent Results -->
+    <section class="dashboard-section">
+      <div class="section-header">
+        <h2><span class="material-symbols-outlined">scoreboard</span> תוצאות אחרונות</h2>
+      </div>
+      <div id="recentGames">
+        <div class="loading-state">טוען...</div>
+      </div>
+    </section>
+
+    <!-- Attendance Overview -->
+    <section class="dashboard-section">
+      <div class="section-header">
+        <h2><span class="material-symbols-outlined">fact_check</span> נוכחות</h2>
+      </div>
+      <div id="attendanceSummary">
+        <div class="loading-state">טוען...</div>
+      </div>
+    </section>
+
+    <!-- New Members -->
+    <section class="dashboard-section">
+      <div class="section-header">
+        <h2><span class="material-symbols-outlined">person_add</span> חברים חדשים</h2>
+        <span class="text-sm text-muted">7 ימים אחרונים</span>
+      </div>
+      <div id="newMembers">
+        <div class="loading-state">טוען...</div>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/admin_dashboard.js?v=3"></script>
+{% endblock %}

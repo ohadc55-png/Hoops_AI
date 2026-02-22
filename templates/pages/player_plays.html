@@ -1,0 +1,33 @@
+{% extends "player_base.html" %}
+{% block title %}HOOPS AI — Team Plays{% endblock %}
+{% block nav_plays %}active{% endblock %}
+{% block header_title %}Team Plays{% endblock %}
+{% block styles %}<link rel="stylesheet" href="/static/css/pages/play-creator.css">{% endblock %}
+{% block content %}
+<div class="player-dashboard">
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2><span class="material-symbols-outlined">sports_basketball</span> Team Plays</h2>
+    </div>
+    <div class="section-content" id="playsContent">
+      <div class="loading-state">Loading plays...</div>
+    </div>
+  </section>
+</div>
+
+<!-- Play Viewer Modal -->
+<div class="modal-overlay" id="playViewerModal">
+  <div class="modal" style="max-width:640px;max-height:72vh;">
+    <div class="modal-header">
+      <h2 class="modal-title" id="playViewerTitle"></h2>
+      <button class="modal-close" onclick="closePlayViewer()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body" id="playViewerBody" style="flex:1;overflow:hidden;padding:var(--sp-3);"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/play-viewer.js"></script>
+<script src="/static/js/player_plays.js"></script>
+{% endblock %}

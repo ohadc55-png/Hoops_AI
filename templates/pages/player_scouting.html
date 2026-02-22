@@ -1,0 +1,249 @@
+{% extends "player_base.html" %}
+{% block title %}HOOPS AI — Video Feed{% endblock %}
+{% block nav_scouting %}active{% endblock %}
+{% block styles %}
+<link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
+<style>
+/* ═══ Player Video Feed — Gamer Green Theme ═══ */
+.feed-container { max-width: 640px; margin: 0 auto; }
+
+.feed-page-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: var(--sp-4);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  text-shadow: 0 0 10px rgba(34, 197, 94, 0.25);
+}
+.feed-page-title .material-symbols-outlined {
+  color: var(--primary);
+  font-size: 1.5rem;
+}
+
+/* Filter buttons — match drill-filter-tab pattern */
+.feed-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: var(--sp-5);
+}
+.feed-filters .filter-btn {
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 197, 94, 0.15);
+  background: transparent;
+  color: #bbf7d0;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease;
+  font-family: 'Space Grotesk', sans-serif;
+  outline: none;
+}
+.feed-filters .filter-btn:hover {
+  border-color: #22c55e;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.06);
+}
+.feed-filters .filter-btn.active {
+  background: #22c55e;
+  color: #050808;
+  border-color: #22c55e;
+  font-weight: 600;
+}
+
+/* Feed cards */
+.feed-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  margin-bottom: var(--sp-4);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+.feed-card:hover {
+  border-color: rgba(34, 197, 94, 0.25);
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.08);
+}
+
+.feed-card-thumb {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  background: #000;
+  cursor: pointer;
+  display: block;
+}
+.feed-card-thumb-placeholder {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 3rem;
+  cursor: pointer;
+}
+.feed-card-play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 56px;
+  height: 56px;
+  background: rgba(34, 197, 94, 0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #050808;
+  font-size: 2rem;
+  pointer-events: none;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+}
+.feed-card:hover .feed-card-play-icon {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
+}
+
+.feed-card-body {
+  padding: var(--sp-3) var(--sp-4);
+}
+.feed-card-action {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: var(--sp-1);
+  color: var(--text);
+}
+.feed-card-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.feed-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-2) var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+
+/* Watch / Watched button — green theme */
+.watched-btn {
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  background: rgba(34, 197, 94, 0.08);
+  color: #bbf7d0;
+  transition: all 150ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.watched-btn:hover {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: #22c55e;
+  color: #22c55e;
+}
+.watched-btn.is-watched {
+  background: rgba(34,197,94,0.15);
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.3);
+  cursor: default;
+}
+
+/* Empty state */
+.feed-empty {
+  text-align: center;
+  padding: var(--sp-8);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+.feed-empty .material-symbols-outlined { font-size: 3rem; display: block; margin-bottom: var(--sp-2); }
+
+/* Clip viewer modal — match player modal style */
+.clip-viewer-container {
+  position: relative;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: #000;
+}
+.clip-viewer-container .video-js {
+  width: 100%;
+  aspect-ratio: 16/9;
+}
+.clip-viewer-canvas {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Video.js player — green controls override */
+.player-app .video-js .vjs-big-play-button {
+  background: rgba(34, 197, 94, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  line-height: 56px;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+}
+.player-app .video-js .vjs-play-progress,
+.player-app .video-js .vjs-volume-level {
+  background: #22c55e;
+}
+.player-app .video-js .vjs-slider:focus .vjs-play-progress {
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-content" style="padding: var(--sp-6);">
+  <div class="feed-container">
+    <h1 class="feed-page-title">
+      <span class="material-symbols-outlined">videocam</span> Video Feed
+    </h1>
+
+    <div class="feed-filters">
+      <button class="filter-btn active" data-filter="all" onclick="filterFeed(this, 'all')">All</button>
+      <button class="filter-btn" data-filter="new" onclick="filterFeed(this, 'new')">New</button>
+    </div>
+
+    <div id="feedList">
+      <p class="feed-empty">Loading...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Clip Viewer Modal -->
+<div class="modal-overlay" id="clipViewerModal">
+  <div class="modal" style="max-width: 720px; max-height: 85vh;">
+    <div class="modal-header">
+      <h2 id="clipViewerTitle">Clip</h2>
+      <button class="modal-close" onclick="closeClipViewer()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body" style="padding:0;">
+      <div class="clip-viewer-container" id="clipViewerContainer">
+        <video id="clipViewerPlayer" class="video-js vjs-default-skin" playsinline></video>
+        <canvas id="clipViewerCanvas" class="clip-viewer-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+<script src="/static/js/player_scouting.js"></script>
+{% endblock %}
