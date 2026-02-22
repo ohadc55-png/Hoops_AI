@@ -511,7 +511,27 @@ class PlatformInvoiceService:
             limit=limit,
             offset=offset,
         )
-        return [self._serialize_invoice(inv) for inv in invoices]
+        result = [self._serialize_invoice(inv) for inv in invoices]
+
+        # Batch-fetch receipt IDs for paid tax invoices
+        paid_tax_ids = [
+            inv.id for inv in invoices
+            if inv.invoice_type == "tax_invoice" and inv.status == "paid"
+        ]
+        if paid_tax_ids:
+            receipt_rows = await self.session.execute(
+                select(PlatformInvoice.reference_invoice_id, PlatformInvoice.id)
+                .where(
+                    PlatformInvoice.reference_invoice_id.in_(paid_tax_ids),
+                    PlatformInvoice.invoice_type == "receipt",
+                )
+            )
+            receipt_map = {row[0]: row[1] for row in receipt_rows.all()}
+            for item in result:
+                if item["id"] in receipt_map:
+                    item["receipt_id"] = receipt_map[item["id"]]
+
+        return result
 
     async def get_billing_overview(self) -> dict:
         """Platform-wide billing overview: MRR, totals, overdue, success rate."""

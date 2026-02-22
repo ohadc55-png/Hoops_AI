@@ -102,6 +102,7 @@ function renderInvoiceTable(invoices) {
 
   tbody.innerHTML = invoices.map(inv => {
     const canPay = ['draft','sent','overdue'].includes(inv.status);
+    const hasReceipt = inv.status === 'paid' && inv.invoice_type === 'tax_invoice' && inv.receipt_id;
     return `
     <tr onclick="window.location.href='/super-admin/billing/${inv.id}'" style="cursor:pointer;">
       <td><strong>${esc(inv.invoice_number)}</strong></td>
@@ -117,6 +118,9 @@ function renderInvoiceTable(invoices) {
         </button>
         ${canPay ? `<button class="btn btn-sm btn-icon" onclick="event.stopPropagation();openQuickPay(${inv.id},'${esc(inv.invoice_number)}','${esc(inv.billing_name)}',${inv.total})" title="Mark as Paid" style="color:#22c55e;">
           <span class="material-symbols-outlined" style="font-size:18px;">payments</span>
+        </button>` : ''}
+        ${hasReceipt ? `<button class="btn btn-sm btn-icon" onclick="event.stopPropagation();window.location.href='/super-admin/billing/${inv.receipt_id}'" title="View Receipt" style="color:#10b981;">
+          <span class="material-symbols-outlined" style="font-size:18px;">receipt_long</span>
         </button>` : ''}
       </td>
     </tr>`;
@@ -299,48 +303,41 @@ function renderInvoiceDetail(inv) {
   const secondaryBtns = [];
 
   // Primary actions
-  primaryBtns.push(`<button class="btn btn-primary" onclick="downloadPDF(${inv.id})"><span class="material-symbols-outlined">picture_as_pdf</span> Download PDF</button>`);
+  primaryBtns.push(`<button class="sa-action-btn primary" onclick="downloadPDF(${inv.id})"><span class="material-symbols-outlined">picture_as_pdf</span> Download PDF</button>`);
 
   if (inv.status === 'draft') {
-    primaryBtns.push(`<button class="btn" style="background:#3b82f6;color:#fff;" onclick="sendInvoice(${inv.id})"><span class="material-symbols-outlined">send</span> Send Invoice</button>`);
+    primaryBtns.push(`<button class="sa-action-btn blue" onclick="sendInvoice(${inv.id})"><span class="material-symbols-outlined">send</span> Send Invoice</button>`);
   }
   if (['sent', 'overdue', 'draft'].includes(inv.status)) {
-    primaryBtns.push(`<button class="btn" style="background:#22c55e;color:#fff;" onclick="openPayModal()"><span class="material-symbols-outlined">payments</span> Mark as Paid</button>`);
+    primaryBtns.push(`<button class="sa-action-btn success" onclick="openPayModal()"><span class="material-symbols-outlined">payments</span> Mark as Paid</button>`);
   }
 
   // View linked receipt (for paid tax invoices)
-  if (inv.status === 'paid' && inv.receipt_id) {
-    primaryBtns.push(`<button class="btn" style="background:#10b981;color:#fff;" onclick="window.location.href='/super-admin/billing/${inv.receipt_id}'"><span class="material-symbols-outlined">receipt_long</span> View Receipt</button>`);
+  if (inv.status === 'paid' && inv.invoice_type === 'tax_invoice' && inv.receipt_id) {
+    primaryBtns.push(`<button class="sa-action-btn success" onclick="window.location.href='/super-admin/billing/${inv.receipt_id}'"><span class="material-symbols-outlined">receipt_long</span> View Receipt</button>`);
   }
 
   // View linked credit note (for cancelled invoices)
   if (inv.status === 'cancelled' && inv.credit_note_id) {
-    primaryBtns.push(`<button class="btn" style="background:#6b7280;color:#fff;" onclick="window.location.href='/super-admin/billing/${inv.credit_note_id}'"><span class="material-symbols-outlined">receipt_long</span> View Credit Note</button>`);
+    primaryBtns.push(`<button class="sa-action-btn ghost" onclick="window.location.href='/super-admin/billing/${inv.credit_note_id}'"><span class="material-symbols-outlined">receipt_long</span> View Credit Note</button>`);
   }
 
   // Secondary actions
-  // Resend notification
   if (inv.status !== 'cancelled') {
-    secondaryBtns.push(`<button class="btn" style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-color);" onclick="resendInvoice(${inv.id})"><span class="material-symbols-outlined">forward_to_inbox</span> Resend</button>`);
+    secondaryBtns.push(`<button class="sa-action-btn ghost" onclick="resendInvoice(${inv.id})"><span class="material-symbols-outlined">forward_to_inbox</span> Resend</button>`);
   }
-
-  // Send payment reminder (unpaid only)
   if (['sent', 'overdue'].includes(inv.status)) {
-    secondaryBtns.push(`<button class="btn" style="background:#f59e0b;color:#fff;" onclick="sendReminder(${inv.id})"><span class="material-symbols-outlined">notifications_active</span> Send Reminder</button>`);
+    secondaryBtns.push(`<button class="sa-action-btn warning" onclick="sendReminder(${inv.id})"><span class="material-symbols-outlined">notifications_active</span> Send Reminder</button>`);
   }
-
-  // Duplicate invoice
-  secondaryBtns.push(`<button class="btn" style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-color);" onclick="duplicateInvoice(${inv.id})"><span class="material-symbols-outlined">content_copy</span> Duplicate</button>`);
-
-  // Cancel / Credit Note
+  secondaryBtns.push(`<button class="sa-action-btn ghost" onclick="duplicateInvoice(${inv.id})"><span class="material-symbols-outlined">content_copy</span> Duplicate</button>`);
   if (inv.invoice_type === 'tax_invoice' && inv.status !== 'cancelled') {
-    secondaryBtns.push(`<button class="btn" style="background:var(--danger);color:#fff;" onclick="openModal('cancelModal')"><span class="material-symbols-outlined">cancel</span> Cancel Invoice</button>`);
+    secondaryBtns.push(`<button class="sa-action-btn danger" onclick="openModal('cancelModal')"><span class="material-symbols-outlined">cancel</span> Cancel Invoice</button>`);
   }
 
   document.getElementById('actionsSection').style.display = '';
   actions.innerHTML = `
     <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap;">${primaryBtns.join('')}</div>
-    ${secondaryBtns.length ? `<div style="display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-3);padding-top:var(--sp-3);border-top:1px solid var(--border-color);">${secondaryBtns.join('')}</div>` : ''}
+    ${secondaryBtns.length ? `<div style="display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-3);padding-top:var(--sp-3);border-top:1px solid var(--border);">${secondaryBtns.join('')}</div>` : ''}
   `;
 }
 

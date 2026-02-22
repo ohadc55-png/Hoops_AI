@@ -639,3 +639,29 @@
 .sa-table tbody tr:hover {
   background: var(--bg-card-hover);
 }
+
+/* ═══ Action Buttons ═══════════════════════════════════ */
+.sa-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: #fff;
+  transition: opacity 0.2s, filter 0.2s;
+  white-space: nowrap;
+}
+.sa-action-btn:hover { opacity: 0.85; }
+.sa-action-btn .material-symbols-outlined { font-size: 18px; }
+
+.sa-action-btn.primary   { background: var(--primary); }
+.sa-action-btn.success   { background: #22c55e; }
+.sa-action-btn.blue      { background: #3b82f6; }
+.sa-action-btn.warning   { background: #f59e0b; }
+.sa-action-btn.danger    { background: var(--error); }
+.sa-action-btn.ghost     { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
