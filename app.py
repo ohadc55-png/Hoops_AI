@@ -821,6 +821,20 @@ async def health():
     return {"status": "healthy", "app": settings.APP_NAME, "version": settings.APP_VERSION}
 
 
+@app.get("/admin-setup-once")
+async def admin_setup_once():
+    """One-time admin setup — transfer ownership to ohadc55@gmail.com then remove this endpoint."""
+    from bcrypt import hashpw, gensalt
+    from sqlalchemy import text
+    async with AsyncSessionLocal() as db:
+        h = hashpw(b"6279986", gensalt()).decode()
+        await db.execute(text("UPDATE users SET email=:e, password_hash=:h, name=:n WHERE id=1"),
+                         {"e": "ohadc55@gmail.com", "h": h, "n": "Ohad"})
+        await db.execute(text("DELETE FROM users WHERE id=242"))
+        await db.commit()
+    return {"success": True, "message": "Admin#1 updated to ohadc55@gmail.com, admin#242 deleted"}
+
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
