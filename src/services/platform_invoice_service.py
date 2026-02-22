@@ -37,7 +37,7 @@ class PlatformInvoiceService:
         period_start: date | None = None,
         period_end: date | None = None,
         notes: str | None = None,
-        vat_rate: float = 17.0,
+        vat_rate: float = 18.0,
     ) -> PlatformInvoice:
         """Create a new invoice with line items."""
         if invoice_type not in INVOICE_TYPES:
@@ -349,7 +349,7 @@ class PlatformInvoiceService:
         club_id: int,
         line_items: list[dict],
         notes: str | None = None,
-        vat_rate: float = 17.0,
+        vat_rate: float = 18.0,
     ) -> PlatformInvoice:
         """Create a quote (price proposal)."""
         return await self.create_invoice(
@@ -479,7 +479,20 @@ class PlatformInvoiceService:
         invoice = await self.invoice_repo.get_with_items(invoice_id)
         if not invoice:
             return None
-        return self._serialize_invoice(invoice, include_items=True)
+        data = self._serialize_invoice(invoice, include_items=True)
+        # Include linked receipt ID for paid tax invoices
+        if invoice.invoice_type == "tax_invoice" and invoice.status == "paid":
+            data["receipt_id"] = await self.get_linked_receipt_id(invoice_id)
+        # Include linked credit note ID for cancelled invoices
+        if invoice.status == "cancelled":
+            cn_result = await self.session.execute(
+                select(PlatformInvoice.id).where(
+                    PlatformInvoice.reference_invoice_id == invoice_id,
+                    PlatformInvoice.invoice_type == "credit_note",
+                )
+            )
+            data["credit_note_id"] = cn_result.scalar_one_or_none()
+        return data
 
     async def get_invoices(
         self,

@@ -29,7 +29,7 @@ class CreateInvoiceRequest(BaseModel):
     period_start: str | None = None
     period_end: str | None = None
     notes: str | None = None
-    vat_rate: float = 17.0
+    vat_rate: float = 18.0
 
 
 class MarkPaidRequest(BaseModel):
@@ -166,6 +166,57 @@ async def cancel_invoice(
         result = await service.cancel_invoice(invoice_id, reason=req.reason)
         await db.commit()
         return {"success": True, "data": result}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+# ─── Duplicate / Resend / Reminder ──────────────────────
+
+@router.post("/invoices/{invoice_id}/duplicate")
+async def duplicate_invoice(
+    invoice_id: int,
+    admin: SuperAdmin = Depends(get_current_super_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Duplicate an invoice as a new draft."""
+    service = PlatformInvoiceService(db)
+    try:
+        new_invoice = await service.duplicate_invoice(invoice_id)
+        await db.commit()
+        detail = await service.get_invoice_detail(new_invoice.id)
+        return {"success": True, "data": detail}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/invoices/{invoice_id}/resend")
+async def resend_invoice(
+    invoice_id: int,
+    admin: SuperAdmin = Depends(get_current_super_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Re-send invoice notification to club admin."""
+    service = PlatformInvoiceService(db)
+    try:
+        await service.resend_invoice(invoice_id)
+        await db.commit()
+        return {"success": True, "message": "Invoice re-sent"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/invoices/{invoice_id}/reminder")
+async def send_reminder(
+    invoice_id: int,
+    admin: SuperAdmin = Depends(get_current_super_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Send a payment reminder for an unpaid invoice."""
+    service = PlatformInvoiceService(db)
+    try:
+        await service.send_reminder(invoice_id)
+        await db.commit()
+        return {"success": True, "message": "Payment reminder sent"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

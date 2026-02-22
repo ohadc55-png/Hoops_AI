@@ -35,7 +35,7 @@ class PlatformInvoice(Base, TimestampMixin):
 
     # Amounts (ILS)
     subtotal: Mapped[float] = mapped_column(Float, nullable=False, default=0)
-    vat_rate: Mapped[float] = mapped_column(Float, nullable=False, default=17.0)  # VAT %
+    vat_rate: Mapped[float] = mapped_column(Float, nullable=False, default=18.0)  # VAT %
     vat_amount: Mapped[float] = mapped_column(Float, nullable=False, default=0)
     total: Mapped[float] = mapped_column(Float, nullable=False, default=0)
     currency: Mapped[str] = mapped_column(String(3), nullable=False, default="ILS")

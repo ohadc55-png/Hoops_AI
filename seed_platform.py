@@ -706,7 +706,7 @@ async def main():
                     is_paid = months_ago > 1 or (months_ago == 1 and club.id != club3.id)
 
                     subtotal = float(price)
-                    vat_amount = round(subtotal * 0.17, 2)
+                    vat_amount = round(subtotal * 0.18, 2)
                     total = round(subtotal + vat_amount, 2)
 
                     inv = PlatformInvoice(
@@ -717,7 +717,7 @@ async def main():
                         billing_name=club.name,
                         billing_email=club.billing_email,
                         subtotal=subtotal,
-                        vat_rate=17.0,
+                        vat_rate=18.0,
                         vat_amount=vat_amount,
                         total=total,
                         currency="ILS",

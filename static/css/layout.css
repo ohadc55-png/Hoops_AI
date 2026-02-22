@@ -307,3 +307,27 @@
   .header-search { width: 200px; }
   .header-nav { display: none; }
 }
+
+/* ═══ Mobile Phone (≤ 480px) ═══ */
+@media (max-width: 480px) {
+  .main { padding: var(--sp-3); }
+  .header { padding: 0 var(--sp-3); }
+  .header-search { width: 120px; }
+  .header-search .input {
+    font-size: 12px;
+    height: 32px;
+    padding-left: 32px;
+  }
+  .header-search .material-symbols-outlined {
+    font-size: 18px;
+    left: var(--sp-2);
+  }
+  .header-right { gap: var(--sp-2); }
+  .page-title { font-size: var(--text-xl); }
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-2);
+  }
+  .notif-dropdown { width: 280px; right: var(--sp-2); }
+}

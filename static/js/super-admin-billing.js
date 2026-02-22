@@ -295,24 +295,53 @@ function renderInvoiceDetail(inv) {
 
   // Actions
   const actions = document.getElementById('actionsContent');
-  const btns = [];
+  const primaryBtns = [];
+  const secondaryBtns = [];
 
-  btns.push(`<button class="btn btn-primary" onclick="downloadPDF(${inv.id})"><span class="material-symbols-outlined">picture_as_pdf</span> Download PDF</button>`);
+  // Primary actions
+  primaryBtns.push(`<button class="btn btn-primary" onclick="downloadPDF(${inv.id})"><span class="material-symbols-outlined">picture_as_pdf</span> Download PDF</button>`);
 
   if (inv.status === 'draft') {
-    btns.push(`<button class="btn" style="background:#3b82f6;color:#fff;" onclick="sendInvoice(${inv.id})"><span class="material-symbols-outlined">send</span> Send Invoice</button>`);
+    primaryBtns.push(`<button class="btn" style="background:#3b82f6;color:#fff;" onclick="sendInvoice(${inv.id})"><span class="material-symbols-outlined">send</span> Send Invoice</button>`);
   }
   if (['sent', 'overdue', 'draft'].includes(inv.status)) {
-    btns.push(`<button class="btn" style="background:#22c55e;color:#fff;" onclick="openPayModal()"><span class="material-symbols-outlined">payments</span> Mark as Paid</button>`);
-  }
-  if (inv.invoice_type === 'tax_invoice' && inv.status !== 'cancelled') {
-    btns.push(`<button class="btn" style="background:var(--danger);color:#fff;" onclick="openModal('cancelModal')"><span class="material-symbols-outlined">cancel</span> Cancel Invoice</button>`);
+    primaryBtns.push(`<button class="btn" style="background:#22c55e;color:#fff;" onclick="openPayModal()"><span class="material-symbols-outlined">payments</span> Mark as Paid</button>`);
   }
 
-  if (btns.length) {
-    document.getElementById('actionsSection').style.display = '';
-    actions.innerHTML = btns.join('');
+  // View linked receipt (for paid tax invoices)
+  if (inv.status === 'paid' && inv.receipt_id) {
+    primaryBtns.push(`<button class="btn" style="background:#10b981;color:#fff;" onclick="window.location.href='/super-admin/billing/${inv.receipt_id}'"><span class="material-symbols-outlined">receipt_long</span> View Receipt</button>`);
   }
+
+  // View linked credit note (for cancelled invoices)
+  if (inv.status === 'cancelled' && inv.credit_note_id) {
+    primaryBtns.push(`<button class="btn" style="background:#6b7280;color:#fff;" onclick="window.location.href='/super-admin/billing/${inv.credit_note_id}'"><span class="material-symbols-outlined">receipt_long</span> View Credit Note</button>`);
+  }
+
+  // Secondary actions
+  // Resend notification
+  if (inv.status !== 'cancelled') {
+    secondaryBtns.push(`<button class="btn" style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-color);" onclick="resendInvoice(${inv.id})"><span class="material-symbols-outlined">forward_to_inbox</span> Resend</button>`);
+  }
+
+  // Send payment reminder (unpaid only)
+  if (['sent', 'overdue'].includes(inv.status)) {
+    secondaryBtns.push(`<button class="btn" style="background:#f59e0b;color:#fff;" onclick="sendReminder(${inv.id})"><span class="material-symbols-outlined">notifications_active</span> Send Reminder</button>`);
+  }
+
+  // Duplicate invoice
+  secondaryBtns.push(`<button class="btn" style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-color);" onclick="duplicateInvoice(${inv.id})"><span class="material-symbols-outlined">content_copy</span> Duplicate</button>`);
+
+  // Cancel / Credit Note
+  if (inv.invoice_type === 'tax_invoice' && inv.status !== 'cancelled') {
+    secondaryBtns.push(`<button class="btn" style="background:var(--danger);color:#fff;" onclick="openModal('cancelModal')"><span class="material-symbols-outlined">cancel</span> Cancel Invoice</button>`);
+  }
+
+  document.getElementById('actionsSection').style.display = '';
+  actions.innerHTML = `
+    <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap;">${primaryBtns.join('')}</div>
+    ${secondaryBtns.length ? `<div style="display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-3);padding-top:var(--sp-3);border-top:1px solid var(--border-color);">${secondaryBtns.join('')}</div>` : ''}
+  `;
 }
 
 
@@ -366,6 +395,35 @@ async function confirmCancel() {
     closeModal('cancelModal');
     SuperAdminToast.success('Invoice cancelled, credit note created');
     loadInvoiceDetail(_invoiceId);
+  } catch (err) { /* handled */ }
+}
+
+
+// ─── Duplicate / Resend / Reminder ─────────────────────
+
+async function duplicateInvoice(id) {
+  if (!confirm('Create a duplicate of this invoice as a new draft?')) return;
+  try {
+    const res = await SuperAdminAPI.post(`/api/super/billing/invoices/${id}/duplicate`, {});
+    SuperAdminToast.success('Invoice duplicated');
+    // Navigate to the new invoice
+    window.location.href = `/super-admin/billing/${res.data.id}`;
+  } catch (err) { /* handled */ }
+}
+
+async function resendInvoice(id) {
+  if (!confirm('Resend this invoice notification to the club?')) return;
+  try {
+    await SuperAdminAPI.post(`/api/super/billing/invoices/${id}/resend`, {});
+    SuperAdminToast.success('Invoice re-sent successfully');
+  } catch (err) { /* handled */ }
+}
+
+async function sendReminder(id) {
+  if (!confirm('Send a payment reminder to the club?')) return;
+  try {
+    await SuperAdminAPI.post(`/api/super/billing/invoices/${id}/reminder`, {});
+    SuperAdminToast.success('Payment reminder sent');
   } catch (err) { /* handled */ }
 }
 

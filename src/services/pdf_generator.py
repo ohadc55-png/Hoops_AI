@@ -220,7 +220,7 @@ class InvoicePDF(FPDF):
         self.ln()
 
         # VAT
-        vat_rate = inv.get("vat_rate", 17)
+        vat_rate = inv.get("vat_rate", 18)
         self.set_x(x_label)
         self.cell(35, 7, f"VAT ({vat_rate}%):", align="R")
         self.cell(40, 7, f"{inv.get('currency', 'ILS')} {abs(inv.get('vat_amount', 0)):,.2f}", align="R")

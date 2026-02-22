@@ -3,12 +3,22 @@ HOOPS AI - Database Setup
 """
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import event as sa_event
 from config import get_settings
 
 settings = get_settings()
 
 engine = create_async_engine(settings.DATABASE_URL, echo=settings.DEBUG, future=True)
 AsyncSessionLocal = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+
+
+# SQLite production optimizations: WAL mode + busy timeout
+@sa_event.listens_for(engine.sync_engine, "connect")
+def _set_sqlite_pragma(dbapi_conn, connection_record):
+    cursor = dbapi_conn.cursor()
+    cursor.execute("PRAGMA journal_mode=WAL")
+    cursor.execute("PRAGMA busy_timeout=5000")
+    cursor.close()
 
 
 class Base(DeclarativeBase):

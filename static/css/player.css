@@ -1050,3 +1050,131 @@
     gap: var(--sp-3);
   }
 }
+
+/* ══════════════════════════════════════
+   Mobile Phone Optimization (≤ 480px)
+   ══════════════════════════════════════ */
+@media (max-width: 480px) {
+  /* Main content — tighter padding */
+  .player-app .main {
+    padding: var(--sp-3);
+  }
+  .player-app .header {
+    padding: 0 var(--sp-3);
+  }
+
+  /* Welcome card — compact */
+  .player-app .welcome-card {
+    padding: var(--sp-5);
+    margin-bottom: var(--sp-4);
+  }
+  .player-app .welcome-content h1 {
+    font-size: var(--text-lg);
+  }
+  .player-app .welcome-icon {
+    font-size: 40px;
+  }
+  .player-app .welcome-icon .material-symbols-outlined {
+    font-size: 40px;
+  }
+
+  /* Stats grid — keep 2 cols but tighter */
+  .player-app .stats-grid {
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-4);
+  }
+  .player-app .stat-card {
+    padding: var(--sp-3);
+    gap: var(--sp-2);
+  }
+  .player-app .stat-icon {
+    width: 36px;
+    height: 36px;
+  }
+  .player-app .stat-icon .material-symbols-outlined {
+    font-size: 20px;
+  }
+
+  /* Dashboard sections — tighter */
+  .player-app .dashboard-section {
+    padding: var(--sp-4);
+    margin-bottom: var(--sp-3);
+  }
+
+  /* Roster grid — 2 cols minimum */
+  .player-app .roster-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-2);
+  }
+
+  /* Drill progress stats — 2 cols */
+  .player-app .drill-progress-stats {
+    gap: var(--sp-2);
+  }
+
+  /* Drill filter tabs — horizontal scroll */
+  .player-app .drill-filter-tabs {
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .player-app .drill-filter-tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Drill card footer — stack on small */
+  .player-app .drill-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* Schedule items — tighter gap */
+  .player-app .schedule-item {
+    gap: var(--sp-2);
+  }
+  .player-app .schedule-date {
+    min-width: 42px;
+  }
+  .player-app .schedule-date-day {
+    font-size: var(--text-xl);
+  }
+
+  /* Club contacts — stack vertically */
+  .player-app .club-contact-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .player-app .club-contact-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .player-app .club-contact-role {
+    min-width: auto;
+  }
+
+  /* Leaderboard — compact rows */
+  .player-app .lb-row {
+    padding: var(--sp-2);
+    gap: var(--sp-1);
+  }
+  .player-app .lb-rank {
+    min-width: 28px;
+    font-size: 15px;
+  }
+  .player-app .lb-jersey {
+    min-width: 32px;
+  }
+  .player-app .lb-metric {
+    min-width: 60px;
+  }
+
+  /* Messages tab — horizontal scroll if many tabs */
+  .player-app .msg-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

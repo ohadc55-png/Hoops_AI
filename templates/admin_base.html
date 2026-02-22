@@ -83,10 +83,6 @@
             <span class="material-symbols-outlined">smart_toy</span>
             AI Insights
           </a>
-          <a href="/admin/knowledge" class="nav-item {% block nav_knowledge %}{% endblock %}" data-page="knowledge">
-            <span class="material-symbols-outlined">library_books</span>
-            Knowledge Base
-          </a>
           <a href="/admin/player-development" class="nav-item {% block nav_player_dev %}{% endblock %}" data-page="player-dev">
             <span class="material-symbols-outlined">trending_up</span>
             Player Development
@@ -121,6 +117,10 @@
       </div>
 
       <div class="sidebar-footer">
+        <a href="/admin/knowledge" class="nav-item {% block nav_knowledge %}{% endblock %}" data-page="knowledge">
+          <span class="material-symbols-outlined">library_books</span>
+          Knowledge Base
+        </a>
         <button class="nav-item" onclick="adminLogout()">
           <span class="material-symbols-outlined">logout</span>
           Logout

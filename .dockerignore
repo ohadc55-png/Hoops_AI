@@ -1,0 +1,35 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*.egg-info
+venv/
+.venv/
+
+# Local database (persistent volume in production)
+database/*.db
+database/*.db-shm
+database/*.db-wal
+database/chroma/
+
+# User uploads (persistent volume in production)
+uploads/
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/
+.mcp.json
+
+# Misc
+*.log
+HOOPS_AI_Summary.txt
+nul
+=*

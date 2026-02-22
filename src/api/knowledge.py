@@ -18,7 +18,7 @@ from src.services.rag.rag_service import RAGService
 from src.services.rag.vector_store import get_collection_stats
 from src.services.auth_service import decode_token
 from src.constants.rag_categories import DOCUMENT_CATEGORIES
-from config import get_settings, BASE_DIR
+from config import get_settings
 
 router = APIRouter(prefix="/api/knowledge", tags=["knowledge"])
 security = HTTPBearer(auto_error=False)
@@ -156,7 +156,7 @@ async def upload_document(
         raise HTTPException(status_code=400, detail="File too large (max 20MB)")
 
     # Save file
-    knowledge_dir = Path(BASE_DIR / "uploads" / "knowledge")
+    knowledge_dir = Path(settings.KNOWLEDGE_UPLOAD_DIR)
     knowledge_dir.mkdir(parents=True, exist_ok=True)
 
     filename = f"{uuid.uuid4().hex}{ext}"

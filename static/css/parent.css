@@ -1038,3 +1038,147 @@
   .sc-event-row { flex-direction: column; align-items: flex-start; gap: 6px; }
   .sc-card-footer { flex-direction: column; gap: 8px; align-items: flex-start; }
 }
+
+/* ══════════════════════════════════════
+   Mobile Phone Optimization (≤ 480px)
+   ══════════════════════════════════════ */
+@media (max-width: 480px) {
+  /* Main content — tighter padding */
+  .parent-app .main {
+    padding: var(--sp-3);
+  }
+  .parent-app .header {
+    padding: 0 var(--sp-3);
+  }
+
+  /* Welcome card — compact */
+  .parent-app .welcome-card {
+    padding: var(--sp-5);
+    margin-bottom: var(--sp-4);
+  }
+  .parent-app .welcome-content h1 {
+    font-size: var(--text-lg);
+  }
+  .parent-app .welcome-icon {
+    font-size: 40px;
+  }
+  .parent-app .welcome-icon .material-symbols-outlined {
+    font-size: 40px;
+  }
+
+  /* Dashboard sections — tighter */
+  .parent-app .dashboard-section {
+    padding: var(--sp-4);
+    margin-bottom: var(--sp-3);
+  }
+
+  /* Billing summary — 1 column on phones */
+  .parent-app .billing-summary {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .parent-app .billing-card {
+    padding: 14px;
+  }
+  .parent-app .billing-card .amount {
+    font-size: 22px;
+  }
+
+  /* Charge cards — already stacked from 768px, just tighten */
+  .parent-app .charge-card {
+    padding: 12px;
+    gap: 10px;
+  }
+  .parent-app .charge-right {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .parent-app .charge-amount {
+    font-size: 18px;
+  }
+
+  /* Charge filter tabs — horizontal scroll */
+  .parent-app .charge-filter-tabs {
+    overflow-x: auto;
+    width: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .parent-app .filter-tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Installment rows — tighter */
+  .parent-app .installment-row {
+    grid-template-columns: 24px 1fr auto auto;
+    gap: 6px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  /* Schedule items — tighter gap */
+  .parent-app .schedule-item {
+    gap: var(--sp-2);
+  }
+  .parent-app .schedule-date {
+    min-width: 42px;
+  }
+  .parent-app .schedule-date-day {
+    font-size: var(--text-xl);
+  }
+
+  /* Club contacts — stack vertically */
+  .parent-app .club-contact-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 10px 12px;
+  }
+  .parent-app .club-contact-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .parent-app .club-contact-role {
+    min-width: auto;
+  }
+
+  /* Carpool event chips — compact */
+  .parent-app .event-chip {
+    min-width: 85px;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  .parent-app .chip-title {
+    max-width: 90px;
+  }
+
+  /* Standing carpool — stack meta */
+  .parent-app .sc-card-meta {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* Ride cards — tighter */
+  .parent-app .ride-card {
+    padding: 12px;
+  }
+
+  /* Radio group — vertical on small screens */
+  .parent-app .radio-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Coming soon grid — already 1fr from 1023px, just tighten */
+  .parent-app .coming-soon-card {
+    padding: var(--sp-4);
+  }
+
+  /* Messages tab — horizontal scroll */
+  .parent-app .msg-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

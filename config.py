@@ -1,11 +1,16 @@
 """
 HOOPS AI - Configuration
 """
+import os
 from pathlib import Path
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 BASE_DIR = Path(__file__).resolve().parent
+
+# Persistent data directory: RAILWAY_VOLUME_DIR for production, BASE_DIR for local dev
+_volume_dir = os.environ.get("RAILWAY_VOLUME_DIR")
+DATA_DIR = Path(_volume_dir) if _volume_dir else BASE_DIR
 
 
 class Settings(BaseSettings):
@@ -19,19 +24,19 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
 
-    DATABASE_URL: str = f"sqlite+aiosqlite:///{BASE_DIR / 'database' / 'hoops_ai.db'}"
+    DATABASE_URL: str = f"sqlite+aiosqlite:///{DATA_DIR / 'database' / 'hoops_ai.db'}"
 
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4"
     OPENAI_MAX_TOKENS: int = 2000
     OPENAI_TEMPERATURE: float = 0.7
 
-    UPLOAD_DIR: str = str(BASE_DIR / "uploads")
+    UPLOAD_DIR: str = str(DATA_DIR / "uploads")
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024
     ALLOWED_EXTENSIONS: list[str] = [".csv", ".xlsx", ".xls", ".json", ".png", ".jpg", ".jpeg", ".gif", ".webp"]
 
     # Video Upload Settings (Drill Video Proof)
-    VIDEO_UPLOAD_DIR: str = str(BASE_DIR / "uploads" / "videos")
+    VIDEO_UPLOAD_DIR: str = str(DATA_DIR / "uploads" / "videos")
     VIDEO_MAX_UPLOAD_SIZE: int = 15 * 1024 * 1024  # 15MB
     VIDEO_ALLOWED_EXTENSIONS: list[str] = [".mp4", ".mov", ".webm"]
 
@@ -61,9 +66,9 @@ class Settings(BaseSettings):
     RAG_CHUNK_SIZE: int = 500
     RAG_CHUNK_OVERLAP: int = 50
     RAG_MAX_CONTEXT_CHARS: int = 3000
-    KNOWLEDGE_UPLOAD_DIR: str = str(BASE_DIR / "uploads" / "knowledge")
+    KNOWLEDGE_UPLOAD_DIR: str = str(DATA_DIR / "uploads" / "knowledge")
     KNOWLEDGE_MAX_UPLOAD_SIZE: int = 20 * 1024 * 1024
-    CHROMA_DIR: str = str(BASE_DIR / "database" / "chroma")
+    CHROMA_DIR: str = str(DATA_DIR / "database" / "chroma")
 
     model_config = {"env_file": str(BASE_DIR / ".env"), "extra": "ignore"}
 

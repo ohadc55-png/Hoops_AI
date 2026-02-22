@@ -10,7 +10,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-from config import get_settings, BASE_DIR
+from config import get_settings, BASE_DIR, DATA_DIR
 
 # Import models to register with Base
 import src.models  # noqa: F401
@@ -347,11 +347,11 @@ async def _tier_threshold_check():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    os.makedirs(BASE_DIR / "database", exist_ok=True)
-    os.makedirs(BASE_DIR / "database" / "chroma", exist_ok=True)
-    os.makedirs(BASE_DIR / "uploads", exist_ok=True)
-    os.makedirs(BASE_DIR / "uploads" / "knowledge", exist_ok=True)
-    os.makedirs(BASE_DIR / "uploads" / "videos", exist_ok=True)
+    os.makedirs(DATA_DIR / "database", exist_ok=True)
+    os.makedirs(DATA_DIR / "database" / "chroma", exist_ok=True)
+    os.makedirs(DATA_DIR / "uploads", exist_ok=True)
+    os.makedirs(DATA_DIR / "uploads" / "knowledge", exist_ok=True)
+    os.makedirs(DATA_DIR / "uploads" / "videos", exist_ok=True)
     await init_db()
     # Recalculate attendance streaks for existing data
     try:
@@ -414,7 +414,7 @@ app.add_middleware(
 )
 
 # Static files & templates
-_videos_dir = BASE_DIR / "uploads" / "videos"
+_videos_dir = DATA_DIR / "uploads" / "videos"
 os.makedirs(_videos_dir, exist_ok=True)
 app.mount("/uploads/videos", StaticFiles(directory=str(_videos_dir)), name="uploaded-videos")
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
@@ -822,4 +822,13 @@ async def health():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    reload = settings.ENVIRONMENT == "development"
+    uvicorn.run(
+        "app:app",
+        host="0.0.0.0",
+        port=port,
+        reload=reload,
+        workers=1,
+        log_level="debug" if settings.DEBUG else "info",
+    )
