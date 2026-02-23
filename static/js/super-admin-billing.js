@@ -101,7 +101,7 @@ function renderInvoiceTable(invoices) {
   }
 
   tbody.innerHTML = invoices.map(inv => {
-    const canPay = ['draft','sent','overdue'].includes(inv.status);
+    const canPay = ['draft','sent','overdue'].includes(inv.status) && inv.invoice_type === 'tax_invoice';
     const hasReceipt = inv.status === 'paid' && inv.invoice_type === 'tax_invoice' && inv.receipt_id;
     return `
     <tr onclick="window.location.href='/super-admin/billing/${inv.id}'" style="cursor:pointer;">
@@ -116,11 +116,11 @@ function renderInvoiceTable(invoices) {
         <button class="btn btn-sm btn-icon" onclick="event.stopPropagation();downloadPDF(${inv.id})" title="Download PDF">
           <span class="material-symbols-outlined" style="font-size:18px;">picture_as_pdf</span>
         </button>
-        ${canPay ? `<button class="btn btn-sm btn-icon" onclick="event.stopPropagation();openQuickPay(${inv.id},'${esc(inv.invoice_number)}','${esc(inv.billing_name)}',${inv.total})" title="Mark as Paid" style="color:#22c55e;">
-          <span class="material-symbols-outlined" style="font-size:18px;">payments</span>
+        ${canPay ? `<button class="btn btn-sm btn-icon" onclick="event.stopPropagation();openQuickReceipt(${inv.id},'${esc(inv.invoice_number)}','${esc(inv.billing_name)}',${inv.total})" title="Generate Receipt" style="color:#10b981;">
+          <span class="material-symbols-outlined" style="font-size:18px;">receipt_long</span>
         </button>` : ''}
         ${hasReceipt ? `<button class="btn btn-sm btn-icon" onclick="event.stopPropagation();window.location.href='/super-admin/billing/${inv.receipt_id}'" title="View Receipt" style="color:#10b981;">
-          <span class="material-symbols-outlined" style="font-size:18px;">receipt_long</span>
+          <span class="material-symbols-outlined" style="font-size:18px;">visibility</span>
         </button>` : ''}
       </td>
     </tr>`;
@@ -312,6 +312,11 @@ function renderInvoiceDetail(inv) {
     primaryBtns.push(`<button class="sa-action-btn success" onclick="openPayModal()"><span class="material-symbols-outlined">payments</span> Mark as Paid</button>`);
   }
 
+  // Generate receipt (for unpaid tax invoices)
+  if (['sent', 'overdue', 'draft'].includes(inv.status) && inv.invoice_type === 'tax_invoice') {
+    primaryBtns.push(`<button class="sa-action-btn success" onclick="openPayModal(true)"><span class="material-symbols-outlined">receipt_long</span> Generate Receipt</button>`);
+  }
+
   // View linked receipt (for paid tax invoices)
   if (inv.status === 'paid' && inv.invoice_type === 'tax_invoice' && inv.receipt_id) {
     primaryBtns.push(`<button class="sa-action-btn success" onclick="window.location.href='/super-admin/billing/${inv.receipt_id}'"><span class="material-symbols-outlined">receipt_long</span> View Receipt</button>`);
@@ -352,11 +357,15 @@ async function sendInvoice(id) {
   } catch (err) { /* handled */ }
 }
 
-function openPayModal() {
-  // Reset pay modal fields
+let _goToReceipt = false;
+
+function openPayModal(goToReceipt = false) {
+  _goToReceipt = goToReceipt;
   document.getElementById('payMethod').value = 'bank_transfer';
   document.getElementById('payReference').value = '';
   document.getElementById('payNotes').value = '';
+  document.getElementById('payModalTitle').textContent = goToReceipt ? 'Generate Receipt' : 'Confirm Payment';
+  document.getElementById('payModalSubmit').textContent = goToReceipt ? 'Generate Receipt' : 'Confirm Payment';
   openModal('payModal');
 }
 
@@ -366,19 +375,23 @@ async function confirmPay() {
   const reference = document.getElementById('payReference').value.trim();
   const userNotes = document.getElementById('payNotes').value.trim();
 
-  // Combine reference + notes into the notes field
   let notes = '';
   if (reference) notes += `Ref: ${reference}`;
   if (userNotes) notes += (notes ? ' | ' : '') + userNotes;
 
   try {
-    await SuperAdminAPI.post(`/api/super/billing/invoices/${_invoiceId}/pay`, {
+    const res = await SuperAdminAPI.post(`/api/super/billing/invoices/${_invoiceId}/pay`, {
       payment_method: method,
       notes: notes || null,
     });
     closeModal('payModal');
-    SuperAdminToast.success('Invoice marked as paid, receipt created');
-    loadInvoiceDetail(_invoiceId);
+    if (_goToReceipt && res.receipt_id) {
+      SuperAdminToast.success('Receipt generated');
+      window.location.href = `/super-admin/billing/${res.receipt_id}`;
+    } else {
+      SuperAdminToast.success('Invoice marked as paid, receipt created');
+      loadInvoiceDetail(_invoiceId);
+    }
   } catch (err) { /* handled */ }
 }
 
@@ -428,14 +441,31 @@ async function sendReminder(id) {
 // ─── Quick Pay (from list) ──────────────────────────────
 
 let _quickPayId = null;
+let _quickGoToReceipt = false;
 
 function openQuickPay(id, number, club, total) {
   _quickPayId = id;
+  _quickGoToReceipt = false;
   document.getElementById('quickPayInfo').textContent =
     `Invoice #${number} · ${club} · ${formatILS(total)}`;
   document.getElementById('quickPayMethod').value = 'bank_transfer';
   document.getElementById('quickPayRef').value = '';
   document.getElementById('quickPayNotes').value = '';
+  document.getElementById('quickPayTitle').textContent = 'Mark as Paid';
+  document.getElementById('quickPaySubmit').textContent = 'Confirm Payment';
+  openModal('quickPayModal');
+}
+
+function openQuickReceipt(id, number, club, total) {
+  _quickPayId = id;
+  _quickGoToReceipt = true;
+  document.getElementById('quickPayInfo').textContent =
+    `Invoice #${number} · ${club} · ${formatILS(total)}`;
+  document.getElementById('quickPayMethod').value = 'bank_transfer';
+  document.getElementById('quickPayRef').value = '';
+  document.getElementById('quickPayNotes').value = '';
+  document.getElementById('quickPayTitle').textContent = 'Generate Receipt';
+  document.getElementById('quickPaySubmit').textContent = 'Generate Receipt';
   openModal('quickPayModal');
 }
 
@@ -450,15 +480,21 @@ async function confirmQuickPay() {
   if (userNotes) notes += (notes ? ' | ' : '') + userNotes;
 
   try {
-    await SuperAdminAPI.post(`/api/super/billing/invoices/${_quickPayId}/pay`, {
+    const res = await SuperAdminAPI.post(`/api/super/billing/invoices/${_quickPayId}/pay`, {
       payment_method: method,
       notes: notes || null,
     });
     closeModal('quickPayModal');
-    SuperAdminToast.success('Invoice marked as paid');
+    if (_quickGoToReceipt && res.receipt_id) {
+      SuperAdminToast.success('Receipt generated');
+      window.location.href = `/super-admin/billing/${res.receipt_id}`;
+    } else {
+      SuperAdminToast.success('Invoice marked as paid');
+      loadInvoices();
+      loadBillingOverview();
+    }
     _quickPayId = null;
-    loadInvoices();
-    loadBillingOverview();
+    _quickGoToReceipt = false;
   } catch (err) { /* handled */ }
 }
 

@@ -49,7 +49,7 @@
   <div class="modal-backdrop" onclick="closeModal('payModal')"></div>
   <div class="modal-content" style="max-width:400px;">
     <div class="modal-header">
-      <h3>Confirm Payment</h3>
+      <h3 id="payModalTitle">Confirm Payment</h3>
       <button class="btn-icon" onclick="closeModal('payModal')">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -76,7 +76,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('payModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="confirmPay()">Confirm Payment</button>
+      <button class="btn btn-primary" id="payModalSubmit" onclick="confirmPay()">Confirm Payment</button>
     </div>
   </div>
 </div>

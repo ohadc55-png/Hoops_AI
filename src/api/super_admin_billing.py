@@ -149,7 +149,8 @@ async def mark_invoice_paid(
         if not invoice:
             raise HTTPException(status_code=404, detail="Invoice not found")
         await db.commit()
-        return {"success": True, "message": "Invoice marked as paid, receipt created"}
+        receipt_id = await service.get_linked_receipt_id(invoice_id)
+        return {"success": True, "message": "Invoice marked as paid, receipt created", "receipt_id": receipt_id}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

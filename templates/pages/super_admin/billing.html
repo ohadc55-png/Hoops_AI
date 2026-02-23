@@ -87,7 +87,7 @@
   <div class="modal-backdrop" onclick="closeModal('quickPayModal')"></div>
   <div class="modal-content" style="max-width:440px;">
     <div class="modal-header">
-      <h3>Mark as Paid</h3>
+      <h3 id="quickPayTitle">Mark as Paid</h3>
       <button class="btn-icon" onclick="closeModal('quickPayModal')">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -115,7 +115,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('quickPayModal')">Cancel</button>
-      <button class="btn" style="background:#22c55e;color:#fff;" onclick="confirmQuickPay()">
+      <button class="btn" id="quickPaySubmit" style="background:#22c55e;color:#fff;" onclick="confirmQuickPay()">
         <span class="material-symbols-outlined" style="font-size:18px;">check_circle</span> Confirm Payment
       </button>
     </div>
