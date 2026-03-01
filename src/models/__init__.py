@@ -37,6 +37,8 @@ from src.models.video_annotation import VideoAnnotation
 from src.models.clip_view import ClipView
 from src.models.play_view import PlayView
 from src.models.team_storage_quota import TeamStorageQuota
+from src.models.annotation_template import AnnotationTemplate
+from src.models.clip_playlist import ClipPlaylist, PlaylistItem
 # Super Admin Platform models
 from src.models.super_admin import SuperAdmin
 from src.models.platform_club import PlatformClub, ClubRegistrationLink
@@ -48,6 +50,7 @@ from src.models.platform_invoice import PlatformInvoice, PlatformInvoiceLineItem
 from src.models.payment_transaction import PlatformPaymentTransaction
 from src.models.support_ticket import SupportTicket, TicketMessage
 from src.models.platform_notification import PlatformNotification
+from src.models.parent_progress_report import ParentProgressReport
 
 __all__ = [
     "Coach", "Conversation", "Message", "Drill",
@@ -66,6 +69,8 @@ __all__ = [
     "ReportRequest", "PlayerEvaluation",
     "ScoutingVideo", "VideoClip", "ClipPlayerTag",
     "VideoAnnotation", "ClipView", "PlayView", "TeamStorageQuota",
+    "AnnotationTemplate",
+    "ClipPlaylist", "PlaylistItem",
     # Super Admin Platform
     "SuperAdmin", "PlatformClub", "ClubRegistrationLink",
     "ClubFeatureFlag", "ClubBillingConfig", "Region",
@@ -74,4 +79,5 @@ __all__ = [
     "PlatformPaymentTransaction",
     "SupportTicket", "TicketMessage",
     "PlatformNotification",
+    "ParentProgressReport",
 ]

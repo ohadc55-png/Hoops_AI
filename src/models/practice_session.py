@@ -5,7 +5,7 @@ from sqlalchemy import String, Integer, Text, Boolean, Date, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import date as date_type
 from src.utils.database import Base
-from src.models.base import TimestampMixin
+from src.models.base import TimestampMixin, JSONText
 
 
 class PracticeSession(Base, TimestampMixin):
@@ -19,6 +19,12 @@ class PracticeSession(Base, TimestampMixin):
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     total_duration: Mapped[int] = mapped_column(Integer, nullable=False, default=90)
     is_ai_generated: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Post-practice summary (structured)
+    goal_achieved: Mapped[str | None] = mapped_column(String(20), nullable=True)   # 'yes' | 'partial' | 'no'
+    what_worked: Mapped[str | None] = mapped_column(Text, nullable=True)
+    what_didnt_work: Mapped[str | None] = mapped_column(Text, nullable=True)
+    standout_players: Mapped[list | None] = mapped_column(JSONText, nullable=True)  # max 2 names
+    attention_players: Mapped[list | None] = mapped_column(JSONText, nullable=True) # max 2 names
 
     coach = relationship("Coach", back_populates="practice_sessions")
     segments = relationship("SessionSegment", back_populates="session", cascade="all, delete-orphan", order_by="SessionSegment.order_index")

@@ -1,7 +1,7 @@
 {% extends "parent_base.html" %}
 {% block title %}HOOPS AI — Video Feed{% endblock %}
 {% block nav_scouting %}active{% endblock %}
-{% block header_title %}Video Feed{% endblock %}
+{% block header_title %}<span data-i18n="parent.scouting.page_title">Video Feed</span>{% endblock %}
 {% block styles %}
 <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
 <style>
@@ -151,11 +151,11 @@
 <div class="page-content" style="padding: var(--sp-6);">
   <div class="feed-container">
     <h1 class="feed-page-title">
-      <span class="material-symbols-outlined">videocam</span> Video Feed
+      <span class="material-symbols-outlined">videocam</span> <span data-i18n="parent.scouting.page_title">Video Feed</span>
     </h1>
 
     <div id="feedList">
-      <p class="feed-empty">Loading...</p>
+      <p class="feed-empty" data-i18n="parent.scouting.loading">Loading...</p>
     </div>
   </div>
 </div>
@@ -164,7 +164,7 @@
 <div class="modal-overlay" id="clipViewerModal">
   <div class="modal" style="max-width: 720px; max-height: 85vh;">
     <div class="modal-header">
-      <h2 id="clipViewerTitle">Clip</h2>
+      <h2 id="clipViewerTitle" data-i18n="parent.scouting.clip_title">Clip</h2>
       <button class="modal-close" onclick="closeClipViewer()"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body" style="padding:0;">

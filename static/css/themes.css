@@ -1,0 +1,156 @@
+/**
+ * HOOPS AI - Portal Theme Variables
+ *
+ * Overrides base design tokens from variables.css per portal.
+ * Loaded AFTER variables.css in all base templates.
+ */
+
+/* ── Admin Portal (Blue) ─────────────────────────────────────────────── */
+.admin-app {
+  /* Primary — Blue */
+  --primary: #3b82f6;
+  --primary-light: #60a5fa;
+  --primary-dark: #2563eb;
+  --primary-glow: rgba(59, 130, 246, 0.2);
+  --primary-ghost: rgba(59, 130, 246, 0.08);
+
+  /* Backgrounds — Cool dark blue-gray */
+  --bg: #0b0f1a;
+  --bg-raised: #111827;
+  --bg-surface: #1e293b;
+  --bg-card: rgba(255, 255, 255, 0.04);
+  --bg-card-hover: rgba(255, 255, 255, 0.07);
+  --bg-input: rgba(255, 255, 255, 0.06);
+  --bg-input-focus: rgba(255, 255, 255, 0.1);
+
+  /* Borders — Cool neutral */
+  --border: rgba(148, 163, 184, 0.12);
+  --border-strong: rgba(148, 163, 184, 0.2);
+  --border-active: var(--primary);
+
+  /* Text — Slate tones */
+  --text: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+
+  /* Shadows */
+  --shadow-glow: 0 0 20px var(--primary-glow);
+}
+
+/* ── Player Portal (Green Neon) ──────────────────────────────────────── */
+.player-app {
+  /* Primary — Neon Green */
+  --primary: #22c55e;
+  --primary-light: #4ade80;
+  --primary-dark: #16a34a;
+  --primary-glow: rgba(34, 197, 94, 0.25);
+  --primary-ghost: rgba(34, 197, 94, 0.1);
+
+  /* Backgrounds — True black + dark green tint */
+  --bg: #050808;
+  --bg-raised: #0a120e;
+  --bg-surface: #0f1a14;
+  --bg-card: rgba(34, 197, 94, 0.04);
+  --bg-card-hover: rgba(34, 197, 94, 0.08);
+  --bg-input: rgba(34, 197, 94, 0.06);
+  --bg-input-focus: rgba(34, 197, 94, 0.12);
+
+  /* Borders — Subtle green tint */
+  --border: rgba(34, 197, 94, 0.1);
+  --border-strong: rgba(34, 197, 94, 0.2);
+  --border-active: var(--primary);
+
+  /* Text */
+  --text: #f0fdf4;
+  --text-secondary: #bbf7d0;
+  --text-muted: rgba(74, 222, 128, 0.5);
+  --text-inverse: #050808;
+
+  /* Shadows — Green glow */
+  --shadow-glow: 0 0 20px var(--primary-glow);
+}
+
+/* ── Parent Portal (Light) ───────────────────────────────────────────── */
+.parent-app {
+  /* Primary — Pleasant Blue */
+  --primary: #3b82f6;
+  --primary-light: #60a5fa;
+  --primary-dark: #2563eb;
+  --primary-glow: rgba(59, 130, 246, 0.15);
+  --primary-ghost: rgba(59, 130, 246, 0.08);
+
+  /* Backgrounds — White / Light */
+  --bg: #f1f5f9;
+  --bg-raised: #ffffff;
+  --bg-surface: #f8fafc;
+  --bg-card: rgba(59, 130, 246, 0.04);
+  --bg-card-hover: rgba(59, 130, 246, 0.08);
+  --bg-input: #f8fafc;
+  --bg-input-focus: #ffffff;
+
+  /* Borders — Soft gray */
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --border-active: var(--primary);
+
+  /* Text — Dark for contrast on white */
+  --text: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-inverse: #ffffff;
+
+  /* Status colors for light bg */
+  --error: #dc2626;
+  --error-bg: rgba(220, 38, 38, 0.08);
+  --warning: #d97706;
+  --warning-bg: rgba(217, 119, 6, 0.08);
+  --success: #16a34a;
+  --success-bg: rgba(22, 163, 74, 0.08);
+  --info: #2563eb;
+  --info-bg: rgba(37, 99, 235, 0.08);
+
+  /* Shadows — Soft, no glow */
+  --shadow-glow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Super Admin Portal (Cyan/Turquoise) ─────────────────────────────── */
+.super-admin-app {
+  /* Primary — Cyan/Turquoise */
+  --primary: #0891B2;
+  --primary-light: #06B6D4;
+  --primary-dark: #0E7490;
+  --primary-glow: rgba(8, 145, 178, 0.2);
+  --primary-ghost: rgba(8, 145, 178, 0.08);
+
+  /* Backgrounds — Dark Gray */
+  --bg: #1F2937;
+  --bg-raised: #374151;
+  --bg-surface: #4B5563;
+  --bg-card: rgba(255, 255, 255, 0.04);
+  --bg-card-hover: rgba(255, 255, 255, 0.07);
+  --bg-input: rgba(255, 255, 255, 0.06);
+  --bg-input-focus: rgba(255, 255, 255, 0.1);
+
+  /* Borders */
+  --border: rgba(156, 163, 175, 0.15);
+  --border-strong: rgba(156, 163, 175, 0.25);
+  --border-active: var(--primary);
+
+  /* Text */
+  --text: #FFFFFF;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+  --text-inverse: #FFFFFF;
+
+  /* Semantic */
+  --success: #059669;
+  --success-bg: rgba(5, 150, 105, 0.15);
+  --error: #DC2626;
+  --error-bg: rgba(220, 38, 38, 0.15);
+  --warning: #D97706;
+  --warning-bg: rgba(217, 119, 6, 0.15);
+
+  /* Shadows */
+  --shadow-glow: 0 0 20px var(--primary-glow);
+}

@@ -137,12 +137,9 @@ async def get_rides(
     user: User = Depends(get_current_parent),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        service = CarpoolService(db)
-        rides = await service.get_rides_for_event(event_id, user.id)
-        return {"success": True, "data": [_format_ride(r, user.id) for r in rides]}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = CarpoolService(db)
+    rides = await service.get_rides_for_event(event_id, user.id)
+    return {"success": True, "data": [_format_ride(r, user.id) for r in rides]}
 
 
 @router.post("/rides")
@@ -153,21 +150,18 @@ async def create_ride(
 ):
     from src.utils.feature_gate import require_feature
     await require_feature("carpool", db, user_id=user.id)
-    try:
-        service = CarpoolService(db)
-        ride = await service.create_ride(
-            parent_user_id=user.id,
-            event_id=req.event_id,
-            neighborhood=req.neighborhood,
-            available_seats=req.available_seats,
-            departure_time=req.departure_time,
-            meeting_point=req.meeting_point,
-            direction=req.direction,
-            notes=req.notes,
-        )
-        return {"success": True, "data": {"id": ride.id}}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = CarpoolService(db)
+    ride = await service.create_ride(
+        parent_user_id=user.id,
+        event_id=req.event_id,
+        neighborhood=req.neighborhood,
+        available_seats=req.available_seats,
+        departure_time=req.departure_time,
+        meeting_point=req.meeting_point,
+        direction=req.direction,
+        notes=req.notes,
+    )
+    return {"success": True, "data": {"id": ride.id}}
 
 
 @router.put("/rides/{ride_id}")
@@ -177,12 +171,9 @@ async def update_ride(
     user: User = Depends(get_current_parent),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        service = CarpoolService(db)
-        updated = await service.update_ride(ride_id, user.id, **req.model_dump(exclude_none=True))
-        return {"success": True, "data": {"id": updated.id}}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = CarpoolService(db)
+    updated = await service.update_ride(ride_id, user.id, **req.model_dump(exclude_none=True))
+    return {"success": True, "data": {"id": updated.id}}
 
 
 @router.delete("/rides/{ride_id}")
@@ -191,12 +182,9 @@ async def cancel_ride(
     user: User = Depends(get_current_parent),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        service = CarpoolService(db)
-        await service.cancel_ride(ride_id, user.id)
-        return {"success": True}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = CarpoolService(db)
+    await service.cancel_ride(ride_id, user.id)
+    return {"success": True}
 
 
 @router.post("/rides/{ride_id}/join")
@@ -206,12 +194,9 @@ async def join_ride(
     user: User = Depends(get_current_parent),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        service = CarpoolService(db)
-        passenger = await service.join_ride(ride_id, user.id, req.player_id, req.notes)
-        return {"success": True, "data": {"id": passenger.id}}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = CarpoolService(db)
+    passenger = await service.join_ride(ride_id, user.id, req.player_id, req.notes)
+    return {"success": True, "data": {"id": passenger.id}}
 
 
 @router.delete("/rides/{ride_id}/leave")
@@ -220,12 +205,9 @@ async def leave_ride(
     user: User = Depends(get_current_parent),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        service = CarpoolService(db)
-        await service.leave_ride(ride_id, user.id)
-        return {"success": True}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = CarpoolService(db)
+    await service.leave_ride(ride_id, user.id)
+    return {"success": True}
 
 
 @router.get("/my")
@@ -336,20 +318,17 @@ async def create_standing(
     user: User = Depends(get_current_parent),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        service = StandingCarpoolService(db)
-        carpool = await service.create(
-            parent_user_id=user.id,
-            team_id=req.team_id,
-            name=req.name,
-            neighborhood=req.neighborhood,
-            max_members=req.max_members,
-            meeting_point=req.meeting_point,
-            notes=req.notes,
-        )
-        return {"success": True, "data": {"id": carpool.id}}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = StandingCarpoolService(db)
+    carpool = await service.create(
+        parent_user_id=user.id,
+        team_id=req.team_id,
+        name=req.name,
+        neighborhood=req.neighborhood,
+        max_members=req.max_members,
+        meeting_point=req.meeting_point,
+        notes=req.notes,
+    )
+    return {"success": True, "data": {"id": carpool.id}}
 
 
 @router.put("/standing/{carpool_id}")
@@ -359,12 +338,9 @@ async def update_standing(
     user: User = Depends(get_current_parent),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        service = StandingCarpoolService(db)
-        updated = await service.update(carpool_id, user.id, **req.model_dump(exclude_none=True))
-        return {"success": True, "data": {"id": updated.id}}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = StandingCarpoolService(db)
+    updated = await service.update(carpool_id, user.id, **req.model_dump(exclude_none=True))
+    return {"success": True, "data": {"id": updated.id}}
 
 
 @router.delete("/standing/{carpool_id}")
@@ -373,12 +349,9 @@ async def delete_standing(
     user: User = Depends(get_current_parent),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        service = StandingCarpoolService(db)
-        await service.delete(carpool_id, user.id)
-        return {"success": True}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = StandingCarpoolService(db)
+    await service.delete(carpool_id, user.id)
+    return {"success": True}
 
 
 @router.post("/standing/{carpool_id}/join")
@@ -388,12 +361,9 @@ async def join_standing(
     user: User = Depends(get_current_parent),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        service = StandingCarpoolService(db)
-        member = await service.join(carpool_id, user.id, req.player_id, req.notes)
-        return {"success": True, "data": {"id": member.id}}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = StandingCarpoolService(db)
+    member = await service.join(carpool_id, user.id, req.player_id, req.notes)
+    return {"success": True, "data": {"id": member.id}}
 
 
 @router.delete("/standing/{carpool_id}/leave")
@@ -402,12 +372,9 @@ async def leave_standing(
     user: User = Depends(get_current_parent),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        service = StandingCarpoolService(db)
-        await service.leave(carpool_id, user.id)
-        return {"success": True}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = StandingCarpoolService(db)
+    await service.leave(carpool_id, user.id)
+    return {"success": True}
 
 
 @router.post("/standing/{carpool_id}/signup")
@@ -417,12 +384,9 @@ async def signup_for_event(
     user: User = Depends(get_current_parent),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        service = StandingCarpoolService(db)
-        signup = await service.signup_for_event(carpool_id, user.id, req.event_id, req.notes)
-        return {"success": True, "data": {"id": signup.id}}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = StandingCarpoolService(db)
+    signup = await service.signup_for_event(carpool_id, user.id, req.event_id, req.notes)
+    return {"success": True, "data": {"id": signup.id}}
 
 
 @router.delete("/standing/{carpool_id}/signup/{event_id}")
@@ -432,9 +396,6 @@ async def cancel_signup(
     user: User = Depends(get_current_parent),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        service = StandingCarpoolService(db)
-        await service.cancel_signup(carpool_id, user.id, event_id)
-        return {"success": True}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = StandingCarpoolService(db)
+    await service.cancel_signup(carpool_id, user.id, event_id)
+    return {"success": True}

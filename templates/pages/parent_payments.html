@@ -1,35 +1,103 @@
 {% extends "parent_base.html" %}
 {% block title %}HOOPS AI — Payments{% endblock %}
 {% block nav_payments %}active{% endblock %}
-{% block header_title %}תשלומים{% endblock %}
+{% block header_title %}<span data-i18n="parent.nav.payments">תשלומים</span>{% endblock %}
 {% block content %}
 <div class="parent-payments">
 
   <!-- Summary Cards -->
   <div class="billing-summary" id="paymentSummary">
     <div class="billing-card">
-      <div class="billing-card-label">סה"כ</div>
+      <div class="billing-card-label" data-i18n="parent.payments.label_total">סה"כ</div>
       <div class="amount" id="payTotal">₪0</div>
     </div>
     <div class="billing-card paid">
-      <div class="billing-card-label">שולם</div>
+      <div class="billing-card-label" data-i18n="payment.paid">שולם</div>
       <div class="amount" id="payPaid">₪0</div>
     </div>
     <div class="billing-card pending">
-      <div class="billing-card-label">ממתין</div>
+      <div class="billing-card-label" data-i18n="payment.pending">ממתין</div>
       <div class="amount" id="payPending">₪0</div>
     </div>
     <div class="billing-card overdue">
-      <div class="billing-card-label">באיחור</div>
+      <div class="billing-card-label" data-i18n="payment.overdue">באיחור</div>
       <div class="amount" id="payOverdue">₪0</div>
     </div>
   </div>
 
   <!-- Plans + Charges -->
   <div id="billingContent">
-    <div class="loading-state">Loading...</div>
+    <div class="loading-state" data-i18n="parent.payments.loading">Loading...</div>
   </div>
 
+</div>
+
+<!-- Payment Modal -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h3 data-i18n="parent.payments.pay_title">תשלום</h3>
+      <button class="btn-icon" onclick="closeModal('paymentModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="pay-summary-card" id="paySummaryCard"></div>
+      <form class="pay-form" id="payForm" onsubmit="return false;">
+        <input type="hidden" id="payType">
+        <input type="hidden" id="payItemId">
+        <input type="hidden" id="payAmount">
+        <div class="input-group">
+          <label data-i18n="parent.payments.cardholder_name">שם בעל הכרטיס</label>
+          <input type="text" class="input" id="payCardholderName" required>
+        </div>
+        <div class="input-group">
+          <label data-i18n="parent.payments.id_number">תעודת זהות</label>
+          <input type="text" class="input" id="payIdNumber" maxlength="9" required>
+        </div>
+        <div class="input-group">
+          <label data-i18n="parent.payments.card_number">מספר כרטיס</label>
+          <input type="text" class="input" id="payCardNumber" maxlength="19" placeholder="0000 0000 0000 0000" required>
+        </div>
+        <div class="pay-form-row">
+          <div class="input-group">
+            <label data-i18n="parent.payments.expiry">תוקף</label>
+            <input type="text" class="input" id="payExpiry" maxlength="5" placeholder="MM/YY" required>
+          </div>
+          <div class="input-group">
+            <label>CVV</label>
+            <input type="text" class="input" id="payCvv" maxlength="4" placeholder="***" required>
+          </div>
+        </div>
+        <div class="input-group">
+          <label data-i18n="parent.payments.num_payments">מספר תשלומים</label>
+          <select class="input" id="payNumPayments">
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('paymentModal')" data-i18n="btn.cancel">ביטול</button>
+      <button class="btn btn-primary" id="paySubmitBtn" onclick="submitPayment()">
+        <span class="material-symbols-outlined">credit_card</span>
+        <span id="paySubmitLabel">שלם</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Receipt Confirmation Modal -->
+<div class="modal-overlay" id="receiptModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-body" style="text-align:center;padding:var(--sp-6);">
+      <span class="material-symbols-outlined" style="font-size:64px;color:var(--success);">check_circle</span>
+      <h3 style="margin-top:var(--sp-3);" data-i18n="parent.payments.payment_success">התשלום אושר!</h3>
+      <p style="color:var(--text-muted);margin-top:var(--sp-2);" data-i18n="parent.payments.receipt_sent">קבלה נשלחה להודעות שלך</p>
+      <button class="btn btn-primary" style="margin-top:var(--sp-4);" onclick="closeModal('receiptModal')">אישור</button>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

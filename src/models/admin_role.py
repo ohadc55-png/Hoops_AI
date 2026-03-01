@@ -2,7 +2,7 @@
 from sqlalchemy import String, Integer, Boolean, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from src.utils.database import Base
-from src.models.base import TimestampMixin
+from src.models.base import TimestampMixin, JSONText
 
 
 class AdminRole(Base, TimestampMixin):
@@ -13,3 +13,5 @@ class AdminRole(Base, TimestampMixin):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_default: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # permissions: {"allowed_pages": [...]} or None = unrestricted (super-admin)
+    permissions: Mapped[dict | None] = mapped_column(JSONText, nullable=True)

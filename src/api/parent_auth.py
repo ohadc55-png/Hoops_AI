@@ -65,31 +65,28 @@ async def register_parent(req: ParentRegisterRequest, db: AsyncSession = Depends
                 "team": {"id": result["team"].id, "name": result["team"].name},
             },
         }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
     except Exception:
         raise HTTPException(status_code=500, detail="Registration failed. Please try again.")
 
 
 @router.post("/login")
 async def login_parent(req: ParentLoginRequest, db: AsyncSession = Depends(get_db)):
-    try:
-        service = ParentAuthService(db)
-        result = await service.login_parent(req.email, req.password)
-        return {
-            "success": True,
-            "data": {
-                "token": result["token"],
-                "user": {
-                    "id": result["user"].id,
-                    "name": result["user"].name,
-                    "email": result["user"].email,
-                    "role": result["user"].role,
-                },
+    service = ParentAuthService(db)
+    result = await service.login_parent(req.email, req.password)
+    user = result["user"]
+    return {
+        "success": True,
+        "data": {
+            "token": result["token"],
+            "user": {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "role": user.role,
             },
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
+            "language": user.preferred_language,
+        },
+    }
 
 
 @router.get("/me")
@@ -98,5 +95,19 @@ async def parent_me(user: User = Depends(get_current_parent)):
         "success": True,
         "data": {
             "id": user.id, "name": user.name, "email": user.email, "role": user.role,
+            "language": user.preferred_language,
         },
     }
+
+
+class LanguageRequest(BaseModel):
+    language: str
+
+
+@router.put("/language")
+async def update_parent_language(req: LanguageRequest, user: User = Depends(get_current_parent), db: AsyncSession = Depends(get_db)):
+    if req.language not in ("he", "en"):
+        raise HTTPException(status_code=400, detail="Language must be 'he' or 'en'")
+    from src.repositories.user_repository import UserRepository
+    await UserRepository(db).update(user.id, preferred_language=req.language)
+    return {"success": True, "data": {"language": req.language}}

@@ -1,36 +1,36 @@
 {% extends "admin_base.html" %}
 {% block title %}HOOPS AI — Schedule{% endblock %}
 {% block nav_schedule %}active{% endblock %}
-{% block header_title %}Schedule{% endblock %}
+{% block header_title %}<span data-i18n="admin.header.schedule">לוח זמנים</span>{% endblock %}
 {% block content %}
 <div class="admin-dashboard">
   <!-- Schedule Section -->
   <section class="dashboard-section">
     <div class="section-header">
-      <h2><span class="material-symbols-outlined">calendar_month</span> Schedule</h2>
+      <h2><span class="material-symbols-outlined">calendar_month</span> <span data-i18n="admin.schedule.section_title">Schedule</span></h2>
       <div style="display:flex;gap:var(--sp-2);align-items:center;">
         <select class="input" id="scheduleTeamSelect" style="min-width:160px;" onchange="onScheduleTeamChange()">
-          <option value="">All Teams</option>
+          <option value="" data-i18n="admin.schedule.all_teams">All Teams</option>
         </select>
         <button class="btn btn-primary btn-sm" onclick="openCreateEventModal()">
-          <span class="material-symbols-outlined">add</span> Add Event
+          <span class="material-symbols-outlined">add</span> <span data-i18n="admin.schedule.btn_add_event">Add Event</span>
         </button>
       </div>
     </div>
     <div id="teamColorLegend" style="display:flex;gap:var(--sp-3);align-items:center;flex-wrap:wrap;padding:var(--sp-2) 0;"></div>
     <div id="adminCalendarContainer"></div>
     <div class="section-content" id="scheduleContent">
-      <div class="loading-state">Loading schedule...</div>
+      <div class="loading-state" data-i18n="admin.schedule.loading">Loading schedule...</div>
     </div>
   </section>
 
   <!-- Pending Schedule Requests -->
   <section class="dashboard-section">
     <div class="section-header">
-      <h2><span class="material-symbols-outlined">pending_actions</span> Schedule Requests <span class="badge badge-warning" id="pendingCount" style="display:none;">0</span></h2>
+      <h2><span class="material-symbols-outlined">pending_actions</span> <span data-i18n="admin.schedule.requests_title">Schedule Requests</span> <span class="badge badge-warning" id="pendingCount" style="display:none;">0</span></h2>
     </div>
     <div class="section-content" id="requestsContent">
-      <div class="loading-state">Loading requests...</div>
+      <div class="loading-state" data-i18n="admin.schedule.loading_requests">Loading requests...</div>
     </div>
   </section>
 </div>
@@ -39,7 +39,7 @@
 <div class="modal-overlay" id="createEventModal">
   <div class="modal">
     <div class="modal-header">
-      <h3 id="eventModalTitle">Add Event</h3>
+      <h3 id="eventModalTitle" data-i18n="admin.schedule.add_event">Add Event</h3>
       <button class="btn-icon" onclick="closeModal('createEventModal')">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -48,67 +48,67 @@
       <form id="createEventForm" onsubmit="return handleCreateEvent(event)">
         <input type="hidden" id="editEventId" value="">
         <div class="input-group">
-          <label>Team *</label>
+          <label data-i18n="admin.schedule.form.team">Team *</label>
           <select class="input" id="eventTeamId" required>
-            <option value="">Select team...</option>
+            <option value="" data-i18n="admin.schedule.select_team">Select team...</option>
           </select>
         </div>
         <div class="input-group">
-          <label>Title *</label>
-          <input type="text" class="input" id="eventTitle" placeholder="e.g. Weekly Practice" required>
+          <label data-i18n="admin.schedule.form.title">Title *</label>
+          <input type="text" class="input" id="eventTitle" data-i18n-placeholder="admin.schedule.form.title_placeholder" placeholder="e.g. Weekly Practice" required>
         </div>
         <div class="input-group">
-          <label>Type *</label>
+          <label data-i18n="admin.schedule.form.type">Type *</label>
           <select class="input" id="eventType" required onchange="toggleOpponentField()">
-            <option value="practice">Practice</option>
-            <option value="game">Game</option>
-            <option value="meeting">Meeting</option>
-            <option value="tournament">Tournament</option>
-            <option value="team_building">Team Building</option>
-            <option value="team_dinner">Team Dinner</option>
-            <option value="social">Social Activity</option>
-            <option value="tactical_video">Tactical / Video</option>
-            <option value="other">Other</option>
+            <option value="practice" data-i18n="event.practice">Practice</option>
+            <option value="game" data-i18n="event.game">Game</option>
+            <option value="meeting" data-i18n="event.meeting">Meeting</option>
+            <option value="tournament" data-i18n="event.tournament">Tournament</option>
+            <option value="team_building" data-i18n="event.team_building">Team Building</option>
+            <option value="team_dinner" data-i18n="event.team_dinner">Team Dinner</option>
+            <option value="social" data-i18n="admin.schedule.form.social">Social Activity</option>
+            <option value="tactical_video" data-i18n="event.tactical_video">Tactical / Video</option>
+            <option value="other" data-i18n="event.other">Other</option>
           </select>
         </div>
         <div class="input-group">
-          <label>Date *</label>
+          <label data-i18n="admin.schedule.form.date">Date *</label>
           <input type="date" class="input" id="eventDate" required>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
           <div class="input-group">
-            <label>Start Time</label>
+            <label data-i18n="admin.schedule.form.start_time">Start Time</label>
             <input type="time" class="input" id="eventTimeStart">
           </div>
           <div class="input-group">
-            <label>End Time</label>
+            <label data-i18n="admin.schedule.form.end_time">End Time</label>
             <input type="time" class="input" id="eventTimeEnd">
           </div>
         </div>
         <div class="input-group">
-          <label>Facility</label>
+          <label data-i18n="admin.schedule.form.facility">Facility</label>
           <select class="input" id="eventFacilityId" onchange="onFacilityChange()">
-            <option value="">No facility</option>
+            <option value="" data-i18n="admin.schedule.no_facility">No facility</option>
           </select>
         </div>
         <div class="input-group" id="customLocationGroup" style="display:none;">
-          <label>Custom Location</label>
-          <input type="text" class="input" id="eventLocation" placeholder="Enter location name">
+          <label data-i18n="admin.schedule.form.custom_location">Custom Location</label>
+          <input type="text" class="input" id="eventLocation" data-i18n-placeholder="admin.schedule.form.custom_location_placeholder" placeholder="Enter location name">
         </div>
         <div class="input-group" id="opponentGroup" style="display:none;">
-          <label>Opponent</label>
-          <input type="text" class="input" id="eventOpponent" placeholder="Opponent team">
+          <label data-i18n="admin.schedule.form.opponent">Opponent</label>
+          <input type="text" class="input" id="eventOpponent" data-i18n-placeholder="admin.schedule.form.opponent_placeholder" placeholder="Opponent team">
         </div>
         <!-- Home / Away Toggle -->
         <div class="input-group" id="awayGameGroup" style="display:none;">
-          <label>Game Location</label>
+          <label data-i18n="admin.schedule.form.game_location">Game Location</label>
           <input type="hidden" id="eventIsAway" value="0">
           <div class="home-away-toggle">
             <button type="button" class="toggle-btn active" id="btnHome" onclick="setHomeAway(false)">
-              <span class="material-symbols-outlined" style="font-size:18px;">home</span> Home (בית)
+              <span class="material-symbols-outlined" style="font-size:18px;">home</span> <span data-i18n="admin.schedule.form.home">Home (בית)</span>
             </button>
             <button type="button" class="toggle-btn" id="btnAway" onclick="setHomeAway(true)">
-              <span class="material-symbols-outlined" style="font-size:18px;">directions_bus</span> Away (חוץ)
+              <span class="material-symbols-outlined" style="font-size:18px;">directions_bus</span> <span data-i18n="admin.schedule.form.away">Away (חוץ)</span>
             </button>
           </div>
         </div>
@@ -116,33 +116,33 @@
         <div id="awayFieldsGroup" style="display:none;">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
             <div class="input-group">
-              <label><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">schedule</span> Departure Time (שעת יציאה)</label>
+              <label><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">schedule</span> <span data-i18n="admin.schedule.form.departure_time">Departure Time (שעת יציאה)</span></label>
               <input type="time" class="input" id="eventDepartureTime">
             </div>
             <div class="input-group">
-              <label><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">location_on</span> Venue Address (כתובת)</label>
-              <input type="text" class="input" id="eventVenueAddress" placeholder="Full address for Google Maps">
+              <label><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">location_on</span> <span data-i18n="admin.schedule.form.venue_address">Venue Address (כתובת)</span></label>
+              <input type="text" class="input" id="eventVenueAddress" data-i18n-placeholder="admin.schedule.form.venue_address_placeholder" placeholder="Full address for Google Maps">
             </div>
           </div>
           <div id="awayTransportLink" style="display:none;margin-top:var(--sp-2);">
             <a href="#" id="awayTransportLinkHref" target="_blank" style="display:inline-flex;align-items:center;gap:4px;color:var(--primary-light);font-size:var(--text-sm);text-decoration:none;">
-              <span class="material-symbols-outlined" style="font-size:16px;">open_in_new</span> View in Transportation page
+              <span class="material-symbols-outlined" style="font-size:16px;">open_in_new</span> <span data-i18n="admin.schedule.form.view_transport">View in Transportation page</span>
             </a>
           </div>
         </div>
         <div class="input-group">
-          <label>Notes</label>
-          <textarea class="input" id="eventNotes" rows="2" placeholder="Optional notes"></textarea>
+          <label data-i18n="admin.schedule.form.notes">Notes</label>
+          <textarea class="input" id="eventNotes" rows="2" data-i18n-placeholder="admin.schedule.form.notes_placeholder" placeholder="Optional notes"></textarea>
         </div>
         <div class="input-group" id="repeatGroup">
-          <label>Repeat Weekly (weeks)</label>
-          <input type="number" class="input" id="eventRepeatWeeks" min="1" max="52" value="1" placeholder="1 = single event">
+          <label data-i18n="admin.schedule.form.repeat_weekly">Repeat Weekly (weeks)</label>
+          <input type="number" class="input" id="eventRepeatWeeks" min="1" max="52" value="1" data-i18n-placeholder="admin.schedule.form.repeat_placeholder" placeholder="1 = single event">
         </div>
       </form>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('createEventModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="document.getElementById('createEventForm').requestSubmit()">Save Event</button>
+      <button class="btn btn-ghost" onclick="closeModal('createEventModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="document.getElementById('createEventForm').requestSubmit()" data-i18n="admin.schedule.btn_save_event">Save Event</button>
     </div>
   </div>
 </div>

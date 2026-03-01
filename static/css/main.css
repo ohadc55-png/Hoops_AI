@@ -242,6 +242,8 @@ select option, .select option { background-color: #fff !important; color: #3d2e1
   border-radius: var(--r-md);
 }
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.spin { animation: spin 1s linear infinite; }
 
 .skeleton-text { height: 14px; width: 80%; margin-bottom: var(--sp-2); }
 .skeleton-title { height: 20px; width: 50%; margin-bottom: var(--sp-3); }
@@ -404,3 +406,41 @@ select option, .select option { background-color: #fff !important; color: #3d2e1
   border-radius: 9px;
   padding: 0 4px;
 }
+
+
+/* ========================================
+   RTL OVERRIDES (Hebrew mode)
+   ======================================== */
+
+/* Select dropdown arrow on left in RTL */
+[dir="rtl"] .select {
+  background-position: left 12px center;
+  padding-right: var(--sp-3);
+  padding-left: 32px;
+}
+
+/* Input icons on right in RTL */
+[dir="rtl"] .input-with-icon .material-symbols-outlined { left: auto; right: var(--sp-3); }
+[dir="rtl"] .input-with-icon .input { padding-left: 0; padding-right: 40px; }
+
+/* Toggle switch: knob starts from right in RTL */
+[dir="rtl"] .toggle::after { left: auto; right: 2px; }
+[dir="rtl"] .toggle.active::after { left: auto; right: 22px; }
+
+/* Toast: appear from left in RTL */
+[dir="rtl"] .toast-container { right: auto; left: var(--sp-4); }
+@keyframes slideInRtl { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOutRtl { to { opacity: 0; transform: translateX(-40px); } }
+[dir="rtl"] .toast { animation: slideInRtl 0.3s ease, fadeOutRtl 0.3s ease 3s forwards; }
+
+/* Messaging RTL */
+[dir="rtl"] .msg-badge { margin-left: 0; margin-right: 8px; }
+[dir="rtl"] .msg-item.unread { border-left: none; border-right: 3px solid var(--primary, #f48c25); }
+[dir="rtl"] .msg-role-badge { margin-left: 0; margin-right: 4px; }
+[dir="rtl"] .msg-type-badge { margin-left: 0; margin-right: 4px; }
+
+/* Review badge RTL */
+[dir="rtl"] .review-badge { right: auto; left: -6px; }
+
+/* Tabs RTL */
+[dir="rtl"] .tab { border-left: none; border-right: none; }

@@ -195,8 +195,8 @@ async def send_message(
             scheduled_at=req.scheduled_at,
         )
         return {"success": True, "data": {"id": msg.id, "is_scheduled": msg.is_scheduled}}
-    except ValueError as e:
-        raise HTTPException(status_code=403, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # --- INBOX ---
@@ -294,11 +294,8 @@ async def message_stats(
     db: AsyncSession = Depends(get_db),
 ):
     service = MessagingService(db)
-    try:
-        stats = await service.get_message_stats(message_id, user.id)
-        return {"success": True, "data": stats}
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    stats = await service.get_message_stats(message_id, user.id)
+    return {"success": True, "data": stats}
 
 
 # --- SCHEDULED (admin only) ---
@@ -336,9 +333,6 @@ async def cancel_scheduled(
     if user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin only")
     service = MessagingService(db)
-    try:
-        await service.cancel_scheduled(message_id, user.id)
-        return {"success": True}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    await service.cancel_scheduled(message_id, user.id)
+    return {"success": True}
 

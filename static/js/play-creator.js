@@ -3,26 +3,26 @@
  * Full play diagramming with animation, bezier curves, templates.
  */
 const OFFENSE = {
-  'empty':{name:'Empty',players:[{id:'o1',number:'1',x:50,y:78,type:'offense'},{id:'o2',number:'2',x:30,y:78,type:'offense'},{id:'o3',number:'3',x:70,y:78,type:'offense'},{id:'o4',number:'4',x:40,y:70,type:'offense'},{id:'o5',number:'5',x:60,y:70,type:'offense'}]},
-  '5-out':{name:'5-Out',players:[{id:'o1',number:'1',x:50,y:75,type:'offense'},{id:'o2',number:'2',x:15,y:52,type:'offense'},{id:'o3',number:'3',x:85,y:52,type:'offense'},{id:'o4',number:'4',x:8,y:15,type:'offense'},{id:'o5',number:'5',x:92,y:15,type:'offense'}]},
-  '4-out-1-in':{name:'4-Out 1-In',players:[{id:'o1',number:'1',x:62,y:58,type:'offense'},{id:'o2',number:'2',x:8,y:15,type:'offense'},{id:'o3',number:'3',x:92,y:15,type:'offense'},{id:'o4',number:'4',x:25,y:55,type:'offense'},{id:'o5',number:'5',x:50,y:18,type:'offense'}]},
-  'horns':{name:'Horns',players:[{id:'o1',number:'1',x:50,y:75,type:'offense'},{id:'o2',number:'2',x:8,y:15,type:'offense'},{id:'o3',number:'3',x:92,y:15,type:'offense'},{id:'o4',number:'4',x:35,y:45,type:'offense'},{id:'o5',number:'5',x:65,y:45,type:'offense'}]},
-  'box':{name:'Box',players:[{id:'o1',number:'1',x:50,y:82,type:'offense'},{id:'o2',number:'2',x:35,y:38,type:'offense'},{id:'o3',number:'3',x:65,y:38,type:'offense'},{id:'o4',number:'4',x:35,y:18,type:'offense'},{id:'o5',number:'5',x:65,y:18,type:'offense'}]},
-  '1-4-high':{name:'1-4 High',players:[{id:'o1',number:'1',x:50,y:75,type:'offense'},{id:'o2',number:'2',x:8,y:45,type:'offense'},{id:'o3',number:'3',x:92,y:45,type:'offense'},{id:'o4',number:'4',x:35,y:45,type:'offense'},{id:'o5',number:'5',x:65,y:45,type:'offense'}]},
+  'empty':{nameKey:'plays.offense.empty',players:[{id:'o1',number:'1',x:50,y:78,type:'offense'},{id:'o2',number:'2',x:30,y:78,type:'offense'},{id:'o3',number:'3',x:70,y:78,type:'offense'},{id:'o4',number:'4',x:40,y:70,type:'offense'},{id:'o5',number:'5',x:60,y:70,type:'offense'}]},
+  '5-out':{nameKey:'plays.offense.5_out',players:[{id:'o1',number:'1',x:50,y:75,type:'offense'},{id:'o2',number:'2',x:15,y:52,type:'offense'},{id:'o3',number:'3',x:85,y:52,type:'offense'},{id:'o4',number:'4',x:8,y:15,type:'offense'},{id:'o5',number:'5',x:92,y:15,type:'offense'}]},
+  '4-out-1-in':{nameKey:'plays.offense.4_out_1_in',players:[{id:'o1',number:'1',x:62,y:58,type:'offense'},{id:'o2',number:'2',x:8,y:15,type:'offense'},{id:'o3',number:'3',x:92,y:15,type:'offense'},{id:'o4',number:'4',x:25,y:55,type:'offense'},{id:'o5',number:'5',x:50,y:18,type:'offense'}]},
+  'horns':{nameKey:'plays.offense.horns',players:[{id:'o1',number:'1',x:50,y:75,type:'offense'},{id:'o2',number:'2',x:8,y:15,type:'offense'},{id:'o3',number:'3',x:92,y:15,type:'offense'},{id:'o4',number:'4',x:35,y:45,type:'offense'},{id:'o5',number:'5',x:65,y:45,type:'offense'}]},
+  'box':{nameKey:'plays.offense.box',players:[{id:'o1',number:'1',x:50,y:82,type:'offense'},{id:'o2',number:'2',x:35,y:38,type:'offense'},{id:'o3',number:'3',x:65,y:38,type:'offense'},{id:'o4',number:'4',x:35,y:18,type:'offense'},{id:'o5',number:'5',x:65,y:18,type:'offense'}]},
+  '1-4-high':{nameKey:'plays.offense.1_4_high',players:[{id:'o1',number:'1',x:50,y:75,type:'offense'},{id:'o2',number:'2',x:8,y:45,type:'offense'},{id:'o3',number:'3',x:92,y:45,type:'offense'},{id:'o4',number:'4',x:35,y:45,type:'offense'},{id:'o5',number:'5',x:65,y:45,type:'offense'}]},
 };
 const DEFENSE = {
-  'none':{name:'No Defense',players:[]},
-  'man':{name:'Man-to-Man',players:[{id:'d1',number:'X1',x:50,y:72,type:'defense'},{id:'d2',number:'X2',x:18,y:52,type:'defense'},{id:'d3',number:'X3',x:82,y:52,type:'defense'},{id:'d4',number:'X4',x:30,y:28,type:'defense'},{id:'d5',number:'X5',x:70,y:28,type:'defense'}]},
-  '23':{name:'2-3 Zone',players:[{id:'d1',number:'X1',x:35,y:62,type:'defense'},{id:'d2',number:'X2',x:65,y:62,type:'defense'},{id:'d3',number:'X3',x:20,y:32,type:'defense'},{id:'d4',number:'X4',x:50,y:25,type:'defense'},{id:'d5',number:'X5',x:80,y:32,type:'defense'}]},
-  '32':{name:'3-2 Zone',players:[{id:'d1',number:'X1',x:50,y:65,type:'defense'},{id:'d2',number:'X2',x:25,y:55,type:'defense'},{id:'d3',number:'X3',x:75,y:55,type:'defense'},{id:'d4',number:'X4',x:35,y:25,type:'defense'},{id:'d5',number:'X5',x:65,y:25,type:'defense'}]},
+  'none':{nameKey:'plays.defense.none',players:[]},
+  'man':{nameKey:'plays.defense.man',players:[{id:'d1',number:'X1',x:50,y:72,type:'defense'},{id:'d2',number:'X2',x:18,y:52,type:'defense'},{id:'d3',number:'X3',x:82,y:52,type:'defense'},{id:'d4',number:'X4',x:30,y:28,type:'defense'},{id:'d5',number:'X5',x:70,y:28,type:'defense'}]},
+  '23':{nameKey:'plays.defense.23',players:[{id:'d1',number:'X1',x:35,y:62,type:'defense'},{id:'d2',number:'X2',x:65,y:62,type:'defense'},{id:'d3',number:'X3',x:20,y:32,type:'defense'},{id:'d4',number:'X4',x:50,y:25,type:'defense'},{id:'d5',number:'X5',x:80,y:32,type:'defense'}]},
+  '32':{nameKey:'plays.defense.32',players:[{id:'d1',number:'X1',x:50,y:65,type:'defense'},{id:'d2',number:'X2',x:25,y:55,type:'defense'},{id:'d3',number:'X3',x:75,y:55,type:'defense'},{id:'d4',number:'X4',x:35,y:25,type:'defense'},{id:'d5',number:'X5',x:65,y:25,type:'defense'}]},
 };
 const ACTIONS = {
-  pass:{name:'Pass',icon:'⤳',color:'#FBBF24',move:false,ball:true},
-  dribble:{name:'Dribble',icon:'〰',color:'#34D399',move:true,ball:true},
-  cut:{name:'Cut',icon:'→',color:'#F472B6',move:true,ball:false},
-  screen:{name:'Screen',icon:'⊥',color:'#FB923C',move:true,ball:false},
-  handoff:{name:'Handoff',icon:'⇌',color:'#A78BFA',move:true,ball:true},
-  shot:{name:'Shot',icon:'◎',color:'#F87171',move:false,ball:false},
+  pass:{nameKey:'plays.action.pass',icon:'⤳',color:'#FBBF24',move:false,ball:true},
+  dribble:{nameKey:'plays.action.dribble',icon:'〰',color:'#34D399',move:true,ball:true},
+  cut:{nameKey:'plays.action.cut',icon:'→',color:'#F472B6',move:true,ball:false},
+  screen:{nameKey:'plays.action.screen',icon:'⊥',color:'#FB923C',move:true,ball:false},
+  handoff:{nameKey:'plays.action.handoff',icon:'⇌',color:'#A78BFA',move:true,ball:true},
+  shot:{nameKey:'plays.action.shot',icon:'◎',color:'#F87171',move:false,ball:false},
 };
 const uid=()=>Math.random().toString(36).substr(2,9);
 const clamp=(v,a,b)=>Math.min(Math.max(v,a),b);
@@ -50,7 +50,7 @@ class PlayCreator {
     // Load from shared URL
     const params=new URLSearchParams(window.location.search);
     const shared=params.get('p');
-    if(shared){try{const d=JSON.parse(decodeURIComponent(atob(shared)));this.loadPlay({o:d.o,d:d.d,i:d.i,a:d.a,b:d.b});window.history.replaceState({},'',window.location.pathname);}catch(e){if(typeof Toast!=='undefined')Toast.error('Invalid shared play link');}}
+    if(shared){try{const d=JSON.parse(decodeURIComponent(atob(shared)));this.loadPlay({o:d.o,d:d.d,i:d.i,a:d.a,b:d.b});window.history.replaceState({},'',window.location.pathname);}catch(e){if(typeof Toast!=='undefined')Toast.error(t('plays.toast.invalid_link'));}}
     document.addEventListener('keydown',e=>{if(e.key==='Shift'){this.parallelMode=true;this._updateUI();}if(e.key==='z'&&(e.ctrlKey||e.metaKey)){e.preventDefault();this.undo();}});
     document.addEventListener('keyup',e=>{if(e.key==='Shift'){this.parallelMode=false;this._updateUI();}});
   }
@@ -83,34 +83,34 @@ class PlayCreator {
   selAct(type){this.selAction=this.selAction===type?null:type;this.selPlayer=null;this.editingCurve=null;this.render();}
   undo(){if(!this.actions.length)return;const l=this.actions[this.actions.length-1];if(ACTIONS[l.type]?.move){const p=this.players.find(x=>x.id===l.pid);if(p){p.x=l.sx;p.y=l.sy;}}if(l.type==='pass'||l.type==='handoff')this.ballId=l.pid;const rem=this.actions.slice(0,-1);const par=rem.some(a=>a.t===l.t);this.actions=rem;if(!par&&!this.parallelMode)this.actTime=Math.max(0,this.actTime-1.5);this._calcDur();this.render();}
   clearAct(){this.actions=[];this.actTime=0;this.players=deep(this.initPlayers);this.ballId=this.initBallId;this.parallelMode=false;this.parallelStart=null;this.editingCurve=null;this.selectedStep=null;this._calcDur();this.render();}
-  async savePlay(){const n=prompt('Play name:');if(!n||!n.trim())return;const entry={id:uid(),name:n.trim(),o:this.offTpl,d:this.defTpl,i:this.initPlayers,a:this.actions,b:this.initBallId};this.saved.push(entry);this._save();this.render();if(typeof API!=='undefined'&&API.token){try{const res=await API.post('/api/plays',{name:n.trim(),offense_template:this.offTpl,defense_template:this.defTpl,players:this.initPlayers,actions:this.actions,ball_holder_id:this.initBallId});if(res.data?.id){entry.serverId=res.data.id;entry.shared=false;this._save();this.render();}}catch(e){}}}
+  async savePlay(){const n=prompt(t('plays.prompt.play_name'));if(!n||!n.trim())return;const entry={id:uid(),name:n.trim(),o:this.offTpl,d:this.defTpl,i:this.initPlayers,a:this.actions,b:this.initBallId};this.saved.push(entry);this._save();this.render();if(typeof API!=='undefined'&&API.token){try{const res=await API.post('/api/plays',{name:n.trim(),offense_template:this.offTpl,defense_template:this.defTpl,players:this.initPlayers,actions:this.actions,ball_holder_id:this.initBallId});if(res.data?.id){entry.serverId=res.data.id;entry.shared=false;this._save();this.render();}}catch(e){}}}
   loadPlay(pl){this.offTpl=pl.o;this.defTpl=pl.d;this.initPlayers=pl.i;this.initBallId=pl.b;const ps=deep(pl.i);let h=pl.b;for(const a of pl.a){if(ACTIONS[a.type]?.move){const i=ps.findIndex(x=>x.id===a.pid);if(i>=0){ps[i].x=a.ex;ps[i].y=a.ey;}}if((a.type==='pass'||a.type==='handoff')&&a.pid===h){const o=ps.filter(p=>p.type==='offense'&&p.id!==a.pid);let c=null,d=1e9;for(const p of o){const dd=Math.hypot(p.x-a.ex,p.y-a.ey);if(dd<d){d=dd;c=p;}}if(c)h=c.id;}}this.ballId=h;this.players=ps;this.actions=pl.a;this.actTime=pl.a.length>0?Math.max(...pl.a.map(a=>a.t))+1.5:0;this.mode='edit';this.showTpl=false;this._calcDur();this.showConfirmModal=false;this.pendingLoad=null;this.render();}
   delPlay(id){this.saved=this.saved.filter(s=>s.id!==id);this._save();this.render();}
   async toggleShare(localId){
     const s=this.saved.find(x=>x.id===localId);if(!s||!s.serverId)return;
-    if(s.shared){try{await API.post('/api/plays/'+s.serverId+'/unshare');s.shared=false;s.teamId=null;this._save();this.render();if(typeof Toast!=='undefined')Toast.info('Play unshared');}catch(e){if(typeof Toast!=='undefined')Toast.error('Failed to unshare');}}
-    else{if(this.myTeams.length===0){if(typeof Toast!=='undefined')Toast.error('No teams found');return;}
-    if(this.myTeams.length===1){try{await API.post('/api/plays/'+s.serverId+'/share',{team_id:this.myTeams[0].id});s.shared=true;s.teamId=this.myTeams[0].id;this._save();this.render();if(typeof Toast!=='undefined')Toast.success('Shared with '+this.myTeams[0].name);}catch(e){if(typeof Toast!=='undefined')Toast.error('Failed to share');}}
+    if(s.shared){try{await API.post('/api/plays/'+s.serverId+'/unshare');s.shared=false;s.teamId=null;this._save();this.render();if(typeof Toast!=='undefined')Toast.info(t('plays.toast.unshared'));}catch(e){if(typeof Toast!=='undefined')Toast.error(t('plays.toast.share_failed'));}}
+    else{if(this.myTeams.length===0){if(typeof Toast!=='undefined')Toast.error(t('plays.toast.no_teams'));return;}
+    if(this.myTeams.length===1){try{await API.post('/api/plays/'+s.serverId+'/share',{team_id:this.myTeams[0].id});s.shared=true;s.teamId=this.myTeams[0].id;this._save();this.render();if(typeof Toast!=='undefined')Toast.success(t('plays.toast.shared_with',{name:this.myTeams[0].name}));}catch(e){if(typeof Toast!=='undefined')Toast.error(t('plays.toast.share_failed'));}}
     else{this.showTeamPicker=localId;this.render();}}
   }
   async shareWithTeam(localId,teamId){
     if(localId==='__toolbar__'&&this._pendingShareServerId){
-      try{await API.post('/api/plays/'+this._pendingShareServerId+'/share',{team_id:teamId});const entry=this.saved.find(s=>s.serverId===this._pendingShareServerId);if(entry){entry.shared=true;entry.teamId=teamId;}this._lastSharedPlay=true;this.showTeamPicker=null;this._pendingShareServerId=null;this._save();this.render();const t=this.myTeams.find(x=>x.id===teamId);if(typeof Toast!=='undefined')Toast.success('Shared with '+(t?.name||'team')+'!');}catch(e){if(typeof Toast!=='undefined')Toast.error('Failed to share');}
+      try{await API.post('/api/plays/'+this._pendingShareServerId+'/share',{team_id:teamId});const entry=this.saved.find(s=>s.serverId===this._pendingShareServerId);if(entry){entry.shared=true;entry.teamId=teamId;}this._lastSharedPlay=true;this.showTeamPicker=null;this._pendingShareServerId=null;this._save();this.render();const tm=this.myTeams.find(x=>x.id===teamId);if(typeof Toast!=='undefined')Toast.success(t('plays.toast.shared_with',{name:tm?.name||'team'}));}catch(e){if(typeof Toast!=='undefined')Toast.error(t('plays.toast.share_failed'));}
       return;
     }
     const s=this.saved.find(x=>x.id===localId);if(!s||!s.serverId)return;
-    try{await API.post('/api/plays/'+s.serverId+'/share',{team_id:teamId});s.shared=true;s.teamId=teamId;this.showTeamPicker=null;this._save();this.render();const t=this.myTeams.find(x=>x.id===teamId);if(typeof Toast!=='undefined')Toast.success('Shared with '+(t?.name||'team'));}catch(e){if(typeof Toast!=='undefined')Toast.error('Failed to share');}
+    try{await API.post('/api/plays/'+s.serverId+'/share',{team_id:teamId});s.shared=true;s.teamId=teamId;this.showTeamPicker=null;this._save();this.render();const tm=this.myTeams.find(x=>x.id===teamId);if(typeof Toast!=='undefined')Toast.success(t('plays.toast.shared_with',{name:tm?.name||'team'}));}catch(e){if(typeof Toast!=='undefined')Toast.error(t('plays.toast.share_failed'));}
   }
   async shareFromToolbar(){
     if(!this.actions.length)return;
-    if(typeof API==='undefined'||!API.token){if(typeof Toast!=='undefined')Toast.error('Not logged in');return;}
-    if(this.myTeams.length===0){if(typeof Toast!=='undefined')Toast.error('No teams found');return;}
+    if(typeof API==='undefined'||!API.token){if(typeof Toast!=='undefined')Toast.error(t('plays.toast.not_logged_in'));return;}
+    if(this.myTeams.length===0){if(typeof Toast!=='undefined')Toast.error(t('plays.toast.no_teams'));return;}
     // Save play to server first
-    const n=this.initPlayers.length>0?prompt('Play name:',this._currentPlayName||''):prompt('Play name:');
+    const n=this.initPlayers.length>0?prompt(t('plays.prompt.play_name'),this._currentPlayName||''):prompt(t('plays.prompt.play_name'));
     if(!n||!n.trim())return;
     try{
       const res=await API.post('/api/plays',{name:n.trim(),offense_template:this.offTpl,defense_template:this.defTpl,players:this.initPlayers,actions:this.actions,ball_holder_id:this.initBallId});
-      if(!res.data?.id){if(typeof Toast!=='undefined')Toast.error('Failed to save');return;}
+      if(!res.data?.id){if(typeof Toast!=='undefined')Toast.error(t('plays.toast.save_failed'));return;}
       const serverId=res.data.id;
       // Also add to saved list if not there
       const existing=this.saved.find(s=>s.name===n.trim());
@@ -121,11 +121,11 @@ class PlayCreator {
         await API.post('/api/plays/'+serverId+'/share',{team_id:this.myTeams[0].id});
         const entry=this.saved.find(s=>s.serverId===serverId);if(entry){entry.shared=true;entry.teamId=this.myTeams[0].id;}
         this._lastSharedPlay=true;this._save();this.render();
-        if(typeof Toast!=='undefined')Toast.success('Shared with '+this.myTeams[0].name+'!');
+        if(typeof Toast!=='undefined')Toast.success(t('plays.toast.shared_with',{name:this.myTeams[0].name}));
       }else{
         this._pendingShareServerId=serverId;this.showTeamPicker='__toolbar__';this._save();this.render();
       }
-    }catch(e){if(typeof Toast!=='undefined')Toast.error('Failed to save play');}
+    }catch(e){if(typeof Toast!=='undefined')Toast.error(t('plays.toast.save_failed'));}
   }
   share(){if(!this.actions.length)return;const d={o:this.offTpl,d:this.defTpl,i:this.initPlayers,a:this.actions,b:this.initBallId};this.shareUrl=window.location.origin+window.location.pathname+'?p='+btoa(encodeURIComponent(JSON.stringify(d)));this.showShareModal=true;this.render();}
   newPlay(){if(this.actions.length>0||this.initPlayers.length>0){this.showNewConfirm=true;this.render();}else{this._resetToNew();}}
@@ -156,14 +156,14 @@ class PlayCreator {
 
     // Top toolbar
     let html='<div class="pc"><div class="pc-toolbar"><div class="pc-toolbar-group">'
-      +'<button class="btn btn-sm '+(isEdit?'btn-primary':'btn-secondary')+'" data-a="edit"><span class="material-symbols-outlined" style="font-size:18px">edit</span> Edit</button>'
-      +'<button class="btn btn-sm '+(this.mode==='play'?'btn-primary':'btn-secondary')+'" data-a="pmode"><span class="material-symbols-outlined" style="font-size:18px">play_arrow</span> Play</button>'
-      +'<button class="btn btn-sm btn-secondary" data-a="newPlay"><span class="material-symbols-outlined" style="font-size:18px">add</span> New</button>'
-      +'<span class="pc-parallel-indicator pc-parallel-badge" style="display:'+(this.parallelMode?'inline-flex':'none')+'">PARALLEL</span>'
+      +'<button class="btn btn-sm '+(isEdit?'btn-primary':'btn-secondary')+'" data-a="edit"><span class="material-symbols-outlined" style="font-size:18px">edit</span> '+t('plays.btn.edit')+'</button>'
+      +'<button class="btn btn-sm '+(this.mode==='play'?'btn-primary':'btn-secondary')+'" data-a="pmode"><span class="material-symbols-outlined" style="font-size:18px">play_arrow</span> '+t('plays.btn.play')+'</button>'
+      +'<button class="btn btn-sm btn-secondary" data-a="newPlay"><span class="material-symbols-outlined" style="font-size:18px">add</span> '+t('plays.btn.new')+'</button>'
+      +'<span class="pc-parallel-indicator pc-parallel-badge" style="display:'+(this.parallelMode?'inline-flex':'none')+'">'+t('plays.label.parallel')+'</span>'
       +'</div><div class="pc-toolbar-group">'
-      +'<button class="btn btn-sm btn-primary" data-a="save"'+(hasActions?'':' disabled')+'><span class="material-symbols-outlined" style="font-size:18px">save</span> Save</button>'
-      +'<button class="btn btn-sm btn-secondary" data-a="share"'+(hasActions?'':' disabled title="Draw actions first to share"')+'><span class="material-symbols-outlined" style="font-size:18px">share</span> Link</button>'
-      +'<button class="btn btn-sm btn-secondary" data-a="shareTeam"'+(hasActions?'':' disabled')+' style="'+(this._lastSharedPlay?'background:#22c55e;border-color:#22c55e;color:#fff':'')+'"><span class="material-symbols-outlined" style="font-size:18px">group</span> Share with Team</button>'
+      +'<button class="btn btn-sm btn-primary" data-a="save"'+(hasActions?'':' disabled')+'><span class="material-symbols-outlined" style="font-size:18px">save</span> '+t('plays.btn.save')+'</button>'
+      +'<button class="btn btn-sm btn-secondary" data-a="share"'+(hasActions?'':' disabled')+'><span class="material-symbols-outlined" style="font-size:18px">share</span> '+t('plays.btn.link')+'</button>'
+      +'<button class="btn btn-sm btn-secondary" data-a="shareTeam"'+(hasActions?'':' disabled')+' style="'+(this._lastSharedPlay?'background:#22c55e;border-color:#22c55e;color:#fff':'')+'"><span class="material-symbols-outlined" style="font-size:18px">group</span> '+t('plays.btn.share_team')+'</button>'
       +'</div></div>';
 
     // Body: canvas + sidebar
@@ -174,7 +174,7 @@ class PlayCreator {
     if(isEdit&&!this.positioningPhase){
       html+='<div class="pc-left-toolbar">';
       Object.entries(ACTIONS).forEach(([k,v])=>{
-        html+='<button class="pc-tool-btn '+(this.selAction===k?'active':'')+'" data-sa="'+k+'" title="'+v.name+'">'
+        html+='<button class="pc-tool-btn '+(this.selAction===k?'active':'')+'" data-sa="'+k+'" title="'+t(v.nameKey)+'">'
           +'<span style="color:'+v.color+';font-size:18px">'+v.icon+'</span></button>';
       });
       html+='</div>';
@@ -186,35 +186,35 @@ class PlayCreator {
       if(this.positioningPhase){
         html+='<button class="pc-tool-btn" data-a="cpos" title="Confirm positions" style="color:var(--success)"><span class="material-symbols-outlined" style="font-size:20px">check_circle</span></button>';
       }else{
-        html+='<button class="pc-tool-btn'+(this.parallelMode?' active':'')+'" data-a="toggleParallel" title="Parallel mode" style="'+(this.parallelMode?'color:#FBBF24;border-color:#FBBF24':'')+'"><span class="material-symbols-outlined" style="font-size:18px">stacks</span></button>'
+        html+='<button class="pc-tool-btn'+(this.parallelMode?' active':'')+'" data-a="toggleParallel" title="'+t('plays.label.parallel')+'" style="'+(this.parallelMode?'color:#FBBF24;border-color:#FBBF24':'')+'"><span class="material-symbols-outlined" style="font-size:18px">stacks</span></button>'
           +'<button class="pc-tool-btn" data-a="undo" title="Undo (Ctrl+Z)"'+(hasActions?'':' disabled')+'><span class="material-symbols-outlined" style="font-size:18px">undo</span></button>'
           +'<button class="pc-tool-btn" data-a="clr" title="Clear all"'+(hasActions?'':' disabled')+'><span class="material-symbols-outlined" style="font-size:18px">delete_sweep</span></button>'
           +'<div class="pc-tool-sep"></div>'
-          +'<button class="pc-tool-btn" data-a="tpl" title="Templates"><span class="material-symbols-outlined" style="font-size:18px">dashboard</span></button>'
-          +'<button class="pc-tool-btn" data-a="play" title="Play animation"'+(hasActions?'':' disabled')+'><span class="material-symbols-outlined" style="font-size:18px;color:var(--success)">play_arrow</span></button>';
+          +'<button class="pc-tool-btn" data-a="tpl" title="'+t('plays.modal.select_formation')+'"><span class="material-symbols-outlined" style="font-size:18px">dashboard</span></button>'
+          +'<button class="pc-tool-btn" data-a="play" title="'+t('plays.btn.play')+'"'+(hasActions?'':' disabled')+'><span class="material-symbols-outlined" style="font-size:18px;color:var(--success)">play_arrow</span></button>';
       }
       html+='</div>';
     }
     if(this.mode==='play'){
       html+='<div class="pc-right-toolbar">'
-        +'<button class="pc-tool-btn" data-a="edit" title="Back to edit"><span class="material-symbols-outlined" style="font-size:18px">edit</span></button>'
-        +'<button class="pc-tool-btn" data-a="'+(this.playing?'pause':'play')+'" title="'+(this.playing?'Pause':'Play')+'"><span class="material-symbols-outlined" style="font-size:18px">'+(this.playing?'pause':'play_arrow')+'</span></button>'
-        +'<button class="pc-tool-btn" data-a="stop" title="Restart"><span class="material-symbols-outlined" style="font-size:18px">replay</span></button>'
+        +'<button class="pc-tool-btn" data-a="edit" title="'+t('plays.btn.edit')+'"><span class="material-symbols-outlined" style="font-size:18px">edit</span></button>'
+        +'<button class="pc-tool-btn" data-a="'+(this.playing?'pause':'play')+'" title="'+t('plays.btn.play')+'"><span class="material-symbols-outlined" style="font-size:18px">'+(this.playing?'pause':'play_arrow')+'</span></button>'
+        +'<button class="pc-tool-btn" data-a="stop" title="'+t('plays.btn.play')+'"><span class="material-symbols-outlined" style="font-size:18px">replay</span></button>'
         +'</div>';
     }
 
     // Status indicators
     if(isEdit&&!this.positioningPhase&&this.selAction){
-      html+='<div class="pc-status pc-status-action">'+ACTIONS[this.selAction].icon+' '+ACTIONS[this.selAction].name+' — click player & drag</div>';
+      html+='<div class="pc-status pc-status-action">'+ACTIONS[this.selAction].icon+' '+t('plays.status.click_drag',{action:t(ACTIONS[this.selAction].nameKey)})+'</div>';
     }
     if(isEdit&&this.parallelMode&&!this.positioningPhase){
-      html+='<div class="pc-status pc-status-parallel" style="bottom:calc(var(--sp-3) + 28px)">SHIFT — parallel actions</div>';
+      html+='<div class="pc-status pc-status-parallel" style="bottom:calc(var(--sp-3) + 28px)">'+t('plays.status.parallel')+'</div>';
     }
     if(isEdit&&this.positioningPhase){
-      html+='<div class="pc-status pc-status-position">Drag players to position, then click confirm</div>';
+      html+='<div class="pc-status pc-status-position">'+t('plays.status.position')+'</div>';
     }
     if(isEdit&&this.editingCurve){
-      html+='<div class="pc-status pc-status-curve">Drag the control point to curve the path</div>';
+      html+='<div class="pc-status pc-status-curve">'+t('plays.status.curve')+'</div>';
     }
 
     // Template/ball overlays
@@ -222,10 +222,10 @@ class PlayCreator {
     html+='</div>'; // close pc-canvas-wrap
 
     // Right sidebar - timeline + saved
-    html+='<div class="pc-sidebar"><div class="pc-sidebar-section"><div class="pc-sidebar-title">Timeline ('+steps.length+' steps)</div>'
-      +(steps.length?steps.map(s=>'<div class="pc-timeline-step '+(this.selectedStep===s.time?'active':'')+'" data-st="'+s.time+'"><div style="font-weight:700;margin-bottom:2px">Step '+s.step+' <span style="color:var(--text-muted);font-weight:400">'+s.time.toFixed(1)+'s</span></div>'+s.actions.map(a=>'<div class="pc-timeline-action"><span style="color:'+(ACTIONS[a.type]?.color||'#fff')+'">'+(ACTIONS[a.type]?.icon||'')+'</span><span>#'+this._pn(a.pid)+'</span><span style="color:var(--text-muted)">'+(ACTIONS[a.type]?.name||a.type)+'</span><button class="btn-icon" style="width:20px;height:20px;margin-left:auto" data-ec="'+a.id+'"><span class="material-symbols-outlined" style="font-size:14px">timeline</span></button><button class="btn-icon" style="width:20px;height:20px" data-da="'+a.id+'"><span class="material-symbols-outlined" style="font-size:14px">close</span></button></div>').join('')+'</div>').join(''):'<div class="text-xs text-muted" style="padding:var(--sp-2)">No actions yet</div>')
-      +'</div><div class="pc-sidebar-section"><div class="pc-sidebar-title">Saved Plays ('+this.saved.length+')</div>'
-      +(this.saved.length?this.saved.map(s=>'<div class="pc-saved-item"><span data-lp="'+s.id+'" style="cursor:pointer;flex:1">'+s.name+(s.shared?'<span class="pc-share-badge" style="margin-left:4px">shared</span>':'')+'</span>'+(s.serverId?'<button class="btn-icon" style="width:24px;height:24px" data-ts="'+s.id+'" title="'+(s.shared?'Unshare':'Share with team')+'"><span class="material-symbols-outlined" style="font-size:14px;color:'+(s.shared?'#22c55e':'var(--text-muted)')+'">group</span></button>':'')+'<button class="btn-icon" style="width:24px;height:24px" data-dp="'+s.id+'"><span class="material-symbols-outlined" style="font-size:14px">delete</span></button></div>').join(''):'<div class="text-xs text-muted" style="padding:var(--sp-2)">No saved plays</div>')
+    html+='<div class="pc-sidebar"><div class="pc-sidebar-section"><div class="pc-sidebar-title">'+t('plays.sidebar.timeline')+' ('+t('plays.sidebar.steps',{count:steps.length})+')</div>'
+      +(steps.length?steps.map(s=>'<div class="pc-timeline-step '+(this.selectedStep===s.time?'active':'')+'" data-st="'+s.time+'"><div style="font-weight:700;margin-bottom:2px">'+t('plays.sidebar.step',{num:s.step})+' <span style="color:var(--text-muted);font-weight:400">'+s.time.toFixed(1)+'s</span></div>'+s.actions.map(a=>'<div class="pc-timeline-action"><span style="color:'+(ACTIONS[a.type]?.color||'#fff')+'">'+(ACTIONS[a.type]?.icon||'')+'</span><span>#'+this._pn(a.pid)+'</span><span style="color:var(--text-muted)">'+(ACTIONS[a.type]?.nameKey?t(ACTIONS[a.type].nameKey):a.type)+'</span><button class="btn-icon" style="width:20px;height:20px;margin-left:auto" data-ec="'+a.id+'"><span class="material-symbols-outlined" style="font-size:14px">timeline</span></button><button class="btn-icon" style="width:20px;height:20px" data-da="'+a.id+'"><span class="material-symbols-outlined" style="font-size:14px">close</span></button></div>').join('')+'</div>').join(''):'<div class="text-xs text-muted" style="padding:var(--sp-2)">'+t('plays.sidebar.no_actions')+'</div>')
+      +'</div><div class="pc-sidebar-section"><div class="pc-sidebar-title">'+t('plays.sidebar.saved_plays')+' ('+this.saved.length+')</div>'
+      +(this.saved.length?this.saved.map(s=>'<div class="pc-saved-item"><span data-lp="'+s.id+'" style="cursor:pointer;flex:1">'+s.name+(s.shared?'<span class="pc-share-badge" style="margin-left:4px">'+t('plays.badge.shared')+'</span>':'')+'</span>'+(s.serverId?'<button class="btn-icon" style="width:24px;height:24px" data-ts="'+s.id+'" title="'+(s.shared?t('plays.toast.unshared'):t('plays.btn.share_team'))+'"><span class="material-symbols-outlined" style="font-size:14px;color:'+(s.shared?'#22c55e':'var(--text-muted)')+'">group</span></button>':'')+'<button class="btn-icon" style="width:24px;height:24px" data-dp="'+s.id+'"><span class="material-symbols-outlined" style="font-size:14px">delete</span></button></div>').join(''):'<div class="text-xs text-muted" style="padding:var(--sp-2)">'+t('plays.sidebar.no_saved')+'</div>')
       +'</div></div></div>'; // close pc-sidebar, pc-body
 
     // Playback controls bar
@@ -244,12 +244,12 @@ class PlayCreator {
     return html;
   }
 
-  _tplHtml(){return '<div class="pc-modal"><h2>Select Formation</h2><div class="pc-sidebar-title">Offense</div><div class="pc-tpl-grid">'+Object.entries(OFFENSE).map(([k,v])=>'<button class="pc-tpl-btn '+(this.offTpl===k?'active':'')+'" data-ot="'+k+'">'+v.name+'</button>').join('')+'</div><div class="pc-sidebar-title">Defense</div><div class="pc-tpl-grid" style="grid-template-columns:repeat(2,1fr)">'+Object.entries(DEFENSE).map(([k,v])=>'<button class="pc-tpl-btn '+(this.defTpl===k?'active':'')+'" data-dt="'+k+'">'+v.name+'</button>').join('')+'</div><button class="btn btn-primary btn-lg" data-a="apply" style="margin-top:var(--sp-4);width:100%"><span class="material-symbols-outlined">check</span> Apply Formation</button></div>';}
-  _ballHtml(){const o=this.players.filter(p=>p.type==='offense');return '<div class="pc-modal"><h2>Who has the ball?</h2><div class="pc-tpl-grid">'+o.map(p=>'<button class="pc-tpl-btn" data-pb="'+p.id+'">#'+p.number+'</button>').join('')+'</div></div>';}
-  _shareHtml(){return '<div class="modal-overlay active" style="z-index:50"><div class="modal" style="max-width:500px"><div class="modal-header"><h3 class="modal-title">Share Play</h3><button class="modal-close" data-a="closeShare"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><p style="margin-bottom:var(--sp-3);color:var(--text-secondary)">Copy this link to share your play:</p><div style="display:flex;gap:var(--sp-2)"><input class="input" id="shareUrlInput" value="'+this.shareUrl+'" readonly style="flex:1;font-size:var(--text-xs)"/><button class="btn btn-primary" data-a="copyShare"><span class="material-symbols-outlined" style="font-size:18px">content_copy</span></button></div></div></div></div>';}
-  _confirmHtml(){return '<div class="modal-overlay active" style="z-index:50"><div class="modal" style="max-width:400px"><div class="modal-header"><h3 class="modal-title">Load Play?</h3><button class="modal-close" data-a="cancelLoad"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><p style="color:var(--text-secondary)">You have unsaved changes. Loading this play will replace your current work.</p></div><div class="modal-footer"><button class="btn btn-secondary" data-a="cancelLoad">Cancel</button><button class="btn btn-primary" data-a="confirmLoad">Load Play</button></div></div></div>';}
-  _teamPickerHtml(){return '<div class="modal-overlay active" style="z-index:50"><div class="modal" style="max-width:400px"><div class="modal-header"><h3 class="modal-title">Share with Team</h3><button class="modal-close" data-a="cancelTeamPick"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><p style="color:var(--text-secondary);margin-bottom:var(--sp-3)">Select a team to share this play with:</p><div style="display:flex;flex-direction:column;gap:var(--sp-2)">'+this.myTeams.map(t=>'<button class="btn btn-secondary" data-tpick="'+t.id+'" style="justify-content:flex-start"><span class="material-symbols-outlined" style="font-size:18px">groups</span> '+t.name+'</button>').join('')+'</div></div></div></div>';}
-  _newConfirmHtml(){return '<div class="modal-overlay active" style="z-index:50"><div class="modal" style="max-width:420px"><div class="modal-header"><h3 class="modal-title">New Play</h3><button class="modal-close" data-a="newStay"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><p style="color:var(--text-secondary)"><span class="material-symbols-outlined" style="font-size:20px;vertical-align:middle;color:var(--warning)">warning</span> You have unsaved changes. Creating a new play without saving will discard your current work.</p></div><div class="modal-footer" style="gap:var(--sp-2)"><button class="btn btn-secondary" data-a="newStay">Stay</button><button class="btn btn-danger" data-a="newDelete">New &amp; Discard</button><button class="btn btn-primary" data-a="newSave"><span class="material-symbols-outlined" style="font-size:16px">save</span> Save &amp; New</button></div></div></div>';}
+  _tplHtml(){return '<div class="pc-modal"><h2>'+t('plays.modal.select_formation')+'</h2><div class="pc-sidebar-title">'+t('plays.modal.offense')+'</div><div class="pc-tpl-grid">'+Object.entries(OFFENSE).map(([k,v])=>'<button class="pc-tpl-btn '+(this.offTpl===k?'active':'')+'" data-ot="'+k+'">'+t(v.nameKey)+'</button>').join('')+'</div><div class="pc-sidebar-title">'+t('plays.modal.defense')+'</div><div class="pc-tpl-grid" style="grid-template-columns:repeat(2,1fr)">'+Object.entries(DEFENSE).map(([k,v])=>'<button class="pc-tpl-btn '+(this.defTpl===k?'active':'')+'" data-dt="'+k+'">'+t(v.nameKey)+'</button>').join('')+'</div><button class="btn btn-primary btn-lg" data-a="apply" style="margin-top:var(--sp-4);width:100%"><span class="material-symbols-outlined">check</span> '+t('plays.modal.apply_formation')+'</button></div>';}
+  _ballHtml(){const o=this.players.filter(p=>p.type==='offense');return '<div class="pc-modal"><h2>'+t('plays.modal.who_has_ball')+'</h2><div class="pc-tpl-grid">'+o.map(p=>'<button class="pc-tpl-btn" data-pb="'+p.id+'">#'+p.number+'</button>').join('')+'</div></div>';}
+  _shareHtml(){return '<div class="modal-overlay active" style="z-index:50"><div class="modal" style="max-width:500px"><div class="modal-header"><h3 class="modal-title">'+t('plays.modal.share_play')+'</h3><button class="modal-close" data-a="closeShare"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><p style="margin-bottom:var(--sp-3);color:var(--text-secondary)">'+t('plays.modal.share_copy_link')+'</p><div style="display:flex;gap:var(--sp-2)"><input class="input" id="shareUrlInput" value="'+this.shareUrl+'" readonly style="flex:1;font-size:var(--text-xs)"/><button class="btn btn-primary" data-a="copyShare"><span class="material-symbols-outlined" style="font-size:18px">content_copy</span></button></div></div></div></div>';}
+  _confirmHtml(){return '<div class="modal-overlay active" style="z-index:50"><div class="modal" style="max-width:400px"><div class="modal-header"><h3 class="modal-title">'+t('plays.modal.load_play')+'</h3><button class="modal-close" data-a="cancelLoad"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><p style="color:var(--text-secondary)">'+t('plays.modal.load_play_warning')+'</p></div><div class="modal-footer"><button class="btn btn-secondary" data-a="cancelLoad">'+t('plays.modal.stay')+'</button><button class="btn btn-primary" data-a="confirmLoad">'+t('plays.modal.load_play_confirm')+'</button></div></div></div>';}
+  _teamPickerHtml(){return '<div class="modal-overlay active" style="z-index:50"><div class="modal" style="max-width:400px"><div class="modal-header"><h3 class="modal-title">'+t('plays.modal.share_with_team')+'</h3><button class="modal-close" data-a="cancelTeamPick"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><p style="color:var(--text-secondary);margin-bottom:var(--sp-3)">'+t('plays.modal.select_team')+'</p><div style="display:flex;flex-direction:column;gap:var(--sp-2)">'+this.myTeams.map(tm=>'<button class="btn btn-secondary" data-tpick="'+tm.id+'" style="justify-content:flex-start"><span class="material-symbols-outlined" style="font-size:18px">groups</span> '+tm.name+'</button>').join('')+'</div></div></div></div>';}
+  _newConfirmHtml(){return '<div class="modal-overlay active" style="z-index:50"><div class="modal" style="max-width:420px"><div class="modal-header"><h3 class="modal-title">'+t('plays.modal.new_play')+'</h3><button class="modal-close" data-a="newStay"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><p style="color:var(--text-secondary)"><span class="material-symbols-outlined" style="font-size:20px;vertical-align:middle;color:var(--warning)">warning</span> '+t('plays.modal.new_play_warning')+'</p></div><div class="modal-footer" style="gap:var(--sp-2)"><button class="btn btn-secondary" data-a="newStay">'+t('plays.modal.stay')+'</button><button class="btn btn-danger" data-a="newDelete">'+t('plays.modal.new_discard')+'</button><button class="btn btn-primary" data-a="newSave"><span class="material-symbols-outlined" style="font-size:16px">save</span> '+t('plays.modal.save_new')+'</button></div></div></div>';}
 
   _bindEv(){
     const svg=this.el.querySelector('.pc-svg');
@@ -270,7 +270,7 @@ class PlayCreator {
       else if(a==='shareTeam')this.shareFromToolbar();
       else if(a==='toggleParallel'){if(!this.parallelMode){this.parallelMode=true;this.parallelStart=this.actTime;}else{this.parallelMode=false;this.actTime+=1.5;this.parallelStart=null;}this.render();}
       else if(a==='closeShare'){this.showShareModal=false;this.render();}
-      else if(a==='copyShare'){const inp=this.el.querySelector('#shareUrlInput');if(inp){navigator.clipboard.writeText(inp.value).then(()=>{if(typeof Toast!=='undefined')Toast.success('Link copied!');}).catch(()=>{inp.select();document.execCommand('copy');if(typeof Toast!=='undefined')Toast.success('Link copied!');});}}
+      else if(a==='copyShare'){const inp=this.el.querySelector('#shareUrlInput');if(inp){navigator.clipboard.writeText(inp.value).then(()=>{if(typeof Toast!=='undefined')Toast.success(t('plays.toast.link_copied'));}).catch(()=>{inp.select();document.execCommand('copy');if(typeof Toast!=='undefined')Toast.success(t('plays.toast.link_copied'));});}}
       else if(a==='confirmLoad'){if(this.pendingLoad)this.loadPlay(this.pendingLoad);}
       else if(a==='cancelLoad'){this.pendingLoad=null;this.showConfirmModal=false;this.render();}
       else if(a==='newPlay')this.newPlay();
@@ -282,7 +282,7 @@ class PlayCreator {
     this.el.querySelectorAll('[data-ot]').forEach(b=>{b.addEventListener('click',()=>{this.offTpl=b.dataset.ot;this.render();});});
     this.el.querySelectorAll('[data-dt]').forEach(b=>{b.addEventListener('click',()=>{this.defTpl=b.dataset.dt;this.render();});});
     this.el.querySelectorAll('[data-pb]').forEach(b=>{b.addEventListener('click',()=>this.pickBall(b.dataset.pb));});
-    this.el.querySelectorAll('[data-st]').forEach(el=>{el.addEventListener('click',()=>{const t=parseFloat(el.dataset.st);this.selectedStep=this.selectedStep===t?null:t;this.render();});});
+    this.el.querySelectorAll('[data-st]').forEach(el=>{el.addEventListener('click',()=>{const st=parseFloat(el.dataset.st);this.selectedStep=this.selectedStep===st?null:st;this.render();});});
     this.el.querySelectorAll('[data-ec]').forEach(b=>{b.addEventListener('click',e=>{e.stopPropagation();const id=b.dataset.ec;this.editingCurve=this.editingCurve===id?null:id;this._svg();});});
     this.el.querySelectorAll('[data-da]').forEach(b=>{b.addEventListener('click',e=>{e.stopPropagation();this.actions=this.actions.filter(a=>a.id!==b.dataset.da);const ps=deep(this.initPlayers);for(const a of this.actions){if(ACTIONS[a.type]?.move){const i=ps.findIndex(x=>x.id===a.pid);if(i>=0){ps[i].x=a.ex;ps[i].y=a.ey;}}}this.players=ps;this._calcDur();this.render();});});
     this.el.querySelectorAll('[data-lp]').forEach(el=>{el.addEventListener('click',()=>{const p=this.saved.find(s=>s.id===el.dataset.lp);if(!p)return;if(this.actions.length>0){this.pendingLoad=p;this.showConfirmModal=true;this.render();}else{this.loadPlay(p);}});});

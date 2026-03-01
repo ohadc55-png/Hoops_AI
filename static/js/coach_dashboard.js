@@ -224,8 +224,4 @@ function renderPractices(sessions) {
 /* ══════════════════════════════════════
    Helpers
    ══════════════════════════════════════ */
-function formatDateHe(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('he-IL', { day: 'numeric', month: 'short' });
-}
+/* formatDateHe → shared-utils.js */

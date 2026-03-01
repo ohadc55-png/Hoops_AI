@@ -3,53 +3,421 @@
 {% block nav_practice %}active{% endblock %}
 {% block content %}
 <div class="page-header">
-  <div><h1 class="page-title">Practice & Training Planner</h1><p class="page-subtitle">Manage your weekly schedule and player workload</p></div>
+  <div>
+    <h1 class="page-title" data-i18n="coach.practice.title">Practice &amp; Training Planner</h1>
+    <p class="page-subtitle" data-i18n="coach.practice.subtitle">Manage your weekly schedule and player workload</p>
+  </div>
   <div class="flex gap-3">
-    <button class="btn btn-secondary" onclick="openModal('generateSessionModal')"><span class="material-symbols-outlined">auto_awesome</span> AI Generate</button>
-    <button class="btn btn-primary" onclick="openModal('sessionModal')"><span class="material-symbols-outlined">add</span> New Session</button>
+    <button class="btn btn-secondary" onclick="openModal('generateSessionModal')"><span class="material-symbols-outlined">auto_awesome</span> <span data-i18n="coach.practice.btn.ai_generate">AI Generate</span></button>
+    <button class="btn btn-primary" onclick="openModal('sessionModal')"><span class="material-symbols-outlined">add</span> <span data-i18n="coach.practice.btn.new_session">New Session</span></button>
   </div>
 </div>
 <div id="sessionsGrid" class="grid" style="grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:var(--sp-4);">
-  <div class="empty-state" style="grid-column:1/-1;"><span class="material-symbols-outlined">calendar_month</span><h3>No practice sessions</h3><p>Create a session or generate one with AI</p></div>
+  <div class="empty-state" style="grid-column:1/-1;">
+    <span class="material-symbols-outlined">calendar_month</span>
+    <h3 data-i18n="coach.practice.empty.title">No practice sessions</h3>
+    <p data-i18n="coach.practice.empty.subtitle">Create a session or generate one with AI</p>
+  </div>
 </div>
 
-<div class="modal-overlay" id="sessionModal"><div class="modal"><div class="modal-header"><h2 class="modal-title">New Practice Session</h2><button class="modal-close" onclick="closeModal('sessionModal')"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body">
-  <div class="input-group"><label>Date</label><input type="date" class="input" id="sessionDate"></div>
-  <div class="input-group"><label>Title</label><input type="text" class="input" id="sessionTitle" placeholder="Morning Practice"></div>
-  <div class="input-group"><label>Focus</label><input type="text" class="input" id="sessionFocus" placeholder="e.g. Defense, Shooting"></div>
-  <div class="input-group"><label>Duration (min)</label><input type="number" class="input" id="sessionDuration" value="90"></div>
-</div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('sessionModal')">Cancel</button><button class="btn btn-primary" onclick="createSession()">Create</button></div></div></div>
+<!-- New Session Modal -->
+<div class="modal-overlay" id="sessionModal">
+  <div class="modal" style="max-width:620px;max-height:90vh;display:flex;flex-direction:column;">
+    <div class="modal-header">
+      <h2 class="modal-title">מפגש אימון חדש</h2>
+      <button class="modal-close" onclick="closeModal('sessionModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body" style="overflow-y:auto;">
+      <div class="input-group"><label>תאריך</label><input type="date" class="input" id="sessionDate"></div>
+      <div class="input-group"><label>כותרת</label><input type="text" class="input" id="sessionTitle" placeholder="למשל: אימון קליעות ביציאה מחסימות"></div>
+      <div class="input-group"><label>מיקוד</label><input type="text" class="input" id="sessionFocus" placeholder="למשל: הגנה, קליעה, כדרור"></div>
+      <div class="input-group"><label>משך (דק׳)</label><input type="number" class="input" id="sessionDuration" value="90"></div>
 
-<div class="modal-overlay" id="generateSessionModal"><div class="modal"><div class="modal-header"><h2 class="modal-title">AI Session Generator</h2><button class="modal-close" onclick="closeModal('generateSessionModal')"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body">
-  <div class="input-group"><label>Focus</label><input type="text" class="input" id="genSessionFocus" placeholder="Defense fundamentals"></div>
-  <div class="input-group"><label>Duration (min)</label><input type="number" class="input" id="genSessionDuration" value="90"></div>
-</div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('generateSessionModal')">Cancel</button><button class="btn btn-primary" id="genSessionBtn" onclick="generateSession()"><span class="material-symbols-outlined">auto_awesome</span> Generate</button></div></div></div>
+      <!-- Segments Builder -->
+      <div style="border-top:1px solid var(--border);margin-top:var(--sp-4);padding-top:var(--sp-4);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-3);">
+          <div style="display:flex;align-items:center;gap:var(--sp-2);">
+            <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">format_list_numbered</span>
+            <span style="font-weight:700;font-size:var(--text-sm);">חלקי האימון</span>
+            <span style="font-size:var(--text-xs);color:var(--text-muted);">(אופציונלי)</span>
+          </div>
+          <button type="button" class="btn btn-sm btn-secondary" onclick="addSegmentRow()">
+            <span class="material-symbols-outlined" style="font-size:14px;">add</span> הוסף חלק
+          </button>
+        </div>
+        <div id="segmentBuilder" style="display:flex;flex-direction:column;gap:var(--sp-3);"></div>
+        <div id="segmentBuilderEmpty" style="text-align:center;padding:var(--sp-4);color:var(--text-muted);font-size:var(--text-xs);border:1px dashed var(--border);border-radius:var(--radius);">
+          לחץ "הוסף חלק" כדי לבנות את מערך האימון שלך
+        </div>
+        <div id="segmentsTotalDuration" style="display:none;margin-top:var(--sp-2);text-align:left;font-size:var(--text-xs);color:var(--text-muted);"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('sessionModal')">ביטול</button>
+      <button class="btn btn-primary" id="createSessionBtn" onclick="createSession()">
+        <span class="material-symbols-outlined" style="font-size:16px;">add</span> צור אימון
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- AI Generate Modal -->
+<div class="modal-overlay" id="generateSessionModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" data-i18n="coach.practice.modal.ai_generator">AI Session Generator</h2>
+      <button class="modal-close" onclick="closeModal('generateSessionModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group"><label data-i18n="coach.practice.field.focus">Focus</label><input type="text" class="input" id="genSessionFocus" data-i18n-placeholder="coach.practice.field.gen_focus_placeholder" placeholder="Defense fundamentals"></div>
+      <div class="input-group"><label data-i18n="coach.practice.field.duration">Duration (min)</label><input type="number" class="input" id="genSessionDuration" value="90"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('generateSessionModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" id="genSessionBtn" onclick="generateSession()"><span class="material-symbols-outlined">auto_awesome</span> <span data-i18n="btn.generate">Generate</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Session Summary Modal -->
+<div class="modal-overlay" id="sessionSummaryModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <h2 class="modal-title">סיכום אימון</h2>
+      <button class="modal-close" onclick="closeModal('sessionSummaryModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="summarySessionId">
+      <div class="input-group">
+        <label>האם השגנו את מטרת האימון? *</label>
+        <select class="select" id="summaryGoal">
+          <option value="">בחר...</option>
+          <option value="yes">✅ כן — הגענו למטרה</option>
+          <option value="partial">🔶 חלקית</option>
+          <option value="no">❌ לא הגענו</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>מה עבד? *</label>
+        <textarea class="textarea" id="summaryWorked" rows="2" placeholder="מה הצליח באימון..."></textarea>
+      </div>
+      <div class="input-group">
+        <label>מה לא עבד? *</label>
+        <textarea class="textarea" id="summaryDidntWork" rows="2" placeholder="מה צריך לשפר..."></textarea>
+      </div>
+      <div class="input-group">
+        <label>שחקנים שבלטו (אופציונלי, עד 2)</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <select class="select" id="summaryStandout1"><option value="">—</option></select>
+          <select class="select" id="summaryStandout2"><option value="">—</option></select>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>שחקנים שדורשים תשומת לב (אופציונלי, עד 2)</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <select class="select" id="summaryAttention1"><option value="">—</option></select>
+          <select class="select" id="summaryAttention2"><option value="">—</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('sessionSummaryModal')">ביטול</button>
+      <button class="btn btn-primary" id="summarySaveBtn" onclick="saveSessionSummary()">
+        <span class="material-symbols-outlined" style="font-size:16px;">save</span> שמור סיכום
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block styles %}
+<style>
+#segmentBuilder .seg-notes:empty::before { content: attr(placeholder); }
+#segmentBuilder > div:hover { border-color: var(--primary) !important; }
+</style>
 {% endblock %}
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', loadSessions);
+function _esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+let _allPlayers = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadSessions();
+  loadPlayers();
+});
+
+async function loadPlayers() {
+  try {
+    const res = await API.get('/api/players');
+    _allPlayers = res.data || [];
+  } catch(e) {}
+}
+
+function _populatePlayerDropdowns() {
+  const opts = '<option value="">—</option>' +
+    _allPlayers.map(p => `<option value="${_esc(p.name)}">#${p.jersey_number || '-'} ${_esc(p.name)}</option>`).join('');
+  ['summaryStandout1','summaryStandout2','summaryAttention1','summaryAttention2']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = opts; });
+}
+
+function openSessionSummary(session) {
+  document.getElementById('summarySessionId').value = session.id;
+  document.getElementById('summaryGoal').value = session.goal_achieved || '';
+  document.getElementById('summaryWorked').value = session.what_worked || '';
+  document.getElementById('summaryDidntWork').value = session.what_didnt_work || '';
+  _populatePlayerDropdowns();
+  const s = session.standout_players || [], a = session.attention_players || [];
+  document.getElementById('summaryStandout1').value = s[0] || '';
+  document.getElementById('summaryStandout2').value = s[1] || '';
+  document.getElementById('summaryAttention1').value = a[0] || '';
+  document.getElementById('summaryAttention2').value = a[1] || '';
+  openModal('sessionSummaryModal');
+}
+
+async function saveSessionSummary() {
+  const id = document.getElementById('summarySessionId').value;
+  const goal = document.getElementById('summaryGoal').value;
+  const worked = document.getElementById('summaryWorked').value.trim();
+  const didnt = document.getElementById('summaryDidntWork').value.trim();
+  if (!goal) {
+    Toast.error('יש לבחור האם הושגה המטרה');
+    document.getElementById('summaryGoal').style.borderColor = 'var(--error)';
+    document.getElementById('summaryGoal').focus();
+    return;
+  }
+  document.getElementById('summaryGoal').style.borderColor = '';
+  if (!worked) {
+    Toast.error('יש למלא מה עבד');
+    document.getElementById('summaryWorked').style.borderColor = 'var(--error)';
+    document.getElementById('summaryWorked').focus();
+    return;
+  }
+  document.getElementById('summaryWorked').style.borderColor = '';
+  if (!didnt) {
+    Toast.error('יש למלא מה לא עבד');
+    document.getElementById('summaryDidntWork').style.borderColor = 'var(--error)';
+    document.getElementById('summaryDidntWork').focus();
+    return;
+  }
+  document.getElementById('summaryDidntWork').style.borderColor = '';
+  const standouts = [
+    document.getElementById('summaryStandout1').value,
+    document.getElementById('summaryStandout2').value,
+  ].filter(Boolean);
+  const attentions = [
+    document.getElementById('summaryAttention1').value,
+    document.getElementById('summaryAttention2').value,
+  ].filter(Boolean);
+  const btn = document.getElementById('summarySaveBtn');
+  btn.disabled = true;
+  try {
+    await API.put(`/api/practice/${id}/summary`, {
+      goal_achieved: goal, what_worked: worked, what_didnt_work: didnt,
+      standout_players: standouts, attention_players: attentions,
+    });
+    Toast.success('הסיכום נשמר');
+    closeModal('sessionSummaryModal');
+    loadSessions();
+  } catch(e) { Toast.error('שגיאה בשמירת הסיכום'); }
+  finally { btn.disabled = false; }
+}
+
 async function loadSessions() {
   try {
     const res = await API.get('/api/practice');
     const grid = document.getElementById('sessionsGrid');
     if (!res.data.length) return;
     grid.innerHTML = res.data.map(s => {
-      const segs = s.segments ? s.segments.map(seg => `<div class="flex items-center gap-2 text-xs" style="padding:var(--sp-1) 0;"><span class="badge badge-neutral" style="font-size:9px;">${seg.segment_type}</span>${seg.title} <span class="text-muted">${seg.duration_minutes}m</span></div>`).join('') : '';
-      return `<div class="card"><div class="flex items-center justify-between" style="margin-bottom:var(--sp-3);"><h3 style="font-weight:700;">${s.title}</h3><span class="badge badge-neutral">${s.date}</span></div><div class="flex gap-3 text-sm text-secondary" style="margin-bottom:var(--sp-3);"><span>${s.focus || ''}</span><span>${s.total_duration} min</span></div>${segs ? '<div style="border-top:1px solid var(--border);padding-top:var(--sp-3);margin-top:var(--sp-2);">'+segs+'</div>' : ''}</div>`;
+      const segs = s.segments ? s.segments.map(seg =>
+        `<div class="flex items-center gap-2 text-xs" style="padding:var(--sp-1) 0;">
+          <span class="badge badge-neutral" style="font-size:9px;">${seg.segment_type}</span>
+          ${_esc(seg.title)} <span class="text-muted">${seg.duration_minutes}m</span>
+        </div>`
+      ).join('') : '';
+      const hasNotes = s.notes && s.notes.trim().length > 0;
+      const notesBadge = hasNotes ? `<span class="badge badge-primary" style="font-size:9px;margin-right:var(--sp-2);">תוכן מהצ'אט</span>` : '';
+
+      // Summary badge/button
+      const sessionJson = JSON.stringify(s).replace(/"/g, '&quot;');
+      let summaryBtn;
+      if (s.goal_achieved) {
+        const goalIcon = s.goal_achieved === 'yes' ? '✅' : s.goal_achieved === 'partial' ? '🔶' : '❌';
+        summaryBtn = `<span onclick="event.preventDefault();event.stopPropagation();openSessionSummary(JSON.parse(this.dataset.s))"
+          data-s="${sessionJson}"
+          style="cursor:pointer;background:rgba(34,197,94,0.15);color:#22c55e;border-radius:4px;padding:3px 8px;font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:3px;">
+          ${goalIcon} סוכם</span>`;
+      } else {
+        summaryBtn = `<button onclick="event.preventDefault();event.stopPropagation();openSessionSummary(JSON.parse(this.dataset.s))"
+          data-s="${sessionJson}"
+          class="btn btn-secondary" style="padding:3px 8px;font-size:10px;height:auto;">
+          <span class="material-symbols-outlined" style="font-size:12px;">edit_note</span> סכם אימון
+        </button>`;
+      }
+
+      return `<a href="/practice/${s.id}" style="text-decoration:none;color:inherit;display:block;" class="card card-interactive">
+        <div class="flex items-center justify-between" style="margin-bottom:var(--sp-3);">
+          <h3 style="font-weight:700;">${_esc(s.title)}${notesBadge}</h3>
+          <span class="badge badge-neutral">${s.date}</span>
+        </div>
+        <div class="flex gap-3 text-sm text-secondary" style="margin-bottom:var(--sp-3);">
+          <span>${_esc(s.focus || '')}</span><span>${s.total_duration} min</span>
+        </div>
+        ${segs ? '<div style="border-top:1px solid var(--border);padding-top:var(--sp-3);margin-top:var(--sp-2);">' + segs + '</div>' : ''}
+        <div style="margin-top:var(--sp-3);display:flex;align-items:center;justify-content:space-between;">
+          ${summaryBtn}
+          <span style="font-size:11px;color:var(--primary);opacity:0.8;">לחץ לפירוט ←</span>
+        </div>
+      </a>`;
     }).join('');
   } catch(e) {}
 }
-async function createSession() {
-  try {
-    await API.post('/api/practice', { date: document.getElementById('sessionDate').value, title: document.getElementById('sessionTitle').value, focus: document.getElementById('sessionFocus').value, total_duration: parseInt(document.getElementById('sessionDuration').value) });
-    closeModal('sessionModal'); Toast.success('Session created!'); loadSessions();
-  } catch(e) {}
+
+/* ── Segment Builder ── */
+let _segCounter = 0;
+const SEG_TYPES = [
+  { value: 'warmup', label: 'חימום', color: '#F87171' },
+  { value: 'drill', label: 'תרגיל', color: '#f48c25' },
+  { value: 'scrimmage', label: 'משחק', color: '#34D399' },
+  { value: 'film_study', label: 'ניתוח וידאו', color: '#A78BFA' },
+  { value: 'cooldown', label: 'סיום / שיחה', color: '#60A5FA' },
+  { value: 'break', label: 'הפסקה', color: '#9CA3AF' },
+];
+
+function addSegmentRow(type, title, dur, notes) {
+  const idx = _segCounter++;
+  const builder = document.getElementById('segmentBuilder');
+  document.getElementById('segmentBuilderEmpty').style.display = 'none';
+
+  const typeOptions = SEG_TYPES.map(t =>
+    `<option value="${t.value}" ${t.value === (type || 'drill') ? 'selected' : ''}>${t.label}</option>`
+  ).join('');
+
+  const row = document.createElement('div');
+  row.id = `seg-row-${idx}`;
+  row.style.cssText = 'background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:var(--sp-3);';
+  row.innerHTML = `
+    <div style="display:flex;gap:var(--sp-2);margin-bottom:var(--sp-2);align-items:center;">
+      <select class="select seg-type" style="width:120px;padding:var(--sp-1) var(--sp-2);font-size:var(--text-xs);" data-idx="${idx}">
+        ${typeOptions}
+      </select>
+      <input type="text" class="input seg-title" placeholder="כותרת החלק" value="${_esc(title || '')}" style="flex:1;padding:var(--sp-1) var(--sp-2);font-size:var(--text-sm);">
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+        <input type="number" class="input seg-dur" min="1" max="120" value="${dur || 10}" style="width:56px;padding:var(--sp-1) var(--sp-2);font-size:var(--text-sm);text-align:center;">
+        <span style="font-size:var(--text-xs);color:var(--text-muted);">דק׳</span>
+      </div>
+      <button type="button" class="btn btn-ghost" onclick="removeSegmentRow(${idx})" style="padding:var(--sp-1);color:var(--text-muted);" title="הסר">
+        <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+      </button>
+    </div>
+    <textarea class="textarea seg-notes" rows="2" placeholder="פירוט: מה עושים, מטרות, דגשים..." style="font-size:var(--text-xs);padding:var(--sp-2);resize:vertical;">${_esc(notes || '')}</textarea>
+  `;
+  builder.appendChild(row);
+  updateSegmentsTotalDuration();
+
+  // Focus on the title
+  row.querySelector('.seg-title').focus();
+
+  // Listen for duration changes
+  row.querySelector('.seg-dur').addEventListener('input', updateSegmentsTotalDuration);
 }
+
+function removeSegmentRow(idx) {
+  const row = document.getElementById(`seg-row-${idx}`);
+  if (row) row.remove();
+  const builder = document.getElementById('segmentBuilder');
+  if (!builder.children.length) {
+    document.getElementById('segmentBuilderEmpty').style.display = '';
+    document.getElementById('segmentsTotalDuration').style.display = 'none';
+  }
+  updateSegmentsTotalDuration();
+}
+
+function updateSegmentsTotalDuration() {
+  const durs = document.querySelectorAll('#segmentBuilder .seg-dur');
+  if (!durs.length) { document.getElementById('segmentsTotalDuration').style.display = 'none'; return; }
+  let total = 0;
+  durs.forEach(d => total += parseInt(d.value) || 0);
+  const el = document.getElementById('segmentsTotalDuration');
+  el.style.display = '';
+  el.textContent = `סה"כ משך חלקים: ${total} דק׳`;
+
+  // Auto-update session duration if segments are longer
+  const sessionDur = document.getElementById('sessionDuration');
+  if (total > parseInt(sessionDur.value || 0)) {
+    sessionDur.value = total;
+  }
+}
+
+function collectSegments() {
+  const rows = document.querySelectorAll('#segmentBuilder > div');
+  const segments = [];
+  rows.forEach(row => {
+    const title = row.querySelector('.seg-title')?.value.trim();
+    if (!title) return;
+    segments.push({
+      segment_type: row.querySelector('.seg-type')?.value || 'drill',
+      title: title,
+      duration_minutes: parseInt(row.querySelector('.seg-dur')?.value) || 10,
+      notes: row.querySelector('.seg-notes')?.value.trim() || null,
+    });
+  });
+  return segments;
+}
+
+function resetSegmentBuilder() {
+  _segCounter = 0;
+  document.getElementById('segmentBuilder').innerHTML = '';
+  document.getElementById('segmentBuilderEmpty').style.display = '';
+  document.getElementById('segmentsTotalDuration').style.display = 'none';
+}
+
+async function createSession() {
+  const title = document.getElementById('sessionTitle').value.trim();
+  const dateVal = document.getElementById('sessionDate').value;
+  if (!title) {
+    Toast.error('יש להזין כותרת');
+    document.getElementById('sessionTitle').style.borderColor = 'var(--error)';
+    document.getElementById('sessionTitle').focus();
+    return;
+  }
+  document.getElementById('sessionTitle').style.borderColor = '';
+  if (!dateVal) {
+    Toast.error('יש לבחור תאריך');
+    document.getElementById('sessionDate').style.borderColor = 'var(--error)';
+    document.getElementById('sessionDate').focus();
+    return;
+  }
+  document.getElementById('sessionDate').style.borderColor = '';
+
+  const segments = collectSegments();
+  const btn = document.getElementById('createSessionBtn');
+  btn.disabled = true;
+  try {
+    await API.post('/api/practice', {
+      date: dateVal,
+      title: title,
+      focus: document.getElementById('sessionFocus').value.trim() || null,
+      total_duration: parseInt(document.getElementById('sessionDuration').value) || 90,
+      segments: segments,
+    });
+    closeModal('sessionModal');
+    resetSegmentBuilder();
+    Toast.success('האימון נוצר בהצלחה');
+    loadSessions();
+  } catch(e) {}
+  finally { btn.disabled = false; }
+}
+
 async function generateSession() {
   const btn = document.getElementById('genSessionBtn'); btn.disabled = true;
   try {
-    await API.post('/api/practice/generate', { focus: document.getElementById('genSessionFocus').value, duration: parseInt(document.getElementById('genSessionDuration').value) });
-    closeModal('generateSessionModal'); Toast.success('AI session generated!'); loadSessions();
+    const lang = (typeof I18N !== 'undefined' && I18N.getLang) ? I18N.getLang() : (localStorage.getItem('hoops_language') || 'he');
+    await API.post('/api/practice/generate', {
+      focus: document.getElementById('genSessionFocus').value,
+      duration: parseInt(document.getElementById('genSessionDuration').value),
+      language: lang,
+    });
+    closeModal('generateSessionModal'); Toast.success(t('coach.practice.generated')); loadSessions();
   } catch(e) {} finally { btn.disabled = false; }
 }
 </script>

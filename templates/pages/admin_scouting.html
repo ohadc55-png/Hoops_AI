@@ -1,7 +1,7 @@
 {% extends "admin_base.html" %}
 {% block title %}HOOPS AI — Video Room{% endblock %}
 {% block nav_scouting %}active{% endblock %}
-{% block header_title %}Video Room{% endblock %}
+{% block header_title %}<span data-i18n="admin.header.scouting">חדר וידאו</span>{% endblock %}
 {% block styles %}
 <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
 <link rel="stylesheet" href="/static/css/pages/scouting.css">
@@ -15,19 +15,19 @@
   <div id="gridView">
     <div class="scouting-header">
       <select class="input" id="teamPicker" style="max-width:220px;">
-        <option value="">All Teams</option>
+        <option value="" data-i18n="admin.scouting.filter_all_teams">All Teams</option>
       </select>
       <div class="scouting-filters" id="typeFilters">
-        <button class="filter-btn active" data-type="">All</button>
-        <button class="filter-btn" data-type="game">Game</button>
-        <button class="filter-btn" data-type="practice">Practice</button>
-        <button class="filter-btn" data-type="opponent_scout">Scout</button>
-        <button class="filter-btn" data-type="highlight">Highlight</button>
+        <button class="filter-btn active" data-type="" data-i18n="admin.scouting.filter_all">All</button>
+        <button class="filter-btn" data-type="game" data-i18n="admin.scouting.filter_game">Game</button>
+        <button class="filter-btn" data-type="practice" data-i18n="admin.scouting.filter_practice">Practice</button>
+        <button class="filter-btn" data-type="opponent_scout" data-i18n="admin.scouting.filter_scout">Scout</button>
+        <button class="filter-btn" data-type="highlight" data-i18n="admin.scouting.filter_highlight">Highlight</button>
       </div>
-      <input type="text" class="input scouting-search" id="videoSearch" placeholder="Search videos...">
+      <input type="text" class="input scouting-search" id="videoSearch" data-i18n-placeholder="admin.scouting.search_placeholder" placeholder="Search videos...">
     </div>
     <div class="video-grid" id="videoGrid">
-      <p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: var(--sp-8);">Loading videos...</p>
+      <p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: var(--sp-8);" data-i18n="admin.scouting.loading_videos">Loading videos...</p>
     </div>
   </div>
 
@@ -35,9 +35,9 @@
   <div id="analysisView" class="analysis-view">
     <div class="analysis-header">
       <button class="btn btn-ghost" onclick="backToGrid()">
-        <span class="material-symbols-outlined">arrow_back</span> Back
+        <span class="material-symbols-outlined">arrow_back</span> <span data-i18n="admin.scouting.btn_back">Back</span>
       </button>
-      <h2 id="analysisTitle">Video Title</h2>
+      <h2 id="analysisTitle" data-i18n="admin.scouting.video_title_placeholder">Video Title</h2>
       <span class="admin-coach-badge" id="coachBadge"></span>
     </div>
 
@@ -68,7 +68,7 @@
       <div class="clips-sidebar">
         <div class="clips-sidebar-title">
           <span class="material-symbols-outlined">movie_filter</span>
-          Clips <span id="clipCount" style="color:var(--text-muted);font-weight:400;"></span>
+          <span data-i18n="admin.scouting.clips_sidebar_title">Clips</span> <span id="clipCount" style="color:var(--text-muted);font-weight:400;"></span>
         </div>
         <div id="clipsList"></div>
       </div>

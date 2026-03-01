@@ -4,6 +4,7 @@ from pathlib import Path
 import tiktoken
 
 from config import get_settings
+from src.utils.exceptions import ValidationError
 
 _enc = tiktoken.encoding_for_model("gpt-4")
 
@@ -50,7 +51,7 @@ def extract_text(file_path: str) -> list[dict]:
     ext = Path(file_path).suffix.lower()
     extractor = EXTRACTORS.get(ext)
     if not extractor:
-        raise ValueError(f"Unsupported file type: {ext}")
+        raise ValidationError(f"Unsupported file type: {ext}")
     return extractor(file_path)
 
 

@@ -1,8 +1,13 @@
-"""HOOPS AI - Scouting / Video Room Service"""
-from datetime import datetime, timedelta
+"""HOOPS AI - Scouting / Video Room Service
+
+Delegates video CRUD to VideoService, clip CRUD to ClipService,
+and annotation CRUD to AnnotationService while keeping the same public API.
+"""
+import logging
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from config import get_settings
+
+logger = logging.getLogger(__name__)
+
 from src.repositories.scouting_repository import (
     ScoutingVideoRepository, VideoClipRepository,
     AnnotationRepository, ClipViewRepository, StorageQuotaRepository,
@@ -10,11 +15,12 @@ from src.repositories.scouting_repository import (
 from src.models.scouting_video import ScoutingVideo
 from src.models.video_clip import VideoClip
 from src.models.video_annotation import VideoAnnotation
-from src.models.clip_player_tag import ClipPlayerTag
 from src.models.clip_view import ClipView
 from src.services.cloudinary_service import CloudinaryService
 
-settings = get_settings()
+from src.services.video_service import VideoService
+from src.services.clip_service import ClipService
+from src.services.annotation_service import AnnotationService
 
 
 class ScoutingService:
@@ -26,243 +32,80 @@ class ScoutingService:
         self.view_repo = ClipViewRepository(session)
         self.quota_repo = StorageQuotaRepository(session)
         self.cloudinary = CloudinaryService()
+        # Sub-services
+        self._video_svc = VideoService(session)
+        self._clip_svc = ClipService(session)
+        self._annotation_svc = AnnotationService(session)
 
-    # ─── Videos ────────────────────────────────────────────────────
+    # ─── Videos (delegated to VideoService) ──────────────────────────
 
     async def register_video(self, coach_id: int, team_id: int | None, data: dict) -> ScoutingVideo:
-        """Register a video after successful Cloudinary upload from browser."""
-        file_size = data.get("file_size", 0)
-
-        # Check quota if team assigned
-        if team_id:
-            quota = await self.quota_repo.get_or_create(team_id)
-            if quota.storage_used_bytes + file_size > quota.storage_limit_bytes:
-                raise ValueError("Storage quota exceeded for this team")
-
-        # Build HLS + thumbnail URLs from public_id
-        public_id = data["cloudinary_public_id"]
-        hls_url = self.cloudinary.get_hls_url(public_id)
-        thumbnail_url = self.cloudinary.get_thumbnail_url(public_id)
-
-        keep_forever = data.get("keep_forever", False)
-        if keep_forever:
-            expires_at = None
-        else:
-            ttl_days = settings.SCOUTING_VIDEO_TTL_DAYS
-            expires_at = datetime.utcnow() + timedelta(days=ttl_days)
-
-        video = ScoutingVideo(
-            coach_id=coach_id,
-            team_id=team_id,
-            title=data.get("title", "Untitled Video"),
-            description=data.get("description"),
-            video_type=data.get("video_type", "game"),
-            cloudinary_public_id=public_id,
-            cloudinary_url=data.get("cloudinary_url", ""),
-            cloudinary_hls_url=hls_url,
-            thumbnail_url=thumbnail_url,
-            original_name=data.get("original_name", ""),
-            file_size=file_size,
-            duration_seconds=data.get("duration_seconds"),
-            opponent=data.get("opponent"),
-            game_date=data.get("game_date"),
-            expires_at=expires_at,
-            keep_forever=keep_forever,
-        )
-        self.session.add(video)
-        await self.session.flush()
-
-        # Update quota
-        if team_id:
-            await self.quota_repo.update_usage(team_id, file_size)
-
-        return video
+        return await self._video_svc.register_video(coach_id, team_id, data)
 
     async def get_videos(self, coach_id: int, video_type: str | None = None,
                          team_id: int | None = None, search: str | None = None) -> list:
-        return await self.video_repo.get_by_coach(coach_id, video_type, team_id, search)
+        return await self._video_svc.get_videos(coach_id, video_type, team_id, search)
 
     async def get_video_detail(self, video_id: int) -> ScoutingVideo | None:
-        return await self.video_repo.get_with_clips(video_id)
+        return await self._video_svc.get_video_detail(video_id)
 
     async def update_video(self, video_id: int, coach_id: int, data: dict) -> ScoutingVideo | None:
-        video = await self.video_repo.get_by_id(video_id)
-        if not video or video.coach_id != coach_id:
-            return None
-        for key in ["title", "description", "video_type", "opponent", "game_date"]:
-            if key in data:
-                setattr(video, key, data[key])
-        # Handle keep_forever toggle
-        if "keep_forever" in data:
-            kf = data["keep_forever"]
-            video.keep_forever = kf
-            if kf:
-                video.expires_at = None
-                video.expiry_notified_48h = False
-                video.expiry_notified_6h = False
-            else:
-                ttl_days = settings.SCOUTING_VIDEO_TTL_DAYS
-                video.expires_at = datetime.utcnow() + timedelta(days=ttl_days)
-                video.expiry_notified_48h = False
-                video.expiry_notified_6h = False
-        await self.session.flush()
-        return video
+        return await self._video_svc.update_video(video_id, coach_id, data)
 
     async def delete_video(self, video_id: int, coach_id: int) -> bool:
-        video = await self.video_repo.get_by_id(video_id)
-        if not video or video.coach_id != coach_id:
-            return False
-
-        # Delete from Cloudinary
-        self.cloudinary.delete_video(video.cloudinary_public_id)
-
-        # Update quota
-        if video.team_id and video.file_size:
-            await self.quota_repo.update_usage(video.team_id, -video.file_size)
-
-        await self.video_repo.delete(video_id)
-        return True
+        return await self._video_svc.delete_video(video_id, coach_id)
 
     async def share_video(self, video_id: int, coach_id: int, team_id: int) -> bool:
-        video = await self.video_repo.get_by_id(video_id)
-        if not video or video.coach_id != coach_id:
-            return False
-        video.shared_with_team = True
-        video.team_id = team_id
-        await self.session.flush()
-        return True
+        return await self._video_svc.share_video(video_id, coach_id, team_id)
 
     async def unshare_video(self, video_id: int, coach_id: int) -> bool:
-        video = await self.video_repo.get_by_id(video_id)
-        if not video or video.coach_id != coach_id:
-            return False
-        video.shared_with_team = False
-        await self.session.flush()
-        return True
+        return await self._video_svc.unshare_video(video_id, coach_id)
 
-    # ─── Clips ─────────────────────────────────────────────────────
+    async def share_video_with_parents(self, video_id: int, coach_id: int) -> bool:
+        return await self._video_svc.share_video_with_parents(video_id, coach_id)
+
+    async def unshare_video_with_parents(self, video_id: int, coach_id: int) -> bool:
+        return await self._video_svc.unshare_video_with_parents(video_id, coach_id)
+
+    # ─── Clips (delegated to ClipService) ─────────────────────────────
 
     async def create_clip(self, video_id: int, coach_id: int, data: dict) -> VideoClip:
-        video = await self.video_repo.get_by_id(video_id)
-        if not video or video.coach_id != coach_id:
-            raise ValueError("Video not found")
-
-        clip = VideoClip(
-            video_id=video_id,
-            coach_id=coach_id,
-            title=data.get("title"),
-            start_time=data["start_time"],
-            end_time=data["end_time"],
-            action_type=data.get("action_type", "other"),
-            rating=data.get("rating"),
-            notes=data.get("notes"),
+        return await self._clip_svc.create_clip(
+            video_id, coach_id, data,
+            notify_callback=self._notify_tagged_players,
         )
-        self.session.add(clip)
-        await self.session.flush()
-
-        # Add player tags
-        player_ids = data.get("player_ids", [])
-        for pid in player_ids:
-            tag = ClipPlayerTag(clip_id=clip.id, player_id=pid)
-            self.session.add(tag)
-
-        if player_ids:
-            await self.session.flush()
-            # Send notifications to tagged players
-            await self._notify_tagged_players(clip, video, player_ids)
-
-        # Reload with relationships to avoid MissingGreenlet in serializer
-        reloaded = await self.clip_repo.get_by_id_with_relations(clip.id)
-        return reloaded or clip
 
     async def get_clips(self, video_id: int) -> list:
-        return await self.clip_repo.get_by_video(video_id)
+        return await self._clip_svc.get_clips(video_id)
 
     async def update_clip(self, clip_id: int, coach_id: int, data: dict) -> VideoClip | None:
-        clip = await self.clip_repo.get_by_id(clip_id)
-        if not clip or clip.coach_id != coach_id:
-            return None
-        for key in ["title", "action_type", "rating", "notes"]:
-            if key in data:
-                setattr(clip, key, data[key])
-        await self.session.flush()
-        return clip
+        return await self._clip_svc.update_clip(clip_id, coach_id, data)
 
     async def delete_clip(self, clip_id: int, coach_id: int) -> bool:
-        clip = await self.clip_repo.get_by_id(clip_id)
-        if not clip or clip.coach_id != coach_id:
-            return False
-        await self.clip_repo.delete(clip_id)
-        return True
+        return await self._clip_svc.delete_clip(clip_id, coach_id)
 
     async def add_player_tag(self, clip_id: int, coach_id: int, player_id: int) -> bool:
-        clip = await self.clip_repo.get_by_id(clip_id)
-        if not clip or clip.coach_id != coach_id:
-            return False
-        tag = ClipPlayerTag(clip_id=clip_id, player_id=player_id)
-        self.session.add(tag)
-        try:
-            await self.session.flush()
-        except Exception:
-            return False  # Duplicate
-
-        video = await self.video_repo.get_by_id(clip.video_id)
-        await self._notify_tagged_players(clip, video, [player_id])
-        return True
+        return await self._clip_svc.add_player_tag(
+            clip_id, coach_id, player_id,
+            notify_callback=self._notify_tagged_players,
+        )
 
     async def remove_player_tag(self, clip_id: int, coach_id: int, player_id: int) -> bool:
-        clip = await self.clip_repo.get_by_id(clip_id)
-        if not clip or clip.coach_id != coach_id:
-            return False
-        stmt = select(ClipPlayerTag).where(
-            ClipPlayerTag.clip_id == clip_id, ClipPlayerTag.player_id == player_id
-        )
-        result = await self.session.execute(stmt)
-        tag = result.scalar_one_or_none()
-        if tag:
-            await self.session.delete(tag)
-            await self.session.flush()
-        return True
+        return await self._clip_svc.remove_player_tag(clip_id, coach_id, player_id)
 
-    # ─── Annotations ───────────────────────────────────────────────
+    # ─── Annotations (delegated to AnnotationService) ─────────────────
 
     async def save_annotation(self, video_id: int, coach_id: int, data: dict) -> VideoAnnotation:
-        ann = VideoAnnotation(
-            video_id=video_id,
-            clip_id=data.get("clip_id"),
-            coach_id=coach_id,
-            annotation_type=data["annotation_type"],
-            timestamp=data["timestamp"],
-            duration=data.get("duration", 3.0),
-            stroke_data=data.get("stroke_data"),
-            color=data.get("color", "#FF0000"),
-            stroke_width=data.get("stroke_width", 3),
-            text_content=data.get("text_content"),
-        )
-        self.session.add(ann)
-        await self.session.flush()
-        return ann
+        return await self._annotation_svc.save_annotation(video_id, coach_id, data)
 
     async def get_annotations(self, video_id: int) -> list:
-        return await self.annotation_repo.get_by_video(video_id)
+        return await self._annotation_svc.get_annotations(video_id)
 
     async def update_annotation(self, ann_id: int, coach_id: int, data: dict) -> VideoAnnotation | None:
-        ann = await self.annotation_repo.get_by_id(ann_id)
-        if not ann or ann.coach_id != coach_id:
-            return None
-        for key in ["annotation_type", "timestamp", "duration", "stroke_data",
-                     "color", "stroke_width", "text_content"]:
-            if key in data:
-                setattr(ann, key, data[key])
-        await self.session.flush()
-        return ann
+        return await self._annotation_svc.update_annotation(ann_id, coach_id, data)
 
     async def delete_annotation(self, ann_id: int, coach_id: int) -> bool:
-        ann = await self.annotation_repo.get_by_id(ann_id)
-        if not ann or ann.coach_id != coach_id:
-            return False
-        await self.annotation_repo.delete(ann_id)
-        return True
+        return await self._annotation_svc.delete_annotation(ann_id, coach_id)
 
     # ─── Admin Access ────────────────────────────────────────────────
 
@@ -283,24 +126,6 @@ class ScoutingService:
         if admin_coach_ids and video.coach_id in admin_coach_ids:
             return video
         return None
-
-    # ─── Parent Share ────────────────────────────────────────────────
-
-    async def share_video_with_parents(self, video_id: int, coach_id: int) -> bool:
-        video = await self.video_repo.get_by_id(video_id)
-        if not video or video.coach_id != coach_id:
-            return False
-        video.shared_with_parents = True
-        await self.session.flush()
-        return True
-
-    async def unshare_video_with_parents(self, video_id: int, coach_id: int) -> bool:
-        video = await self.video_repo.get_by_id(video_id)
-        if not video or video.coach_id != coach_id:
-            return False
-        video.shared_with_parents = False
-        await self.session.flush()
-        return True
 
     # ─── Parent Feed ─────────────────────────────────────────────────
 
@@ -420,7 +245,7 @@ class ScoutingService:
                 video.expiry_notified_48h = True
                 count += 1
             except Exception as e:
-                print(f"Expiry notification 48h error for video {video.id}: {e}")
+                logger.error(f"Expiry notification 48h error for video {video.id}: {e}")
 
         # 6-hour warnings
         videos_6h = await self.video_repo.get_expiring_within(6, "6h")
@@ -442,7 +267,7 @@ class ScoutingService:
                 video.expiry_notified_6h = True
                 count += 1
             except Exception as e:
-                print(f"Expiry notification 6h error for video {video.id}: {e}")
+                logger.error(f"Expiry notification 6h error for video {video.id}: {e}")
 
         return count
 
@@ -479,4 +304,4 @@ class ScoutingService:
                     target_user_id=player.user_id,
                 )
         except Exception as e:
-            print(f"Scouting notification error: {e}")
+            logger.error(f"Scouting notification error: {e}")

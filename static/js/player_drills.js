@@ -25,17 +25,17 @@ async function loadDrills() {
     _drillsCache = drills;
     if (drills.length === 0) {
       const msgs = {
-        'completed': 'No completed drills yet',
-        'pending': 'No pending drills — great job!',
-        'video_uploaded': 'No drills under review',
-        '': 'No drills assigned yet',
+        'completed': t('player.drills.empty_completed'),
+        'pending': t('player.drills.empty_pending'),
+        'video_uploaded': t('player.drills.empty_review'),
+        '': t('player.drills.empty_all'),
       };
       el.innerHTML = `<div class="empty-state-player"><span class="material-symbols-outlined">fitness_center</span>${msgs[_currentFilter] || msgs['']}</div>`;
       return;
     }
     el.innerHTML = drills.map(d => renderDrillCard(d)).join('');
   } catch {
-    el.innerHTML = '<div class="empty-state-player">Could not load drills</div>';
+    el.innerHTML = '<div class="empty-state-player">' + t('player.drills.load_error') + '</div>';
   }
 }
 
@@ -43,13 +43,13 @@ function getStatusInfo(d) {
   const status = d.status || (d.is_completed ? 'approved' : 'pending');
   switch (status) {
     case 'approved':
-      return { cls: 'completed', icon: 'check_circle', text: 'Approved' };
+      return { cls: 'completed', icon: 'check_circle', text: t('player.drills.status.approved') };
     case 'video_uploaded':
-      return { cls: 'video-uploaded', icon: 'hourglass_top', text: 'Under Review' };
+      return { cls: 'video-uploaded', icon: 'hourglass_top', text: t('player.drills.status.under_review') };
     case 'rejected':
-      return { cls: 'rejected', icon: 'replay', text: 'Try Again' };
+      return { cls: 'rejected', icon: 'replay', text: t('player.drills.status.try_again') };
     default:
-      return { cls: 'pending', icon: 'videocam', text: 'Upload Video' };
+      return { cls: 'pending', icon: 'videocam', text: t('player.drills.status.upload_video') };
   }
 }
 
@@ -65,14 +65,14 @@ function renderDrillCard(d) {
     <div class="drill-card-header">
       <div class="drill-card-title">${esc(d.title)}</div>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-        <span class="badge badge-${diffColors[d.difficulty] || 'neutral'}">${esc(capitalize(d.difficulty || ''))}</span>
-        <span class="badge badge-neutral">${esc(capitalize(d.category || ''))}</span>
+        <span class="badge badge-${diffColors[d.difficulty] || 'neutral'}">${esc(tDifficulty(d.difficulty))}</span>
+        <span class="badge badge-neutral">${esc(tCategory(d.category))}</span>
         ${statusBadge}
       </div>
     </div>
     ${d.description ? `<div class="drill-card-desc" style="margin-top:8px;">${esc(d.description)}</div>` : ''}
     <div class="drill-card-footer">
-      <span style="font-size:11px;color:rgba(74,222,128,0.5);">Assigned ${timeAgoSimple(d.assigned_at)}</span>
+      <span style="font-size:11px;color:rgba(74,222,128,0.5);">${t('player.drills.assigned', { time: timeAgoSimple(d.assigned_at) })}</span>
       <div style="display:flex;gap:8px;align-items:center;">
         ${hasVideo ? '<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#22c55e;"><span class="material-symbols-outlined" style="font-size:16px;">play_circle</span> Video</span>' : ''}
         ${d.coach_note ? '<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:rgba(74,222,128,0.5);"><span class="material-symbols-outlined" style="font-size:16px;">comment</span></span>' : ''}
@@ -102,7 +102,7 @@ function openDrillDetail(assignmentId) {
       </div>`;
     } else {
       videoHtml = `<a href="${esc(d.video_url)}" target="_blank" rel="noopener" class="drill-video-link" style="margin-bottom:12px;">
-        <span class="material-symbols-outlined" style="font-size:18px;">play_circle</span> Watch Video
+        <span class="material-symbols-outlined" style="font-size:18px;">play_circle</span> ${t('player.drills.watch_video')}
       </a>`;
     }
   }
@@ -114,7 +114,7 @@ function openDrillDetail(assignmentId) {
   const proofVideoHtml = d.proof_video_url ? `
     <div style="margin-bottom:16px;">
       <h4 style="font-weight:600;font-size:14px;color:#f0fdf4;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span class="material-symbols-outlined" style="font-size:18px;color:#22c55e;">videocam</span> My Video Proof
+        <span class="material-symbols-outlined" style="font-size:18px;color:#22c55e;">videocam</span> ${t('player.drills.my_video_proof')}
       </h4>
       <video controls style="width:100%;border-radius:8px;border:1px solid rgba(34,197,94,0.15);max-height:300px;" src="${esc(d.proof_video_url)}"></video>
     </div>` : '';
@@ -125,62 +125,62 @@ function openDrillDetail(assignmentId) {
     <div style="display:flex;align-items:flex-start;gap:8px;background:${status === 'rejected' ? 'rgba(239,68,68,0.06)' : 'rgba(34,197,94,0.06)'};border-left:3px solid ${status === 'rejected' ? '#ef4444' : '#22c55e'};padding:12px;border-radius:0 8px 8px 0;margin-bottom:16px;">
       <span class="material-symbols-outlined" style="font-size:18px;color:${status === 'rejected' ? '#ef4444' : '#22c55e'};flex-shrink:0;">rate_review</span>
       <div>
-        <div style="font-size:11px;font-weight:600;color:${status === 'rejected' ? '#ef4444' : '#22c55e'};margin-bottom:4px;">Coach Feedback</div>
+        <div style="font-size:11px;font-weight:600;color:${status === 'rejected' ? '#ef4444' : '#22c55e'};margin-bottom:4px;">${t('player.drills.coach_feedback')}</div>
         <div style="font-size:13px;color:#bbf7d0;line-height:1.5;">${esc(d.coach_feedback)}</div>
       </div>
     </div>` : '';
 
   document.getElementById('drillDetailBody').innerHTML = `
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
-      <span class="badge badge-${diffColors[d.difficulty] || 'neutral'}">${esc(capitalize(d.difficulty || ''))}</span>
-      <span class="badge badge-neutral">${esc(capitalize(d.category || ''))}</span>
-      <span class="badge badge-neutral">${d.duration_minutes || '?'} min</span>
+      <span class="badge badge-${diffColors[d.difficulty] || 'neutral'}">${esc(tDifficulty(d.difficulty))}</span>
+      <span class="badge badge-neutral">${esc(tCategory(d.category))}</span>
+      <span class="badge badge-neutral">${d.duration_minutes || '?'} ${t('player.drills.min')}</span>
       ${statusBadge}
     </div>
     ${videoHtml}
     ${d.description ? `<p style="color:#bbf7d0;font-size:14px;margin-bottom:16px;line-height:1.6;">${esc(d.description)}</p>` : ''}
     ${d.instructions ? `<div style="margin-bottom:16px;">
       <h4 style="font-weight:600;font-size:14px;color:#f0fdf4;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span class="material-symbols-outlined" style="font-size:18px;color:#22c55e;">list_alt</span> Instructions
+        <span class="material-symbols-outlined" style="font-size:18px;color:#22c55e;">list_alt</span> ${t('player.drills.instructions')}
       </h4>
       <pre style="white-space:pre-wrap;font-size:13px;color:#bbf7d0;background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;font-family:'Space Grotesk',sans-serif;line-height:1.6;margin:0;">${esc(d.instructions)}</pre>
     </div>` : ''}
     ${d.coaching_points?.length ? `<div style="margin-bottom:16px;">
       <h4 style="font-weight:600;font-size:14px;color:#f0fdf4;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span class="material-symbols-outlined" style="font-size:18px;color:#22c55e;">tips_and_updates</span> Coaching Points
+        <span class="material-symbols-outlined" style="font-size:18px;color:#22c55e;">tips_and_updates</span> ${t('player.drills.coaching_points')}
       </h4>
       <ul style="padding-left:20px;font-size:13px;color:#bbf7d0;line-height:1.6;">${d.coaching_points.map(p => `<li style="margin-bottom:4px;">${esc(p)}</li>`).join('')}</ul>
     </div>` : ''}
     ${d.coach_note ? `<div style="display:flex;align-items:flex-start;gap:8px;background:rgba(34,197,94,0.06);border-left:3px solid #22c55e;padding:12px;border-radius:0 8px 8px 0;margin-bottom:16px;">
       <span class="material-symbols-outlined" style="font-size:18px;color:#22c55e;flex-shrink:0;">comment</span>
       <div>
-        <div style="font-size:11px;font-weight:600;color:#22c55e;margin-bottom:4px;">Coach's Note</div>
+        <div style="font-size:11px;font-weight:600;color:#22c55e;margin-bottom:4px;">${t('player.drills.coach_note')}</div>
         <div style="font-size:13px;color:#bbf7d0;line-height:1.5;">${esc(d.coach_note)}</div>
       </div>
     </div>` : ''}
     ${proofVideoHtml}
     ${feedbackHtml}
-    ${(d.tags?.length) ? `<div style="display:flex;gap:6px;flex-wrap:wrap;">${d.tags.map(t => `<span class="drill-tag">${esc(t)}</span>`).join('')}</div>` : ''}
+    ${(d.tags?.length) ? `<div style="display:flex;gap:6px;flex-wrap:wrap;">${d.tags.map(tag => `<span class="drill-tag">${esc(tag)}</span>`).join('')}</div>` : ''}
   `;
 
   // Footer action based on status
   let footerAction;
   if (status === 'approved') {
-    footerAction = '<span class="drill-completed-badge"><span class="material-symbols-outlined" style="font-size:16px;">check_circle</span> Approved</span>';
+    footerAction = '<span class="drill-completed-badge"><span class="material-symbols-outlined" style="font-size:16px;">check_circle</span> ' + t('player.drills.status.approved') + '</span>';
   } else if (status === 'video_uploaded') {
-    footerAction = '<span class="drill-status-badge video-uploaded" style="padding:8px 16px;font-size:13px;"><span class="material-symbols-outlined" style="font-size:16px;">hourglass_top</span> Waiting for Coach Review</span>';
+    footerAction = '<span class="drill-status-badge video-uploaded" style="padding:8px 16px;font-size:13px;"><span class="material-symbols-outlined" style="font-size:16px;">hourglass_top</span> ' + t('player.drills.waiting_review') + '</span>';
   } else if (status === 'rejected') {
     footerAction = `<button class="drill-complete-btn" onclick="openVideoUpload(${d.assignment_id})" style="background:#ef4444;">
-      <span class="material-symbols-outlined" style="font-size:18px;">replay</span> Re-upload Video
+      <span class="material-symbols-outlined" style="font-size:18px;">replay</span> ${t('player.drills.reupload_video')}
     </button>`;
   } else {
     footerAction = `<button class="drill-complete-btn" onclick="openVideoUpload(${d.assignment_id})">
-      <span class="material-symbols-outlined" style="font-size:18px;">videocam</span> Upload Video Proof
+      <span class="material-symbols-outlined" style="font-size:18px;">videocam</span> ${t('player.drills.upload_video_proof')}
     </button>`;
   }
 
   document.getElementById('drillDetailFooter').innerHTML = `
-    <span style="font-size:11px;color:rgba(74,222,128,0.4);">Assigned ${timeAgoSimple(d.assigned_at)}</span>
+    <span style="font-size:11px;color:rgba(74,222,128,0.4);">${t('player.drills.assigned', { time: timeAgoSimple(d.assigned_at) })}</span>
     ${footerAction}
   `;
 
@@ -217,7 +217,7 @@ function openVideoUpload(assignmentId) {
     if (!file) return;
 
     if (file.size > 15 * 1024 * 1024) {
-      PlayerToast.error('Video too large (max 15MB)');
+      PlayerToast.error(t('player.drills.video_too_large'));
       return;
     }
 
@@ -226,7 +226,7 @@ function openVideoUpload(assignmentId) {
     if (footer) {
       footer.innerHTML = `<span style="font-size:11px;color:rgba(74,222,128,0.4);"></span>
         <span class="drill-status-badge video-uploaded" style="padding:8px 16px;font-size:13px;">
-          <span class="material-symbols-outlined" style="font-size:16px;">upload</span> Uploading...
+          <span class="material-symbols-outlined" style="font-size:16px;">upload</span> ${t('player.drills.uploading')}
         </span>`;
     }
 
@@ -240,17 +240,17 @@ function openVideoUpload(assignmentId) {
         body: formData,
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'Upload failed');
+      if (!res.ok) throw new Error(data.detail || t('player.drills.upload_failed'));
 
-      PlayerToast.success('Video uploaded! Waiting for coach review.');
+      PlayerToast.success(t('player.drills.upload_success'));
       closeDrillModal();
       loadDrills();
     } catch (err) {
-      PlayerToast.error(err.message || 'Upload failed');
+      PlayerToast.error(err.message || t('player.drills.upload_failed'));
       if (footer) {
         footer.innerHTML = `<span style="font-size:11px;color:rgba(74,222,128,0.4);"></span>
           <button class="drill-complete-btn" onclick="openVideoUpload(${assignmentId})">
-            <span class="material-symbols-outlined" style="font-size:18px;">videocam</span> Upload Video Proof
+            <span class="material-symbols-outlined" style="font-size:18px;">videocam</span> ${t('player.drills.upload_video_proof')}
           </button>`;
       }
     }
@@ -264,23 +264,31 @@ async function completeDrillFromModal(assignmentId) {
   const btn = document.querySelector('#drillDetailFooter .drill-complete-btn');
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">hourglass_empty</span> Saving...';
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">hourglass_empty</span> ' + t('player.drills.saving');
   }
   try {
     await PlayerAPI.put(`/api/player/drills/${assignmentId}/complete`);
-    PlayerToast.success('Drill completed!');
+    PlayerToast.success(t('player.drills.completed'));
     closeDrillModal();
     loadDrills();
   } catch {
-    PlayerToast.error('Failed to mark as completed');
+    PlayerToast.error(t('player.drills.complete_failed'));
     if (btn) {
       btn.disabled = false;
-      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">check</span> Mark as Completed';
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">check</span> ' + t('player.drills.mark_completed');
     }
   }
 }
 
 /* ═══ Helpers ═══ */
+
+function tDifficulty(d) {
+  return d ? (t('difficulty.' + d) || capitalize(d)) : '';
+}
+
+function tCategory(c) {
+  return c ? (t('drill.category.' + c) || capitalize(c)) : '';
+}
 
 function youtubeEmbedUrl(url) {
   if (!url) return null;
@@ -305,14 +313,4 @@ function youtubeEmbedUrl(url) {
   return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 }
 
-function timeAgoSimple(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z');
-  const diff = (Date.now() - d.getTime()) / 1000;
-  if (diff < 0) return 'just now';
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
-  return d.toLocaleDateString();
-}
+/* timeAgoSimple → shared-utils.js */

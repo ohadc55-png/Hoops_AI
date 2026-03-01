@@ -9,6 +9,7 @@ from src.repositories.user_repository import UserRepository
 from src.repositories.team_repository import TeamRepository
 from src.repositories.team_member_repository import TeamMemberRepository
 from src.services.auth_service import hash_password, verify_password, create_access_token, decode_token
+from src.utils.exceptions import AuthenticationError, ConflictError, ValidationError
 
 
 class PlayerAuthService:
@@ -24,7 +25,7 @@ class PlayerAuthService:
         # 1. Check existing email (same email allowed for different roles)
         existing = await self.user_repo.get_by_email_and_role(email, "player")
         if existing:
-            raise ValueError("כתובת האימייל כבר רשומה במערכת")
+            raise ConflictError("כתובת האימייל כבר רשומה במערכת")
 
         # 2. Validate player invite code
         team = None
@@ -34,7 +35,7 @@ class PlayerAuthService:
             team = await self.team_repo.get_by_player_invite_token(invite_link_token)
 
         if not team:
-            raise ValueError("קוד ההזמנה או הלינק אינם תקינים")
+            raise ValidationError("קוד ההזמנה או הלינק אינם תקינים")
 
         # 3. Create User with role="player"
         user = await self.user_repo.create(
@@ -109,9 +110,9 @@ class PlayerAuthService:
     async def login_player(self, email: str, password: str):
         user = await self.user_repo.get_by_email_and_role(email, "player")
         if not user:
-            raise ValueError("כתובת האימייל לא נמצאה במערכת")
+            raise AuthenticationError("כתובת האימייל לא נמצאה במערכת")
         if not verify_password(password, user.password_hash):
-            raise ValueError("הסיסמה שגויה, נסה שנית")
+            raise AuthenticationError("הסיסמה שגויה, נסה שנית")
         token = create_access_token({"sub": str(user.id), "role": "player"})
         return {"user": user, "token": token}
 

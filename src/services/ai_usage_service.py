@@ -1,8 +1,11 @@
 """HOOPS AI - AI Usage Service"""
 import asyncio
+import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.repositories.ai_usage_repository import AIUsageRepository
 from src.utils.database import AsyncSessionLocal
+
+logger = logging.getLogger(__name__)
 
 
 # GPT-4o pricing (per 1K tokens, approximate)
@@ -38,7 +41,7 @@ async def log_usage_fire_and_forget(
             )
             await session.commit()
     except Exception as e:
-        print(f"[ai-usage] Log error: {e}")
+        logger.warning(f"AI usage log error: {e}")
 
 
 class AIUsageService:

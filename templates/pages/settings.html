@@ -2,37 +2,37 @@
 {% block title %}HOOPS AI - Settings{% endblock %}
 {% block nav_settings %}active{% endblock %}
 {% block content %}
-<div class="page-header"><div><h1 class="page-title">Settings</h1><p class="page-subtitle">Customize your experience</p></div></div>
+<div class="page-header"><div><h1 class="page-title" data-i18n="coach.nav.settings">הגדרות</h1><p class="page-subtitle" data-i18n="settings.subtitle">התאם אישית את החוויה שלך</p></div></div>
 <div style="max-width:600px;">
   <div class="card" style="margin-bottom:var(--sp-4);">
-    <h3 style="font-weight:700;margin-bottom:var(--sp-4);">Profile</h3>
+    <h3 style="font-weight:700;margin-bottom:var(--sp-4);" data-i18n="settings.profile">פרופיל</h3>
     <div class="flex flex-col gap-4" id="profileForm">
-      <div class="input-group"><label>Name</label><input type="text" class="input" id="settName"></div>
+      <div class="input-group"><label data-i18n="settings.name">שם</label><input type="text" class="input" id="settName"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
-        <div class="input-group"><label>Age Group</label>
+        <div class="input-group"><label data-i18n="settings.age_group">קבוצת גיל</label>
           <select class="select" id="settAge">
-            <option value="">Select...</option>
+            <option value="" data-i18n="settings.select">בחר...</option>
             <option value="u8">U8</option><option value="u10">U10</option><option value="u12">U12</option>
             <option value="u14">U14</option><option value="u16">U16</option><option value="u18">U18</option>
-            <option value="adult">Adult</option><option value="senior">Senior</option>
+            <option value="adult" data-i18n="settings.adult">מבוגרים</option><option value="senior" data-i18n="settings.senior">בוגר</option>
           </select>
         </div>
-        <div class="input-group"><label>Level</label>
+        <div class="input-group"><label data-i18n="settings.level">רמה</label>
           <select class="select" id="settLevel">
-            <option value="">Select...</option>
-            <option value="youth">Youth</option><option value="middle_school">Middle School</option>
-            <option value="high_school">High School</option><option value="college">College</option>
-            <option value="semi_pro">Semi Pro</option><option value="professional">Professional</option>
+            <option value="" data-i18n="settings.select">בחר...</option>
+            <option value="youth" data-i18n="settings.level_youth">נוער</option><option value="middle_school" data-i18n="settings.level_middle">חטיבת ביניים</option>
+            <option value="high_school" data-i18n="settings.level_high">תיכון</option><option value="college" data-i18n="settings.level_college">מכללה</option>
+            <option value="semi_pro" data-i18n="settings.level_semi_pro">חצי מקצועי</option><option value="professional" data-i18n="settings.level_pro">מקצועי</option>
           </select>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+      <button class="btn btn-primary" onclick="saveProfile()" data-i18n="settings.save">שמור שינויים</button>
     </div>
   </div>
   <div class="card">
-    <h3 style="font-weight:700;margin-bottom:var(--sp-4);color:var(--error);">Danger Zone</h3>
-    <button class="btn btn-danger" onclick="if(confirm('Log out?')){API.clearAuth();location.href='/login';}">
-      <span class="material-symbols-outlined">logout</span> Log Out
+    <h3 style="font-weight:700;margin-bottom:var(--sp-4);color:var(--error);" data-i18n="settings.danger_zone">אזור מסוכן</h3>
+    <button class="btn btn-danger" onclick="if(confirm(t('settings.confirm_logout'))){API.clearAuth();location.href='/login';}">
+      <span class="material-symbols-outlined">logout</span> <span data-i18n="settings.logout">התנתק</span>
     </button>
   </div>
 </div>
@@ -63,7 +63,7 @@ async function saveProfile() {
     });
     API.coach = { ...API.coach, ...r.data };
     localStorage.setItem('hoops_coach', JSON.stringify(API.coach));
-    Toast.success('Profile updated!');
+    Toast.success(t('settings.profile_updated'));
   } catch(e) {}
 }
 </script>

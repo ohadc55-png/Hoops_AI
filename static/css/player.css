@@ -2,38 +2,8 @@
 
 /* ═══════════════════════════════════════════════════
    Player Theme: Gamer Style — Neon Green / Black
+   Theme variables are in themes.css
    ═══════════════════════════════════════════════════ */
-.player-app {
-  /* Primary — Neon Green */
-  --primary: #22c55e;
-  --primary-light: #4ade80;
-  --primary-dark: #16a34a;
-  --primary-glow: rgba(34, 197, 94, 0.25);
-  --primary-ghost: rgba(34, 197, 94, 0.1);
-
-  /* Backgrounds — True black + dark green tint */
-  --bg: #050808;
-  --bg-raised: #0a120e;
-  --bg-surface: #0f1a14;
-  --bg-card: rgba(34, 197, 94, 0.04);
-  --bg-card-hover: rgba(34, 197, 94, 0.08);
-  --bg-input: rgba(34, 197, 94, 0.06);
-  --bg-input-focus: rgba(34, 197, 94, 0.12);
-
-  /* Borders — Subtle green tint */
-  --border: rgba(34, 197, 94, 0.1);
-  --border-strong: rgba(34, 197, 94, 0.2);
-  --border-active: var(--primary);
-
-  /* Text */
-  --text: #f0fdf4;
-  --text-secondary: #bbf7d0;
-  --text-muted: rgba(74, 222, 128, 0.5);
-  --text-inverse: #050808;
-
-  /* Shadows — Green glow */
-  --shadow-glow: 0 0 20px var(--primary-glow);
-}
 
 /* Player app layout — reuse the same grid as coach layout */
 .player-app {
@@ -1176,5 +1146,68 @@
   .player-app .msg-tabs {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ========================================
+   RTL OVERRIDES (Hebrew mode)
+   ======================================== */
+
+/* Grid direction: keep grid LTR so sidebar stays on left,
+   but content areas flow RTL for Hebrew text */
+/* Player sidebar: grid-column:1 already set in base rules — in RTL that = right side */
+[dir="rtl"] .player-app .sidebar {
+  border-right: none;
+  border-left: 1px solid var(--border);
+}
+[dir="rtl"] .player-app .sidebar,
+[dir="rtl"] .player-app .header,
+[dir="rtl"] .player-app .main {
+  direction: rtl;
+}
+
+/* Nav active indicator — flip border, padding, and inset shadow */
+[dir="rtl"] .player-app .nav-item.active {
+  border-left: none;
+  border-right: 3px solid var(--primary);
+  padding-left: var(--sp-3);
+  padding-right: calc(var(--sp-3) - 3px);
+  box-shadow: inset -4px 0 8px rgba(34, 197, 94, 0.08);
+}
+
+/* Coach note — flip accent border */
+[dir="rtl"] .player-app .drill-coach-note {
+  border-left: none;
+  border-right: 3px solid #22c55e;
+  border-radius: 8px 0 0 8px;
+}
+
+/* Drill instructions list — flip padding */
+[dir="rtl"] .player-app .drill-card-instructions ul {
+  padding-left: 0;
+  padding-right: 20px;
+}
+
+/* Unread message indicator — flip border color */
+[dir="rtl"] .player-app .msg-item.unread {
+  border-left-color: transparent;
+  border-right-color: #22c55e;
+}
+
+/* Streak tooltip — remove hardcoded direction (handled by [dir="rtl"] on html) */
+[dir="rtl"] .streak-tooltip {
+  direction: inherit;
+}
+
+/* Mobile RTL: player sidebar slides in from right */
+@media (max-width: 1024px) {
+  [dir="rtl"] .player-app .sidebar {
+    left: auto;
+    right: calc(-1 * var(--sidebar-width));
+    transition: right var(--transition-base);
+  }
+  [dir="rtl"] .player-app .sidebar.open {
+    right: 0;
+    left: auto;
   }
 }

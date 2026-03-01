@@ -2,38 +2,9 @@
 
 /* ═══════════════════════════════════════════════════
    Admin Theme: Professional SaaS — Blue / Neutral
+   Theme variables are in themes.css
    ═══════════════════════════════════════════════════ */
 .admin-app {
-  /* Primary — Blue */
-  --primary: #3b82f6;
-  --primary-light: #60a5fa;
-  --primary-dark: #2563eb;
-  --primary-glow: rgba(59, 130, 246, 0.2);
-  --primary-ghost: rgba(59, 130, 246, 0.08);
-
-  /* Backgrounds — Cool dark blue-gray */
-  --bg: #0b0f1a;
-  --bg-raised: #111827;
-  --bg-surface: #1e293b;
-  --bg-card: rgba(255, 255, 255, 0.04);
-  --bg-card-hover: rgba(255, 255, 255, 0.07);
-  --bg-input: rgba(255, 255, 255, 0.06);
-  --bg-input-focus: rgba(255, 255, 255, 0.1);
-
-  /* Borders — Cool neutral */
-  --border: rgba(148, 163, 184, 0.12);
-  --border-strong: rgba(148, 163, 184, 0.2);
-  --border-active: var(--primary);
-
-  /* Text — Slate tones */
-  --text: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-inverse: #ffffff;
-
-  /* Shadows */
-  --shadow-glow: 0 0 20px var(--primary-glow);
-
   /* Layout */
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;
@@ -1502,4 +1473,72 @@
   .player-card-filters { flex-direction: column; }
   .filter-group { min-width: 100%; }
   .chat-bubble { max-width: 95%; }
+}
+
+/* ========================================
+   RTL OVERRIDES (Hebrew mode)
+   ======================================== */
+
+/* Grid direction: keep grid LTR so sidebar stays on left,
+   but content areas flow RTL for Hebrew text */
+/* Admin sidebar: grid-column:1 already set in base rules — in RTL that = right side */
+[dir="rtl"] .admin-app .sidebar {
+  border-right: none;
+  border-left: 1px solid var(--border);
+}
+[dir="rtl"] .admin-app .sidebar,
+[dir="rtl"] .admin-app .header,
+[dir="rtl"] .admin-app .main {
+  direction: rtl;
+}
+
+/* Nav active indicator — flip border from left to right */
+[dir="rtl"] .admin-app .nav-item.active {
+  border-left: none;
+  border-right: 3px solid var(--primary);
+  padding-left: var(--sp-3);
+  padding-right: calc(var(--sp-3) - 3px);
+}
+
+/* Soon badge — flip auto margin */
+[dir="rtl"] .soon-badge {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Installment overdue indicator — flip border */
+[dir="rtl"] .installment-row.overdue {
+  border-left: 1px solid var(--border);
+  border-right: 3px solid #ef5350;
+}
+
+/* Unread message indicator — flip border color */
+[dir="rtl"] .admin-app .msg-item.unread {
+  border-left-color: transparent;
+  border-right-color: #3b82f6;
+}
+
+/* Table headers — flip text alignment */
+[dir="rtl"] .members-table th,
+[dir="rtl"] .members-table td {
+  text-align: right;
+}
+[dir="rtl"] .contacts-table th {
+  text-align: right;
+}
+[dir="rtl"] .billing-table th {
+  text-align: right;
+}
+
+/* Mobile RTL: admin sidebar slides in from right */
+@media (max-width: 1023px) {
+  [dir="rtl"] .admin-app .sidebar {
+    left: auto;
+    right: calc(-1 * var(--sidebar-width));
+    transition: right var(--transition);
+  }
+  [dir="rtl"] .admin-app .sidebar.open {
+    right: 0;
+    left: auto;
+  }
 }

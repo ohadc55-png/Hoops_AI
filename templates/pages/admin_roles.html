@@ -1,7 +1,7 @@
 {% extends "admin_base.html" %}
 {% block title %}HOOPS AI — Roles{% endblock %}
 {% block nav_roles %}active{% endblock %}
-{% block header_title %}Roles{% endblock %}
+{% block header_title %}<span data-i18n="admin.header.roles">תפקידים</span>{% endblock %}
 {% block content %}
 <div class="admin-dashboard">
 
@@ -21,13 +21,13 @@
   <div class="roles-panel active" id="panel-admin-roles">
     <section class="dashboard-section">
       <div class="section-header">
-        <h2><span class="material-symbols-outlined">badge</span> Admin Roles</h2>
+        <h2><span class="material-symbols-outlined">badge</span> <span data-i18n="admin.roles.section_title">Admin Roles</span></h2>
         <button class="btn btn-primary btn-sm" onclick="openCreateRoleModal()">
-          <span class="material-symbols-outlined">add</span> Add Role
+          <span class="material-symbols-outlined">add</span> <span data-i18n="admin.roles.btn_add_role">Add Role</span>
         </button>
       </div>
       <div class="section-content" id="rolesContent">
-        <div class="loading-state">Loading roles...</div>
+        <div class="loading-state" data-i18n="admin.roles.loading">Loading roles...</div>
       </div>
     </section>
   </div>
@@ -46,11 +46,42 @@
 
 </div>
 
+<!-- Permissions Edit Modal -->
+<div class="modal-overlay" id="permissionsModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h3><span data-i18n="admin.roles.permissions.modal_title">Edit Permissions</span> — <span id="permRoleName"></span></h3>
+      <button class="btn-icon" onclick="closeModal('permissionsModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:var(--sp-4);padding:var(--sp-3);background:rgba(255,255,255,0.04);border-radius:var(--r-md);">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <input type="checkbox" id="permAllAccess"
+            onchange="toggleAllAccessUI(this.checked)"
+            style="width:18px;height:18px;accent-color:var(--primary);cursor:pointer;">
+          <div>
+            <div style="font-weight:600;" data-i18n="admin.roles.permissions.all_access_label">Full Access (no restrictions)</div>
+            <div style="font-size:var(--text-xs);color:var(--text-muted);" data-i18n="admin.roles.permissions.all_access_desc">Admin can access all sections</div>
+          </div>
+        </label>
+      </div>
+      <div style="font-size:var(--text-sm);color:var(--text-muted);margin-bottom:var(--sp-2);" data-i18n="admin.roles.permissions.select_sections">Select accessible sections:</div>
+      <div id="permCheckboxes" style="max-height:320px;overflow-y:auto;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('permissionsModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="savePermissions()" data-i18n="admin.roles.permissions.save_btn">Save Permissions</button>
+    </div>
+  </div>
+</div>
+
 <!-- Create Role Modal -->
 <div class="modal-overlay" id="createRoleModal">
   <div class="modal">
     <div class="modal-header">
-      <h3>Add Admin Role</h3>
+      <h3 data-i18n="admin.roles.modal_add_title">Add Admin Role</h3>
       <button class="btn-icon" onclick="closeModal('createRoleModal')">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -58,18 +89,18 @@
     <div class="modal-body">
       <form id="createRoleForm" onsubmit="return handleCreateRole(event)">
         <div class="input-group">
-          <label>Role Name *</label>
-          <input type="text" class="input" id="roleName" placeholder="e.g. Treasurer" required>
+          <label data-i18n="admin.roles.form.role_name">Role Name *</label>
+          <input type="text" class="input" id="roleName" data-i18n-placeholder="admin.roles.form.role_name_placeholder" placeholder="e.g. Treasurer" required>
         </div>
         <div class="input-group">
-          <label>Description</label>
-          <textarea class="input" id="roleDescription" rows="2" placeholder="Optional description"></textarea>
+          <label data-i18n="admin.roles.form.description">Description</label>
+          <textarea class="input" id="roleDescription" rows="2" data-i18n-placeholder="admin.roles.form.description_placeholder" placeholder="Optional description"></textarea>
         </div>
       </form>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('createRoleModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="document.getElementById('createRoleForm').requestSubmit()">Create Role</button>
+      <button class="btn btn-ghost" onclick="closeModal('createRoleModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="document.getElementById('createRoleForm').requestSubmit()" data-i18n="admin.roles.btn_create_role">Create Role</button>
     </div>
   </div>
 </div>

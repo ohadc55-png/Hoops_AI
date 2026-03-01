@@ -1,15 +1,15 @@
 {% extends "player_base.html" %}
 {% block title %}HOOPS AI — My Reports{% endblock %}
 {% block nav_reports %}active{% endblock %}
-{% block header_title %}My Reports{% endblock %}
+{% block header_title %}<span data-i18n="player.reports.page_title">My Reports</span>{% endblock %}
 {% block content %}
 <div class="player-dashboard">
   <section class="dashboard-section">
     <div class="section-header">
-      <h2><span class="material-symbols-outlined">assessment</span> My Reports</h2>
+      <h2><span class="material-symbols-outlined">assessment</span> <span data-i18n="player.reports.page_title">My Reports</span></h2>
     </div>
     <div class="section-content" id="reportsContent">
-      <div class="loading-state">Loading reports...</div>
+      <div class="loading-state" data-i18n="player.reports.loading">Loading reports...</div>
     </div>
   </section>
 </div>
@@ -28,7 +28,7 @@ async function loadReports() {
     const res = await PlayerAPI.get('/api/player/reports');
     const reports = res.data || [];
     if (reports.length === 0) {
-      el.innerHTML = '<div class="empty-state-player"><span class="material-symbols-outlined">assessment</span>No reports yet</div>';
+      el.innerHTML = `<div class="empty-state-player"><span class="material-symbols-outlined">assessment</span>${I18N.t('player.reports.no_reports')}</div>`;
       return;
     }
     el.innerHTML = reports.map(r => {
@@ -37,14 +37,14 @@ async function loadReports() {
       const focus = Array.isArray(r.focus_areas) ? r.focus_areas.join(', ') : (r.focus_areas || '');
       return `<div class="report-card">
         <div class="report-period">${esc(r.period)}${r.is_ai_generated ? ' <span class="badge badge-neutral" style="font-size:10px;">AI</span>' : ''}</div>
-        ${strengths ? '<div class="report-field"><div class="report-field-label">Strengths</div><div class="report-field-value">' + esc(strengths) + '</div></div>' : ''}
-        ${weaknesses ? '<div class="report-field"><div class="report-field-label">Areas to Improve</div><div class="report-field-value">' + esc(weaknesses) + '</div></div>' : ''}
-        ${focus ? '<div class="report-field"><div class="report-field-label">Focus Areas</div><div class="report-field-value">' + esc(focus) + '</div></div>' : ''}
-        ${r.recommendations ? '<div class="report-field"><div class="report-field-label">Recommendations</div><div class="report-field-value">' + esc(r.recommendations) + '</div></div>' : ''}
+        ${strengths ? `<div class="report-field"><div class="report-field-label">${I18N.t('player.reports.strengths')}</div><div class="report-field-value">${esc(strengths)}</div></div>` : ''}
+        ${weaknesses ? `<div class="report-field"><div class="report-field-label">${I18N.t('player.reports.areas_to_improve')}</div><div class="report-field-value">${esc(weaknesses)}</div></div>` : ''}
+        ${focus ? `<div class="report-field"><div class="report-field-label">${I18N.t('player.reports.focus_areas')}</div><div class="report-field-value">${esc(focus)}</div></div>` : ''}
+        ${r.recommendations ? `<div class="report-field"><div class="report-field-label">${I18N.t('player.reports.recommendations')}</div><div class="report-field-value">${esc(r.recommendations)}</div></div>` : ''}
       </div>`;
     }).join('');
   } catch {
-    el.innerHTML = '<div class="empty-state-player">Could not load reports</div>';
+    el.innerHTML = `<div class="empty-state-player">${I18N.t('player.reports.load_error')}</div>`;
   }
 }
 </script>

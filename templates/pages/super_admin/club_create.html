@@ -47,6 +47,22 @@
         </div>
       </div>
 
+      <div class="form-row">
+        <div class="input-group">
+          <label>Tax ID (ח.פ / ע.מ)</label>
+          <input type="text" class="input" id="billingTaxId" placeholder="e.g. 515000000">
+        </div>
+        <div class="input-group">
+          <label>Phone</label>
+          <input type="tel" class="input" id="billingPhone" placeholder="+972-XX-XXX-XXXX">
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Address</label>
+        <input type="text" class="input" id="billingAddress" placeholder="Full street address">
+      </div>
+
       <div class="input-group">
         <label>Notes</label>
         <textarea class="input" id="notes" rows="3" placeholder="Internal notes about this club..."></textarea>
@@ -63,8 +79,6 @@
 </div>
 
 <script>
-  requireSuperAdminAuth();
-
   async function handleCreateClub(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
@@ -78,6 +92,9 @@
         name: document.getElementById('clubName').value,
         max_players: parseInt(document.getElementById('maxPlayers').value) || 150,
         billing_email: document.getElementById('billingEmail').value || null,
+        billing_tax_id: document.getElementById('billingTaxId').value || null,
+        billing_address: document.getElementById('billingAddress').value || null,
+        billing_phone: document.getElementById('billingPhone').value || null,
         notes: document.getElementById('notes').value || null,
       };
       if (tier) data.pricing_tier = parseInt(tier);

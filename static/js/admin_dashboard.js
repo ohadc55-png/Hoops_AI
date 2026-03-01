@@ -51,7 +51,7 @@ function renderTodaysEvents(events) {
   const el = document.getElementById('todaysEvents');
   const badge = document.getElementById('todayCount');
   if (!events || !events.length) {
-    el.innerHTML = '<div class="dash-empty">אין פעילויות מתוכננות להיום</div>';
+    el.innerHTML = `<div class="dash-empty">${t('admin.dashboard.empty.today')}</div>`;
     return;
   }
   badge.textContent = events.length;
@@ -73,7 +73,7 @@ function renderTodaysEvents(events) {
         </div>
       </div>
     </div>
-  `).join('') + (more > 0 ? `<a href="/admin/schedule" class="dash-more-link">+${more} נוספים · לוח שנה מלא →</a>` : '');
+  `).join('') + (more > 0 ? `<a href="/admin/schedule" class="dash-more-link">+${more} ${t('admin.dashboard.more_calendar')} →</a>` : '');
 }
 
 /* ══════════════════════════════════════
@@ -83,7 +83,7 @@ function renderPendingRequests(requests) {
   const el = document.getElementById('pendingRequests');
   const badge = document.getElementById('pendingBadge');
   if (!requests || !requests.length) {
-    el.innerHTML = '<div class="dash-empty">אין בקשות ממתינות</div>';
+    el.innerHTML = `<div class="dash-empty">${t('admin.dashboard.empty.pending')}</div>`;
     return;
   }
   badge.textContent = requests.length;
@@ -102,10 +102,10 @@ function renderPendingRequests(requests) {
         </div>
       </div>
       <div class="dash-request-actions">
-        <button class="dash-action-btn approve" onclick="quickApprove(${r.id})" title="אשר">
+        <button class="dash-action-btn approve" onclick="quickApprove(${r.id})" title="${t('admin.dashboard.approve_title')}">
           <span class="material-symbols-outlined">check</span>
         </button>
-        <button class="dash-action-btn reject" onclick="quickReject(${r.id})" title="דחה">
+        <button class="dash-action-btn reject" onclick="quickReject(${r.id})" title="${t('admin.dashboard.reject_title')}">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
@@ -117,18 +117,18 @@ async function quickApprove(id) {
   try {
     await AdminAPI.put(`/api/schedule-requests/${id}/approve`, {});
     document.getElementById(`request-${id}`)?.remove();
-    AdminToast.success('הבקשה אושרה');
+    AdminToast.success(t('admin.dashboard.request_approved'));
     _updatePendingCount();
-  } catch { AdminToast.error('שגיאה באישור הבקשה'); }
+  } catch { AdminToast.error(t('admin.dashboard.approve_error')); }
 }
 
 async function quickReject(id) {
   try {
     await AdminAPI.put(`/api/schedule-requests/${id}/reject`, {});
     document.getElementById(`request-${id}`)?.remove();
-    AdminToast.success('הבקשה נדחתה');
+    AdminToast.success(t('admin.dashboard.request_rejected'));
     _updatePendingCount();
-  } catch { AdminToast.error('שגיאה בדחיית הבקשה'); }
+  } catch { AdminToast.error(t('admin.dashboard.reject_error')); }
 }
 
 function _updatePendingCount() {
@@ -137,7 +137,7 @@ function _updatePendingCount() {
   const remaining = container.querySelectorAll('.dash-request-item').length;
   if (remaining === 0) {
     badge.style.display = 'none';
-    container.innerHTML = '<div class="dash-empty">אין בקשות ממתינות</div>';
+    container.innerHTML = `<div class="dash-empty">${t('admin.dashboard.empty.pending')}</div>`;
   } else {
     badge.textContent = remaining;
   }
@@ -149,7 +149,7 @@ function _updatePendingCount() {
 function renderUpcomingEvents(events) {
   const el = document.getElementById('upcomingEvents');
   if (!events || !events.length) {
-    el.innerHTML = '<div class="dash-empty">אין אירועים ב-7 הימים הקרובים</div>';
+    el.innerHTML = `<div class="dash-empty">${t('admin.dashboard.empty.upcoming')}</div>`;
     return;
   }
   const show = events.slice(0, 4);
@@ -177,7 +177,7 @@ function renderUpcomingEvents(events) {
         </div>
       </div>
     `;
-  }).join('') + (more > 0 ? `<a href="/admin/schedule" class="dash-more-link">+${more} נוספים · לוח שנה מלא →</a>` : '');
+  }).join('') + (more > 0 ? `<a href="/admin/schedule" class="dash-more-link">+${more} ${t('admin.dashboard.more_calendar')} →</a>` : '');
 }
 
 /* ══════════════════════════════════════
@@ -186,7 +186,7 @@ function renderUpcomingEvents(events) {
 function renderRecentGames(games) {
   const el = document.getElementById('recentGames');
   if (!games || !games.length) {
-    el.innerHTML = '<div class="dash-empty">אין תוצאות משחקים</div>';
+    el.innerHTML = `<div class="dash-empty">${t('admin.dashboard.empty.games')}</div>`;
     return;
   }
   el.innerHTML = games.map(g => {
@@ -195,7 +195,7 @@ function renderRecentGames(games) {
       <div class="dash-game-item">
         <div class="dash-game-result ${r.cls}">${r.text}</div>
         <div class="dash-game-body">
-          <div class="dash-game-score">${g.score_us != null ? g.score_us + ' - ' + g.score_them : '--'}</div>
+          <div class="dash-game-score">${g.score_us != null ? '<span dir="ltr">' + g.score_us + ' - ' + g.score_them + '</span>' : t('admin.dashboard.score_pending')}</div>
           <div class="dash-event-meta">
             vs ${esc(g.opponent)}
             ${g.team_name ? ' · <span class="dash-team-tag">' + esc(g.team_name) + '</span>' : ''}
@@ -213,19 +213,19 @@ function renderRecentGames(games) {
 function renderAttendance(teams) {
   const el = document.getElementById('attendanceSummary');
   if (!teams || !teams.length) {
-    el.innerHTML = '<div class="dash-empty">אין נתוני נוכחות</div>';
+    el.innerHTML = `<div class="dash-empty">${t('admin.dashboard.empty.attendance')}</div>`;
     return;
   }
-  el.innerHTML = teams.map(t => {
-    const lvl = t.rate >= 80 ? 'good' : t.rate >= 60 ? 'avg' : 'low';
+  el.innerHTML = teams.map(tm => {
+    const lvl = tm.rate >= 80 ? 'good' : tm.rate >= 60 ? 'avg' : 'low';
     return `
       <div class="dash-att-item">
         <div class="dash-att-header">
-          <span class="dash-team-tag">${esc(t.team_name)}</span>
-          <span class="dash-att-rate ${lvl}">${t.rate}%</span>
+          <span class="dash-team-tag">${esc(tm.team_name)}</span>
+          <span class="dash-att-rate ${lvl}">${tm.rate}%</span>
         </div>
-        <div class="dash-att-bar"><div class="dash-att-fill ${lvl}" style="width:${t.rate}%"></div></div>
-        <div class="dash-att-detail">${t.present} / ${t.total} רשומות נוכחות</div>
+        <div class="dash-att-bar"><div class="dash-att-fill ${lvl}" style="width:${tm.rate}%"></div></div>
+        <div class="dash-att-detail">${tm.present} / ${tm.total} ${t('admin.dashboard.attendance_records')}</div>
       </div>
     `;
   }).join('');
@@ -237,7 +237,7 @@ function renderAttendance(teams) {
 function renderNewMembers(members) {
   const el = document.getElementById('newMembers');
   if (!members || !members.length) {
-    el.innerHTML = '<div class="dash-empty">אין חברים חדשים השבוע</div>';
+    el.innerHTML = `<div class="dash-empty">${t('admin.dashboard.empty.new_members')}</div>`;
     return;
   }
   el.innerHTML = members.map(m => `
@@ -260,18 +260,14 @@ function renderNewMembers(members) {
 /* ══════════════════════════════════════
    Helpers
    ══════════════════════════════════════ */
-function formatDateHe(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('he-IL', { day: 'numeric', month: 'short' });
-}
+/* formatDateHe → shared-utils.js */
 
 function timeAgoShort(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z');
   const diff = Date.now() - d.getTime();
   const days = Math.floor(diff / 86400000);
-  if (days === 0) return 'היום';
-  if (days === 1) return 'אתמול';
-  return `לפני ${days} ימים`;
+  if (days === 0) return t('admin.dashboard.today');
+  if (days === 1) return t('admin.dashboard.yesterday');
+  return t('admin.dashboard.days_ago', { count: days });
 }

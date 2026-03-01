@@ -13,6 +13,22 @@ _volume_dir = os.environ.get("RAILWAY_VOLUME_DIR")
 DATA_DIR = Path(_volume_dir) if _volume_dir else BASE_DIR
 
 
+def _resolve_database_url() -> str:
+    """Build async DATABASE_URL from environment.
+
+    Railway provides postgresql://...; we convert to postgresql+asyncpg://.
+    Local dev (no env var) falls back to SQLite.
+    """
+    raw = os.environ.get("DATABASE_URL", "")
+    if raw.startswith("postgresql://"):
+        return raw.replace("postgresql://", "postgresql+asyncpg://", 1)
+    if raw.startswith("postgres://"):
+        return raw.replace("postgres://", "postgresql+asyncpg://", 1)
+    if raw:
+        return raw  # Already has driver prefix (e.g. sqlite+aiosqlite://)
+    return f"sqlite+aiosqlite:///{DATA_DIR / 'database' / 'hoops_ai.db'}"
+
+
 class Settings(BaseSettings):
     APP_NAME: str = "HOOPS AI"
     APP_VERSION: str = "1.0.0"
@@ -24,7 +40,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
 
-    DATABASE_URL: str = f"sqlite+aiosqlite:///{DATA_DIR / 'database' / 'hoops_ai.db'}"
+    DATABASE_URL: str = _resolve_database_url()
 
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4"

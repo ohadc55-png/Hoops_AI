@@ -56,8 +56,6 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
                 "coach": {"id": result["coach"].id, "name": result["coach"].name, "email": result["coach"].email},
             },
         }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
     except Exception:
         raise HTTPException(status_code=500, detail="Registration failed. Please try again.")
 
@@ -97,41 +95,51 @@ async def register_with_invite(req: CoachInviteRegisterRequest, db: AsyncSession
                 "team": {"id": result["team"].id, "name": result["team"].name},
             },
         }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
     except Exception:
         raise HTTPException(status_code=500, detail="Registration failed. Please try again.")
 
 
 @router.post("/login")
 async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
-    try:
-        service = AuthService(db)
-        result = await service.login(req.email, req.password)
-        return {
-            "success": True,
-            "data": {
-                "token": result["token"],
-                "coach": {
-                    "id": result["coach"].id,
-                    "name": result["coach"].name,
-                    "email": result["coach"].email,
-                    "age_group": result["coach"].age_group,
-                    "level": result["coach"].level,
-                },
+    service = AuthService(db)
+    result = await service.login(req.email, req.password)
+    coach = result["coach"]
+    language = "he"
+    if coach.user_id:
+        from src.repositories.user_repository import UserRepository
+        user = await UserRepository(db).get_by_id(coach.user_id)
+        if user:
+            language = user.preferred_language
+    return {
+        "success": True,
+        "data": {
+            "token": result["token"],
+            "coach": {
+                "id": coach.id,
+                "name": coach.name,
+                "email": coach.email,
+                "age_group": coach.age_group,
+                "level": coach.level,
             },
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
+            "language": language,
+        },
+    }
 
 
 @router.get("/me")
-async def me(coach=Depends(get_current_coach)):
+async def me(coach=Depends(get_current_coach), db: AsyncSession = Depends(get_db)):
+    language = "he"
+    if coach.user_id:
+        from src.repositories.user_repository import UserRepository
+        user = await UserRepository(db).get_by_id(coach.user_id)
+        if user:
+            language = user.preferred_language
     return {
         "success": True,
         "data": {
             "id": coach.id, "name": coach.name, "email": coach.email,
             "age_group": coach.age_group, "level": coach.level,
+            "language": language,
         },
     }
 
@@ -209,3 +217,19 @@ async def update_me(req: UpdateProfileRequest, coach=Depends(get_current_coach),
             "age_group": updated.age_group, "level": updated.level,
         },
     }
+
+
+class LanguageRequest(BaseModel):
+    language: str
+
+
+@router.put("/language")
+async def update_language(req: LanguageRequest, coach=Depends(get_current_coach), db: AsyncSession = Depends(get_db)):
+    if req.language not in ("he", "en"):
+        raise HTTPException(status_code=400, detail="Language must be 'he' or 'en'")
+    if not coach.user_id:
+        raise HTTPException(status_code=400, detail="No linked user account")
+    from src.repositories.user_repository import UserRepository
+    user_repo = UserRepository(db)
+    await user_repo.update(coach.user_id, preferred_language=req.language)
+    return {"success": True, "data": {"language": req.language}}

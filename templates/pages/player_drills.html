@@ -1,24 +1,24 @@
 {% extends "player_base.html" %}
 {% block title %}HOOPS AI — My Drills{% endblock %}
 {% block nav_drills %}active{% endblock %}
-{% block header_title %}My Drills{% endblock %}
+{% block header_title %}<span data-i18n="player.drills.page_title">My Drills</span>{% endblock %}
 {% block content %}
 <div class="player-dashboard">
   <section class="dashboard-section">
     <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;">
-      <h2><span class="material-symbols-outlined">fitness_center</span> Assigned Drills</h2>
+      <h2><span class="material-symbols-outlined">fitness_center</span> <span data-i18n="player.drills.section_title">Assigned Drills</span></h2>
     </div>
 
     <!-- Filter Tabs -->
     <div class="drill-filter-tabs" style="display:flex;gap:var(--sp-2);margin-bottom:var(--sp-4);">
-      <button class="drill-filter-tab active" data-filter="" onclick="switchFilter(this)">All</button>
-      <button class="drill-filter-tab" data-filter="pending" onclick="switchFilter(this)">Pending</button>
-      <button class="drill-filter-tab" data-filter="video_uploaded" onclick="switchFilter(this)">Under Review</button>
-      <button class="drill-filter-tab" data-filter="completed" onclick="switchFilter(this)">Completed</button>
+      <button class="drill-filter-tab active" data-filter="" onclick="switchFilter(this)" data-i18n="player.drills.filter_all">All</button>
+      <button class="drill-filter-tab" data-filter="pending" onclick="switchFilter(this)" data-i18n="player.drills.filter_pending">Pending</button>
+      <button class="drill-filter-tab" data-filter="video_uploaded" onclick="switchFilter(this)" data-i18n="player.drills.filter_under_review">Under Review</button>
+      <button class="drill-filter-tab" data-filter="completed" onclick="switchFilter(this)" data-i18n="player.drills.filter_completed">Completed</button>
     </div>
 
     <div class="section-content" id="drillsContent">
-      <div class="loading-state">Loading drills...</div>
+      <div class="loading-state" data-i18n="player.drills.loading">Loading drills...</div>
     </div>
   </section>
 </div>

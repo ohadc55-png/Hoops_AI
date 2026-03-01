@@ -12,6 +12,8 @@ router = APIRouter(prefix="/api/chat", tags=["chat"])
 class SendMessageRequest(BaseModel):
     message: str
     conversation_id: int | None = None
+    file_context: str | None = None  # extracted file data to append to context
+    force_agent: str | None = None   # override auto-routing (e.g. "analyst")
 
 
 @router.post("/send")
@@ -24,7 +26,10 @@ async def send_message(req: SendMessageRequest, coach=Depends(get_current_coach)
         "age_group": coach.age_group, "level": coach.level,
     }
     try:
-        result = await service.send_message(coach.id, req.message, req.conversation_id, context)
+        result = await service.send_message(
+            coach.id, req.message, req.conversation_id, context,
+            file_context=req.file_context, force_agent=req.force_agent,
+        )
         return {"success": True, "data": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

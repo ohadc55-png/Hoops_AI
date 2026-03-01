@@ -12,28 +12,28 @@
       <div class="cd-stat-icon"><span class="material-symbols-outlined">person</span></div>
       <div class="cd-stat-info">
         <div class="cd-stat-value" id="statPlayers">0</div>
-        <div class="cd-stat-label">שחקנים</div>
+        <div class="cd-stat-label" data-i18n="coach.dashboard.stat.players">שחקנים</div>
       </div>
     </div>
     <div class="cd-stat-card">
       <div class="cd-stat-icon"><span class="material-symbols-outlined">task_alt</span></div>
       <div class="cd-stat-info">
         <div class="cd-stat-value" id="statDrills">0</div>
-        <div class="cd-stat-label">תרגילים שהושלמו</div>
+        <div class="cd-stat-label" data-i18n="coach.dashboard.stat.drills_completed">תרגילים שהושלמו</div>
       </div>
     </div>
     <div class="cd-stat-card">
       <div class="cd-stat-icon"><span class="material-symbols-outlined">event_upcoming</span></div>
       <div class="cd-stat-info">
         <div class="cd-stat-value" id="statUpcoming">0</div>
-        <div class="cd-stat-label">אירועים קרובים</div>
+        <div class="cd-stat-label" data-i18n="coach.dashboard.stat.upcoming_events">אירועים קרובים</div>
       </div>
     </div>
     <div class="cd-stat-card">
       <div class="cd-stat-icon"><span class="material-symbols-outlined">emoji_events</span></div>
       <div class="cd-stat-info">
         <div class="cd-stat-value" id="statWinRate">0%</div>
-        <div class="cd-stat-label">אחוז ניצחונות</div>
+        <div class="cd-stat-label" data-i18n="coach.dashboard.stat.win_rate">אחוז ניצחונות</div>
       </div>
     </div>
   </div>
@@ -43,44 +43,44 @@
     <!-- Upcoming Schedule -->
     <section class="cd-section">
       <div class="cd-section-header">
-        <h2><span class="material-symbols-outlined">calendar_month</span> לוח זמנים קרוב</h2>
-        <a href="/schedule" class="cd-section-link">לוח שנה מלא &larr;</a>
+        <h2><span class="material-symbols-outlined">calendar_month</span> <span data-i18n="coach.dashboard.section.upcoming_schedule">לוח זמנים קרוב</span></h2>
+        <a href="/schedule" class="cd-section-link" data-i18n="coach.dashboard.link.full_calendar">לוח שנה מלא &larr;</a>
       </div>
       <div id="upcomingEvents">
-        <div class="cd-loading">טוען...</div>
+        <div class="cd-loading" data-i18n="coach.dashboard.loading">טוען...</div>
       </div>
     </section>
 
     <!-- Recent Game Results -->
     <section class="cd-section">
       <div class="cd-section-header">
-        <h2><span class="material-symbols-outlined">scoreboard</span> תוצאות אחרונות</h2>
-        <a href="/reports" class="cd-section-link">כל הדוחות &larr;</a>
+        <h2><span class="material-symbols-outlined">scoreboard</span> <span data-i18n="coach.dashboard.section.recent_results">תוצאות אחרונות</span></h2>
+        <a href="/reports" class="cd-section-link" data-i18n="coach.dashboard.link.all_reports">כל הדוחות &larr;</a>
       </div>
       <div id="recentGames">
-        <div class="cd-loading">טוען...</div>
+        <div class="cd-loading" data-i18n="coach.dashboard.loading">טוען...</div>
       </div>
     </section>
 
     <!-- Player Attendance -->
     <section class="cd-section">
       <div class="cd-section-header">
-        <h2><span class="material-symbols-outlined">fact_check</span> נוכחות שחקנים</h2>
-        <a href="/reports" class="cd-section-link">נוכחות מלאה &larr;</a>
+        <h2><span class="material-symbols-outlined">fact_check</span> <span data-i18n="coach.dashboard.section.player_attendance">נוכחות שחקנים</span></h2>
+        <a href="/reports" class="cd-section-link" data-i18n="coach.dashboard.link.full_attendance">נוכחות מלאה &larr;</a>
       </div>
       <div id="attendanceStats">
-        <div class="cd-loading">טוען...</div>
+        <div class="cd-loading" data-i18n="coach.dashboard.loading">טוען...</div>
       </div>
     </section>
 
     <!-- Drill Leaderboard -->
     <section class="cd-section">
       <div class="cd-section-header">
-        <h2><span class="material-symbols-outlined">military_tech</span> מובילי תרגילים ביתיים</h2>
-        <a href="/drills" class="cd-section-link">כל התרגילים &larr;</a>
+        <h2><span class="material-symbols-outlined">military_tech</span> <span data-i18n="coach.dashboard.section.drill_leaderboard">מובילי תרגילים ביתיים</span></h2>
+        <a href="/drills" class="cd-section-link" data-i18n="coach.dashboard.link.all_drills">כל התרגילים &larr;</a>
       </div>
       <div id="drillLeaderboard">
-        <div class="cd-loading">טוען...</div>
+        <div class="cd-loading" data-i18n="coach.dashboard.loading">טוען...</div>
       </div>
     </section>
   </div>
@@ -88,11 +88,11 @@
   <!-- Recent Practices (full width) -->
   <section class="cd-section cd-section-full">
     <div class="cd-section-header">
-      <h2><span class="material-symbols-outlined">sports_basketball</span> אימונים אחרונים</h2>
-      <a href="/practice" class="cd-section-link">תכנון אימונים &larr;</a>
+      <h2><span class="material-symbols-outlined">sports_basketball</span> <span data-i18n="coach.dashboard.section.recent_practices">אימונים אחרונים</span></h2>
+      <a href="/practice" class="cd-section-link" data-i18n="coach.dashboard.link.practice_planner">תכנון אימונים &larr;</a>
     </div>
     <div id="recentPractices">
-      <div class="cd-loading">טוען...</div>
+      <div class="cd-loading" data-i18n="coach.dashboard.loading">טוען...</div>
     </div>
   </section>
 </div>

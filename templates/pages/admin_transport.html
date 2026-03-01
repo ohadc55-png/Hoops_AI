@@ -1,7 +1,7 @@
 {% extends "admin_base.html" %}
 {% block title %}HOOPS AI — Transportation{% endblock %}
 {% block nav_transport %}active{% endblock %}
-{% block header_title %}Transportation{% endblock %}
+{% block header_title %}<span data-i18n="admin.header.transport">הסעות</span>{% endblock %}
 {% block content %}
 <div class="admin-dashboard">
   <!-- Stats -->
@@ -10,21 +10,21 @@
       <div class="stat-icon"><span class="material-symbols-outlined">directions_bus</span></div>
       <div>
         <div class="stat-value" id="awayCount">0</div>
-        <div class="stat-label">Upcoming Away Games</div>
+        <div class="stat-label" data-i18n="admin.transport.stat_upcoming_away">Upcoming Away Games</div>
       </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon"><span class="material-symbols-outlined">calendar_today</span></div>
       <div>
         <div class="stat-value" id="nextAwayDate">-</div>
-        <div class="stat-label">Next Away Game</div>
+        <div class="stat-label" data-i18n="admin.transport.stat_next_away">Next Away Game</div>
       </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon"><span class="material-symbols-outlined">groups</span></div>
       <div>
         <div class="stat-value" id="teamsWithAway">0</div>
-        <div class="stat-label">Teams with Away Games</div>
+        <div class="stat-label" data-i18n="admin.transport.stat_teams_with_away">Teams with Away Games</div>
       </div>
     </div>
   </div>
@@ -32,13 +32,13 @@
   <!-- Away Games List -->
   <section class="dashboard-section">
     <div class="section-header">
-      <h2><span class="material-symbols-outlined">directions_bus</span> Upcoming Away Games</h2>
+      <h2><span class="material-symbols-outlined">directions_bus</span> <span data-i18n="admin.transport.section_upcoming_away">Upcoming Away Games</span></h2>
       <select class="input" id="transportTeamFilter" onchange="loadAwayGames()" style="min-width:160px;">
-        <option value="">All Teams</option>
+        <option value="" data-i18n="admin.transport.all_teams">All Teams</option>
       </select>
     </div>
     <div class="section-content" id="awayGamesList">
-      <div class="loading-state">Loading...</div>
+      <div class="loading-state" data-i18n="admin.transport.loading">Loading...</div>
     </div>
   </section>
 </div>

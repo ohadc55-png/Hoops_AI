@@ -5,14 +5,14 @@
 
 {% block content %}
 <div class="agent-strip" id="agentStrip">
-  <div class="agent-chip" data-agent="assistant_coach"><span class="dot" style="background:#f48c25"></span>Assistant Coach</div>
-  <div class="agent-chip" data-agent="tactician"><span class="dot" style="background:#F87171"></span>The Tactician</div>
-  <div class="agent-chip" data-agent="skills_coach"><span class="dot" style="background:#34D399"></span>Skills Coach</div>
-  <div class="agent-chip" data-agent="analyst"><span class="dot" style="background:#2DD4BF"></span>The Analyst</div>
-  <div class="agent-chip" data-agent="strength_coach"><span class="dot" style="background:#A78BFA"></span>Strength &amp; Conditioning</div>
-  <div class="agent-chip" data-agent="nutritionist"><span class="dot" style="background:#FBBF24"></span>Nutritionist</div>
-  <div class="agent-chip" data-agent="youth_coach"><span class="dot" style="background:#FB923C"></span>Youth Coach</div>
-  <div class="agent-chip" data-agent="team_manager"><span class="dot" style="background:#60A5FA"></span>Team Manager</div>
+  <div class="agent-chip" data-agent="assistant_coach"><span class="dot" style="background:#f48c25"></span><span data-i18n="chat.agent.assistant_coach">Assistant Coach</span></div>
+  <div class="agent-chip" data-agent="tactician"><span class="dot" style="background:#F87171"></span><span data-i18n="chat.agent.tactician">The Tactician</span></div>
+  <div class="agent-chip" data-agent="skills_coach"><span class="dot" style="background:#34D399"></span><span data-i18n="chat.agent.skills_coach">Skills Coach</span></div>
+  <div class="agent-chip" data-agent="analyst"><span class="dot" style="background:#2DD4BF"></span><span data-i18n="chat.agent.analyst">The Analyst</span></div>
+  <div class="agent-chip" data-agent="strength_coach"><span class="dot" style="background:#A78BFA"></span><span data-i18n="chat.agent.strength_coach">Strength &amp; Conditioning</span></div>
+  <div class="agent-chip" data-agent="nutritionist"><span class="dot" style="background:#FBBF24"></span><span data-i18n="chat.agent.nutritionist">Nutritionist</span></div>
+  <div class="agent-chip" data-agent="youth_coach"><span class="dot" style="background:#FB923C"></span><span data-i18n="chat.agent.youth_coach">Youth Coach</span></div>
+  <div class="agent-chip" data-agent="team_manager"><span class="dot" style="background:#60A5FA"></span><span data-i18n="chat.agent.team_manager">Team Manager</span></div>
 </div>
 
 <div class="chat-layout">
@@ -27,18 +27,18 @@
             <div class="message-agent-badge" style="color:var(--primary);">
               <span class="material-symbols-outlined" style="font-size:14px;">auto_awesome</span> HOOPS AI
             </div>
-            <div>Welcome, Coach! I have 8 specialized AI agents ready to help. Ask about strategy, drills, nutrition, analytics, or team management.</div>
+            <div data-i18n="coach.chat.welcome_message">Welcome, Coach! I have 8 specialized AI agents ready to help. Ask about strategy, drills, nutrition, analytics, or team management.</div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="chat-input-area" id="chatInput">
-      <button class="btn-icon" id="uploadBtn" style="width:36px;height:36px;" title="Upload file">
+      <button class="btn-icon" id="uploadBtn" style="width:36px;height:36px;" data-i18n-title="coach.chat.upload_file" title="Upload file">
         <span class="material-symbols-outlined" style="font-size:20px;">attach_file</span>
       </button>
       <input type="file" id="fileInput" style="display:none" accept=".csv,.xlsx,.xls,.png,.jpg,.jpeg">
-      <textarea id="chatTextarea" placeholder="Ask your coaching question..." rows="1"></textarea>
+      <textarea id="chatTextarea" data-i18n-placeholder="coach.chat.input_placeholder" placeholder="Ask your coaching question..." rows="1"></textarea>
       <button class="chat-send-btn" id="sendBtn" disabled>
         <span class="material-symbols-outlined">send</span>
       </button>
@@ -53,23 +53,58 @@
           <span class="material-symbols-outlined">auto_awesome</span>
         </div>
         <div>
-          <div class="agent-info-name" id="agentName">Auto Routing</div>
-          <div class="badge badge-primary" style="margin-top:4px;">Active</div>
+          <div class="agent-info-name" id="agentName" data-i18n="coach.chat.auto_routing">Auto Routing</div>
+          <div class="badge badge-primary" style="margin-top:4px;" data-i18n="coach.chat.active">Active</div>
         </div>
       </div>
-      <div class="agent-info-desc" id="agentDesc">Your question will be automatically routed to the most relevant specialist agent.</div>
+      <div class="agent-info-desc" id="agentDesc" data-i18n="coach.chat.auto_routing_desc">Your question will be automatically routed to the most relevant specialist agent.</div>
     </div>
 
     <div class="card" style="flex:1;display:flex;flex-direction:column;">
       <div class="card-header">
         <div class="card-title" style="font-size:var(--text-sm);">
-          <span class="material-symbols-outlined" style="font-size:18px;">history</span> Recent Chats
+          <span class="material-symbols-outlined" style="font-size:18px;">history</span> <span data-i18n="coach.chat.recent_chats">Recent Chats</span>
         </div>
         <button class="btn btn-sm btn-ghost" id="newChatBtn">
-          <span class="material-symbols-outlined" style="font-size:16px;">add</span> New
+          <span class="material-symbols-outlined" style="font-size:16px;">add</span> <span data-i18n="coach.chat.new">New</span>
         </button>
       </div>
       <div class="conversation-list" id="conversationList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Save to Practice Planner Modal — MUST be inside block content -->
+<div class="modal-overlay" id="savePracticeModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h3 data-i18n="chat.save_practice.modal_title">שמור כמתכנן אימונים</h3>
+      <button class="btn-icon" onclick="closeModal('savePracticeModal')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:var(--sp-4);">
+      <div class="form-group">
+        <label class="form-label" data-i18n="chat.save_practice.label_title">כותרת האימון</label>
+        <input type="text" id="practiceTitle" class="form-control" maxlength="100">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+        <div class="form-group">
+          <label class="form-label" data-i18n="chat.save_practice.label_date">תאריך</label>
+          <input type="date" id="practiceDate" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="chat.save_practice.label_duration">משך (דקות)</label>
+          <input type="number" id="practiceDuration" class="form-control" min="10" max="240" value="90">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('savePracticeModal')" data-i18n="common.cancel">ביטול</button>
+      <button class="btn btn-primary" id="savePracticeBtn" onclick="confirmSavePractice()">
+        <span class="material-symbols-outlined" style="font-size:16px;">event_note</span>
+        <span data-i18n="chat.save_practice.modal_title">שמור אימון</span>
+      </button>
     </div>
   </div>
 </div>

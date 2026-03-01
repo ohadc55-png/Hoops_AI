@@ -34,19 +34,16 @@ async def create_ticket(
         raise HTTPException(status_code=400, detail="Message body is required")
 
     service = SupportService(db)
-    try:
-        result = await service.create_ticket(
-            user_id=admin.id,
-            subject=req.subject.strip(),
-            body=req.body.strip(),
-            category=req.category,
-            priority=req.priority,
-            sender_name=admin.name,
-        )
-        await db.commit()
-        return {"success": True, "data": result}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = await service.create_ticket(
+        user_id=admin.id,
+        subject=req.subject.strip(),
+        body=req.body.strip(),
+        category=req.category,
+        priority=req.priority,
+        sender_name=admin.name,
+    )
+    await db.commit()
+    return {"success": True, "data": result}
 
 
 @router.get("/tickets")
@@ -87,16 +84,13 @@ async def reply_to_ticket(
         raise HTTPException(status_code=400, detail="Message body is required")
 
     service = SupportService(db)
-    try:
-        result = await service.club_reply(
-            user_id=admin.id,
-            ticket_id=ticket_id,
-            body=req.body.strip(),
-            sender_name=admin.name,
-        )
-        if not result:
-            raise HTTPException(status_code=404, detail="Ticket not found")
-        await db.commit()
-        return {"success": True, "data": result}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = await service.club_reply(
+        user_id=admin.id,
+        ticket_id=ticket_id,
+        body=req.body.strip(),
+        sender_name=admin.name,
+    )
+    if not result:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    await db.commit()
+    return {"success": True, "data": result}

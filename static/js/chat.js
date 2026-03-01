@@ -15,6 +15,10 @@ const AGENT_ICONS = {
 
 let currentConversationId = null;
 let isLoading = false;
+let _msgCounter = 0;
+const _msgContents = {};
+let _pendingFileContext = null;  // extracted file data waiting for next send
+let _pendingForceAgent = null;   // forced agent for next send (e.g. "analyst")
 
 document.addEventListener('DOMContentLoaded', () => {
   const textarea = document.getElementById('chatTextarea');
@@ -73,10 +77,18 @@ async function sendMessage() {
   // Show typing
   const typingEl = showTyping();
 
+  // Capture and clear pending file context
+  const fileContext = _pendingFileContext;
+  const forceAgent = _pendingForceAgent;
+  _pendingFileContext = null;
+  _pendingForceAgent = null;
+
   try {
     const res = await API.post('/api/chat/send', {
       message: content,
       conversation_id: currentConversationId,
+      file_context: fileContext || undefined,
+      force_agent: forceAgent || undefined,
     });
 
     currentConversationId = res.data.conversation_id;
@@ -86,7 +98,7 @@ async function sendMessage() {
     loadConversations();
   } catch (err) {
     removeTyping(typingEl);
-    addMessage('assistant', 'Sorry, something went wrong. Please try again.', null);
+    addMessage('assistant', t('chat.error.generic'), null);
   } finally {
     isLoading = false;
   }
@@ -105,17 +117,25 @@ function addMessage(role, content, agentKey, agentMeta) {
   } else {
     const color = agentKey ? AGENT_COLORS[agentKey] : 'var(--primary)';
     const icon = agentKey ? AGENT_ICONS[agentKey] : 'auto_awesome';
-    const name = agentMeta ? agentMeta.name : 'HOOPS AI';
+    const name = agentMeta ? agentMeta.name : t('chat.default_name');
+    const msgId = ++_msgCounter;
+    _msgContents[msgId] = content;
     div.innerHTML = `
       <div class="message-avatar" style="background:${color}20;color:${color};">
         <span class="material-symbols-outlined">${icon}</span>
       </div>
-      <div>
+      <div style="flex:1;min-width:0;">
         <div class="message-body">
           <div class="message-agent-badge" style="color:${color};">
             <span class="material-symbols-outlined" style="font-size:14px;">${icon}</span> ${name}
           </div>
           <div>${formatMessage(content)}</div>
+        </div>
+        <div class="message-actions">
+          <button class="msg-save-btn" onclick="openSavePractice(${msgId})">
+            <span class="material-symbols-outlined" style="font-size:14px;">event_note</span>
+            ${t('chat.save_practice.btn')}
+          </button>
         </div>
       </div>
     `;
@@ -150,19 +170,19 @@ function removeTyping(el) {
 function updateAgentInfo(agentKey) {
   if (!agentKey) return;
   const AGENT_NAMES = {
-    assistant_coach: 'Assistant Coach', team_manager: 'Team Manager', tactician: 'The Tactician',
-    skills_coach: 'Skills Coach', nutritionist: 'Sports Nutritionist', strength_coach: 'Strength & Conditioning',
-    analyst: 'The Analyst', youth_coach: 'Youth Coach',
+    assistant_coach: t('chat.agent.assistant_coach'), team_manager: t('chat.agent.team_manager'), tactician: t('chat.agent.tactician'),
+    skills_coach: t('chat.agent.skills_coach'), nutritionist: t('chat.agent.nutritionist'), strength_coach: t('chat.agent.strength_coach'),
+    analyst: t('chat.agent.analyst'), youth_coach: t('chat.agent.youth_coach'),
   };
   const AGENT_DESCS = {
-    assistant_coach: 'Team leadership, practice planning, and management strategies.',
-    team_manager: 'Schedule, calendar, facilities, and logistics.',
-    tactician: 'Game strategy, plays, X\'s & O\'s, and tactical analysis.',
-    skills_coach: 'Training drills, technique, and skill development.',
-    nutritionist: 'Nutrition plans, diet advice, and recovery meals.',
-    strength_coach: 'Athletic performance, workouts, and conditioning.',
-    analyst: 'Statistics, performance analytics, and data insights.',
-    youth_coach: 'Child-friendly basketball development for ages 5-12.',
+    assistant_coach: t('chat.agent_desc.assistant_coach'),
+    team_manager: t('chat.agent_desc.team_manager'),
+    tactician: t('chat.agent_desc.tactician'),
+    skills_coach: t('chat.agent_desc.skills_coach'),
+    nutritionist: t('chat.agent_desc.nutritionist'),
+    strength_coach: t('chat.agent_desc.strength_coach'),
+    analyst: t('chat.agent_desc.analyst'),
+    youth_coach: t('chat.agent_desc.youth_coach'),
   };
 
   const color = AGENT_COLORS[agentKey];
@@ -179,12 +199,12 @@ async function loadConversations() {
     const res = await API.get('/api/chat/conversations');
     const list = document.getElementById('conversationList');
     if (!res?.data?.length) {
-      list.innerHTML = '<div class="empty-state" style="padding:var(--sp-6);"><p class="text-xs text-muted">No conversations yet</p></div>';
+      list.innerHTML = `<div class="empty-state" style="padding:var(--sp-6);"><p class="text-xs text-muted">${t('chat.conversation.empty')}</p></div>`;
       return;
     }
     list.innerHTML = res.data.slice(0, 20).map(c => `
       <div class="conversation-item ${c.id === currentConversationId ? 'active' : ''}" onclick="loadConversation(${c.id})">
-        <div class="conversation-item-title truncate">${escapeHtml(c.title || 'New Chat')}</div>
+        <div class="conversation-item-title truncate">${escapeHtml(c.title || t('chat.conversation.new'))}</div>
         <div class="conversation-item-time">${timeAgo(c.created_at)}</div>
       </div>
     `).join('');
@@ -201,7 +221,7 @@ async function loadConversation(id) {
       addMessage(m.role, m.content, m.agent);
     });
     loadConversations();
-  } catch (e) { Toast.error('Failed to load conversation'); }
+  } catch (e) { Toast.error(t('chat.conversation.load_error')); }
 }
 
 function startNewChat() {
@@ -213,9 +233,9 @@ function startNewChat() {
       </div>
       <div><div class="message-body">
         <div class="message-agent-badge" style="color:var(--primary);">
-          <span class="material-symbols-outlined" style="font-size:14px;">auto_awesome</span> HOOPS AI
+          <span class="material-symbols-outlined" style="font-size:14px;">auto_awesome</span> ${t('chat.default_name')}
         </div>
-        <div>New conversation started. How can I help you, Coach?</div>
+        <div>${t('chat.new_conversation')}</div>
       </div></div>
     </div>
   `;
@@ -226,15 +246,32 @@ async function handleFileUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
   try {
-    Toast.info(`Uploading ${file.name}...`);
+    Toast.info(t('chat.upload.uploading', { name: file.name }));
     const res = await API.upload('/api/files/upload', file);
     if (res.success) {
-      Toast.success('File uploaded!');
+      const analysis = res.data?.analysis;
       const textarea = document.getElementById('chatTextarea');
-      textarea.value = `I uploaded a file: ${file.name}. Please analyze it.`;
+      _pendingForceAgent = 'analyst';
+
+      if (analysis?.extracted_text) {
+        // Image with vision extraction
+        _pendingFileContext = `קובץ תמונה: ${file.name}\n\n${analysis.extracted_text}`;
+        textarea.value = `העליתי קובץ סטטיסטיקה: ${file.name}. נתח את הנתונים וחלץ ממצאים שיכולים לשפר את הקבוצה.`;
+      } else if (analysis?.columns) {
+        // CSV / Excel
+        const preview = JSON.stringify(analysis.preview || [], null, 2);
+        _pendingFileContext = `קובץ נתונים: ${file.name}\nעמודות: ${analysis.columns.join(', ')}\nמספר שורות: ${analysis.rows}\nנתונים:\n${preview}`;
+        textarea.value = `העליתי קובץ סטטיסטיקה: ${file.name} (${analysis.rows} שורות, עמודות: ${analysis.columns.join(', ')}). נתח את הנתונים וחלץ ממצאים שיכולים לשפר את הקבוצה.`;
+      } else {
+        // Unknown file type
+        _pendingForceAgent = null;
+        textarea.value = t('chat.upload.analyze', { name: file.name });
+      }
+
       textarea.dispatchEvent(new Event('input'));
+      Toast.success(t('chat.upload.success'));
     }
-  } catch (err) { Toast.error('Upload failed'); }
+  } catch (err) { Toast.error(t('chat.upload.failed')); }
   e.target.value = '';
 }
 
@@ -245,8 +282,47 @@ function formatMessage(text) {
     .replace(/\n/g, '<br>');
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+/* escapeHtml → shared-utils.js */
+
+let _saveMsgId = null;
+
+function openSavePractice(msgId) {
+  _saveMsgId = msgId;
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('practiceDate').value = today;
+  document.getElementById('practiceDuration').value = 90;
+  // Auto-extract title from first bold/heading line of the message
+  const raw = _msgContents[msgId] || '';
+  const titleMatch = raw.match(/\*\*(.+?)\*\*/) || raw.match(/^#+\s*(.+)/m) || raw.match(/^(.+)/);
+  const autoTitle = titleMatch ? titleMatch[1].slice(0, 60) : t('chat.save_practice.btn');
+  document.getElementById('practiceTitle').value = autoTitle;
+  openModal('savePracticeModal');
+}
+
+async function confirmSavePractice() {
+  const title = document.getElementById('practiceTitle').value.trim();
+  const date = document.getElementById('practiceDate').value;
+  const duration = parseInt(document.getElementById('practiceDuration').value) || 90;
+  if (!title || !date) return;
+
+  const saveBtn = document.getElementById('savePracticeBtn');
+  const saveBtnLabel = saveBtn.querySelector('span[data-i18n]');
+  saveBtn.disabled = true;
+  if (saveBtnLabel) saveBtnLabel.textContent = t('chat.save_practice.saving');
+
+  try {
+    const notes = _msgContents[_saveMsgId] || '';
+    await API.post('/api/practice', { title, date, notes, total_duration: duration, focus: '' });
+    closeModal('savePracticeModal');
+    Toast.success(
+      t('chat.save_practice.success') +
+      ' — <a href="/practice" style="color:var(--primary);text-decoration:underline;">' +
+      t('chat.save_practice.go_to_planner') + '</a>'
+    );
+  } catch (e) {
+    Toast.error(t('chat.save_practice.error'));
+  } finally {
+    saveBtn.disabled = false;
+    if (saveBtnLabel) saveBtnLabel.textContent = t('chat.save_practice.modal_title');
+  }
 }

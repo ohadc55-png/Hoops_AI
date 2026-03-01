@@ -95,14 +95,11 @@ async def update_status(
     db: AsyncSession = Depends(get_db),
 ):
     service = SupportService(db)
-    try:
-        result = await service.update_ticket_status(ticket_id, req.status)
-        if not result:
-            raise HTTPException(status_code=404, detail="Ticket not found")
-        await db.commit()
-        return {"success": True, "data": result}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = await service.update_ticket_status(ticket_id, req.status)
+    if not result:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    await db.commit()
+    return {"success": True, "data": result}
 
 
 @router.put("/{ticket_id}/assign")

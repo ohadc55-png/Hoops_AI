@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HOOPS AI - Coach Registration</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/variables.css">
   <link rel="stylesheet" href="/static/css/reset.css">
@@ -72,6 +73,8 @@
   </div>
 
   <div class="toast-container" id="toastContainer"></div>
+  <script src="/static/js/shared-utils.js"></script>
+  <script src="/static/js/api-core.js"></script>
   <script src="/static/js/main.js"></script>
   <script>
     const INVITE_TOKEN = '{{ invite_token | default("") }}';
@@ -110,6 +113,7 @@
         });
         if (!res) throw new Error('ההרשמה נכשלה, נסה שנית');
         API.setAuth(res.data.token, res.data.coach);
+        if (res.data.language) localStorage.setItem('hoops_language', res.data.language);
         window.location.href = '/';
       } catch (err) {
         const errEl = document.getElementById('authError');

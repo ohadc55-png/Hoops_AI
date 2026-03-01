@@ -2,6 +2,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.repositories.club_feature_flag_repository import ClubFeatureFlagRepository
 from src.models.club_feature_flag import FEATURE_KEYS
+from src.utils.exceptions import ValidationError
 
 
 class FeatureFlagService:
@@ -18,7 +19,7 @@ class FeatureFlagService:
 
     async def set_flag(self, club_id: int, feature_key: str, is_enabled: bool) -> dict:
         if feature_key not in FEATURE_KEYS:
-            raise ValueError(f"Unknown feature key: {feature_key}")
+            raise ValidationError(f"Unknown feature key: {feature_key}")
         flag = await self.repo.upsert_flag(club_id, feature_key, is_enabled)
         return {"feature_key": flag.feature_key, "is_enabled": flag.is_enabled}
 
@@ -26,7 +27,7 @@ class FeatureFlagService:
         """Update multiple flags at once. Returns full flag map."""
         for key, enabled in flags.items():
             if key not in FEATURE_KEYS:
-                raise ValueError(f"Unknown feature key: {key}")
+                raise ValidationError(f"Unknown feature key: {key}")
             await self.repo.upsert_flag(club_id, key, enabled)
         return await self.get_flags_for_club(club_id)
 

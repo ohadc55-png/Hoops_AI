@@ -46,13 +46,13 @@ async function loadCategories() {
 
     const filterSelect = document.getElementById('filterCategory');
     if (filterSelect) {
-      filterSelect.innerHTML = '<option value="">All Categories</option>' + opts;
+      filterSelect.innerHTML = `<option value="">${t('admin.knowledge.all_categories')}</option>` + opts;
     }
 
     // Upload modal category dropdown
     const uploadSelect = document.getElementById('docCategory');
     if (uploadSelect) {
-      uploadSelect.innerHTML = '<option value="">Select...</option>' + opts;
+      uploadSelect.innerHTML = `<option value="">${t('admin.knowledge.select_category')}</option>` + opts;
     }
   } catch {
     // non-critical
@@ -65,7 +65,7 @@ async function loadDocuments() {
   const container = document.getElementById('documentsGrid');
   if (!container) return;
 
-  container.innerHTML = '<div class="loading-state">Loading documents...</div>';
+  container.innerHTML = `<div class="loading-state">${t('admin.knowledge.loading')}</div>`;
 
   const category = document.getElementById('filterCategory')?.value || '';
   const status = document.getElementById('filterStatus')?.value || '';
@@ -88,14 +88,14 @@ async function loadDocuments() {
     }
 
     const countEl = document.getElementById('docCount');
-    if (countEl) countEl.textContent = `${docs.length} document${docs.length !== 1 ? 's' : ''}`;
+    if (countEl) countEl.textContent = t('admin.knowledge.doc_count', { count: docs.length });
 
     if (!docs.length) {
       container.innerHTML = `
         <div style="text-align:center;padding:var(--sp-8);color:var(--text-muted);">
           <span class="material-symbols-outlined" style="font-size:48px;display:block;margin-bottom:var(--sp-3);">folder_open</span>
-          <h3 style="font-size:var(--text-lg);margin-bottom:var(--sp-2);">No documents</h3>
-          <p style="font-size:var(--text-sm);">Upload documents to build the knowledge base</p>
+          <h3 style="font-size:var(--text-lg);margin-bottom:var(--sp-2);">${t('admin.knowledge.empty.no_docs')}</h3>
+          <p style="font-size:var(--text-sm);">${t('admin.knowledge.empty.no_docs_desc')}</p>
         </div>`;
       return;
     }
@@ -107,7 +107,7 @@ async function loadDocuments() {
     const sizeEl = document.getElementById('statTotalSize');
     if (sizeEl) sizeEl.textContent = formatFileSize(totalSize);
   } catch {
-    container.innerHTML = '<div style="text-align:center;padding:var(--sp-8);color:var(--error);">Failed to load documents</div>';
+    container.innerHTML = `<div style="text-align:center;padding:var(--sp-8);color:var(--error);">${t('admin.knowledge.empty.load_error')}</div>`;
   }
 }
 
@@ -124,7 +124,7 @@ function renderDocumentCard(doc) {
   const scopeBadge = renderScopeBadge(doc.scope);
   const fileSize = formatFileSize(doc.file_size);
   const uploadDate = formatDate(doc.created_at);
-  const chunks = doc.chunk_count != null ? `${doc.chunk_count} chunks` : '--';
+  const chunks = doc.chunk_count != null ? `${doc.chunk_count} ${t('admin.knowledge.chunks_label')}` : '--';
   const fileIcon = _fileIcon(doc.file_type);
   const fileExt = (doc.file_type || '').toUpperCase();
 
@@ -132,8 +132,8 @@ function renderDocumentCard(doc) {
   const isError = doc.status === 'error';
 
   const actionBtns = [];
-  if (isError) actionBtns.push(`<button class="btn btn-ghost" style="padding:4px;" onclick="event.stopPropagation();retryDocument(${doc.id})" title="Retry"><span class="material-symbols-outlined" style="font-size:18px;">refresh</span></button>`);
-  if (!isSystem) actionBtns.push(`<button class="btn btn-ghost" style="padding:4px;" onclick="event.stopPropagation();deleteDocument(${doc.id})" title="Delete"><span class="material-symbols-outlined" style="font-size:18px;">delete</span></button>`);
+  if (isError) actionBtns.push(`<button class="btn btn-ghost" style="padding:4px;" onclick="event.stopPropagation();retryDocument(${doc.id})" title="${t('admin.knowledge.retry_btn')}"><span class="material-symbols-outlined" style="font-size:18px;">refresh</span></button>`);
+  if (!isSystem) actionBtns.push(`<button class="btn btn-ghost" style="padding:4px;" onclick="event.stopPropagation();deleteDocument(${doc.id})" title="${t('admin.knowledge.delete_btn')}"><span class="material-symbols-outlined" style="font-size:18px;">delete</span></button>`);
 
   const errorMsg = isError && doc.error_message
     ? `<div style="font-size:var(--text-xs);color:var(--error);margin-top:var(--sp-2);padding:var(--sp-2);background:rgba(239,68,68,0.06);border-radius:var(--r-sm);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${esc(doc.error_message)}</div>`
@@ -147,7 +147,7 @@ function renderDocumentCard(doc) {
           <span class="material-symbols-outlined" style="font-size:24px;color:var(--primary);">${fileIcon}</span>
         </div>
         <div style="flex:1;min-width:0;">
-          <h3 style="font-size:var(--text-base);font-weight:700;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(doc.title || doc.original_name || 'Untitled')}</h3>
+          <h3 style="font-size:var(--text-base);font-weight:700;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(doc.title || doc.original_name || t('admin.knowledge.untitled'))}</h3>
           <div style="font-size:var(--text-xs);color:var(--text-muted);display:flex;align-items:center;gap:var(--sp-2);">
             <span>${fileExt}</span>
             <span style="opacity:0.4;">·</span>
@@ -181,45 +181,45 @@ function viewDocument(id) {
   const doc = _allDocs.find(d => d.id === id);
   if (!doc) return;
 
-  document.getElementById('detailDocTitle').textContent = doc.title || doc.original_name || 'Untitled';
+  document.getElementById('detailDocTitle').textContent = doc.title || doc.original_name || t('admin.knowledge.untitled');
 
   document.getElementById('docDetailBody').innerHTML = `
     <div style="display:flex;gap:var(--sp-2);margin-bottom:var(--sp-4);flex-wrap:wrap;">
       ${doc.category ? `<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--r-full);background:rgba(255,255,255,0.06);font-size:var(--text-xs);color:var(--text-secondary);"><span class="material-symbols-outlined" style="font-size:13px;">category</span>${esc(_categoryLabel(doc.category))}</span>` : ''}
       ${renderScopeBadge(doc.scope)}
       ${renderStatusBadge(doc.status)}
-      ${doc.language ? `<span style="display:inline-block;padding:2px 8px;border-radius:var(--r-sm);background:rgba(255,255,255,0.06);font-size:var(--text-xs);color:var(--text-secondary);">${doc.language === 'he' ? 'עברית' : 'English'}</span>` : ''}
+      ${doc.language ? `<span style="display:inline-block;padding:2px 8px;border-radius:var(--r-sm);background:rgba(255,255,255,0.06);font-size:var(--text-xs);color:var(--text-secondary);">${doc.language === 'he' ? t('admin.knowledge.detail.language_he') : t('admin.knowledge.detail.language_en')}</span>` : ''}
     </div>
     ${doc.description ? `<p style="margin-bottom:var(--sp-4);color:var(--text-secondary);font-size:var(--text-sm);">${esc(doc.description)}</p>` : ''}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);font-size:var(--text-sm);">
       <div>
-        <span style="color:var(--text-muted);">File:</span>
+        <span style="color:var(--text-muted);">${t('admin.knowledge.detail.file')}</span>
         <span style="margin-left:var(--sp-1);">${esc(doc.original_name)}</span>
       </div>
       <div>
-        <span style="color:var(--text-muted);">Size:</span>
+        <span style="color:var(--text-muted);">${t('admin.knowledge.detail.size')}</span>
         <span style="margin-left:var(--sp-1);">${formatFileSize(doc.file_size)}</span>
       </div>
       <div>
-        <span style="color:var(--text-muted);">Chunks:</span>
+        <span style="color:var(--text-muted);">${t('admin.knowledge.detail.chunks')}</span>
         <span style="margin-left:var(--sp-1);">${doc.chunk_count ?? '--'}</span>
       </div>
       <div>
-        <span style="color:var(--text-muted);">Uploaded:</span>
+        <span style="color:var(--text-muted);">${t('admin.knowledge.detail.uploaded')}</span>
         <span style="margin-left:var(--sp-1);">${formatDate(doc.created_at)}</span>
       </div>
     </div>
     <!-- Text preview area -->
     <div id="docPreviewArea" style="margin-top:var(--sp-4);display:none;">
       <div style="font-weight:600;font-size:var(--text-sm);margin-bottom:var(--sp-2);display:flex;align-items:center;gap:var(--sp-2);">
-        <span class="material-symbols-outlined" style="font-size:16px;">preview</span> Content Preview
+        <span class="material-symbols-outlined" style="font-size:16px;">preview</span> ${t('admin.knowledge.detail.content_preview')}
       </div>
       <div id="docPreviewContent" style="max-height:300px;overflow-y:auto;padding:var(--sp-3);background:rgba(0,0,0,0.2);border-radius:var(--r-md);font-size:var(--text-sm);color:var(--text-secondary);white-space:pre-wrap;word-break:break-word;line-height:1.6;border:1px solid rgba(255,255,255,0.06);"></div>
     </div>
     ${doc.status === 'error' && doc.error_message ? `
       <div style="margin-top:var(--sp-4);padding:var(--sp-3);background:rgba(239,68,68,0.08);border-radius:var(--r-md);border:1px solid rgba(239,68,68,0.2);">
         <div style="font-weight:600;color:var(--error);font-size:var(--text-sm);margin-bottom:var(--sp-1);display:flex;align-items:center;gap:var(--sp-1);">
-          <span class="material-symbols-outlined" style="font-size:16px;">error</span> Processing Error
+          <span class="material-symbols-outlined" style="font-size:16px;">error</span> ${t('admin.knowledge.detail.processing_error')}
         </div>
         <p style="font-size:var(--text-xs);color:var(--text-secondary);">${esc(doc.error_message)}</p>
       </div>` : ''}
@@ -235,10 +235,10 @@ function viewDocument(id) {
   if (footer) {
     const isSystem = doc.scope === 'system';
     footer.innerHTML = `
-      <button class="btn btn-ghost" onclick="downloadDocument(${doc.id})" title="Download file"><span class="material-symbols-outlined" style="font-size:18px;">download</span> Download</button>
-      ${doc.status === 'error' && !isSystem ? `<button class="btn btn-ghost" onclick="retryDocument(${doc.id});closeModal('docDetailModal')"><span class="material-symbols-outlined" style="font-size:18px;">refresh</span> Retry</button>` : ''}
-      ${!isSystem ? `<button class="btn btn-ghost" style="color:var(--error);" onclick="deleteDocument(${doc.id})"><span class="material-symbols-outlined" style="font-size:18px;">delete</span> Delete</button>` : ''}
-      <button class="btn btn-primary" onclick="closeModal('docDetailModal')">Close</button>
+      <button class="btn btn-ghost" onclick="downloadDocument(${doc.id})" title="${t('admin.knowledge.download_btn')}"><span class="material-symbols-outlined" style="font-size:18px;">download</span> ${t('admin.knowledge.download_btn')}</button>
+      ${doc.status === 'error' && !isSystem ? `<button class="btn btn-ghost" onclick="retryDocument(${doc.id});closeModal('docDetailModal')"><span class="material-symbols-outlined" style="font-size:18px;">refresh</span> ${t('admin.knowledge.retry_btn')}</button>` : ''}
+      ${!isSystem ? `<button class="btn btn-ghost" style="color:var(--error);" onclick="deleteDocument(${doc.id})"><span class="material-symbols-outlined" style="font-size:18px;">delete</span> ${t('admin.knowledge.delete_btn')}</button>` : ''}
+      <button class="btn btn-primary" onclick="closeModal('docDetailModal')">${t('btn.close')}</button>
     `;
   }
 
@@ -275,7 +275,7 @@ async function downloadDocument(docId) {
       headers: { Authorization: 'Bearer ' + token },
     });
     if (!res.ok) {
-      AdminToast.error('Download failed');
+      AdminToast.error(t('admin.knowledge.download_failed'));
       return;
     }
     const blob = await res.blob();
@@ -292,7 +292,7 @@ async function downloadDocument(docId) {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   } catch {
-    AdminToast.error('Download failed');
+    AdminToast.error(t('admin.knowledge.download_failed'));
   }
 }
 
@@ -300,9 +300,9 @@ async function downloadDocument(docId) {
 
 function renderStatusBadge(status) {
   const map = {
-    ready:      { label: 'Ready',      bg: 'rgba(34,197,94,0.12)',  color: '#22c55e' },
-    processing: { label: 'Processing', bg: 'rgba(251,191,36,0.12)', color: '#FBBF24' },
-    error:      { label: 'Error',      bg: 'rgba(239,68,68,0.12)',  color: '#ef4444' },
+    ready:      { label: t('admin.knowledge.status.ready'),      bg: 'rgba(34,197,94,0.12)',  color: '#22c55e' },
+    processing: { label: t('admin.knowledge.status.processing'), bg: 'rgba(251,191,36,0.12)', color: '#FBBF24' },
+    error:      { label: t('admin.knowledge.status.error'),      bg: 'rgba(239,68,68,0.12)',  color: '#ef4444' },
   };
   const info = map[status] || { label: status || '--', bg: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)' };
   return `<span style="display:inline-block;padding:2px 8px;border-radius:var(--r-sm);background:${info.bg};color:${info.color};font-size:var(--text-xs);font-weight:600;">${esc(info.label)}</span>`;
@@ -312,9 +312,9 @@ function renderStatusBadge(status) {
 
 function renderScopeBadge(scope) {
   const map = {
-    system: { label: 'System', color: '#60A5FA' },
-    club:   { label: 'Club',   color: '#A78BFA' },
-    coach:  { label: 'Coach',  color: '#f48c25' },
+    system: { label: t('admin.knowledge.scope.system'), color: '#60A5FA' },
+    club:   { label: t('admin.knowledge.scope.club'),   color: '#A78BFA' },
+    coach:  { label: t('admin.knowledge.scope.coach'),  color: '#f48c25' },
   };
   const info = map[scope] || { label: scope || '--', color: 'var(--text-muted)' };
   return `<span style="display:inline-block;padding:2px 8px;border-radius:var(--r-sm);background:${info.color}20;color:${info.color};border:1px solid ${info.color}40;font-size:var(--text-xs);font-weight:600;">${esc(info.label)}</span>`;
@@ -358,7 +358,7 @@ function handleFileSelect(input) {
       titleInput.value = f.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
     }
   } else {
-    textEl.textContent = 'Click to select or drag & drop';
+    textEl.textContent = t('admin.knowledge.drop_zone_text');
   }
 }
 
@@ -367,7 +367,7 @@ async function handleUploadDocument(event) {
 
   const fileInput = document.getElementById('docFile');
   if (!fileInput?.files?.length) {
-    AdminToast.error('Please select a file');
+    AdminToast.error(t('admin.knowledge.upload_error.no_file'));
     return false;
   }
 
@@ -376,12 +376,12 @@ async function handleUploadDocument(event) {
   const language = document.getElementById('docLanguage').value;
   const description = document.getElementById('docDescription').value.trim();
 
-  if (!title) { AdminToast.error('Please enter a title'); return false; }
-  if (!category) { AdminToast.error('Please select a category'); return false; }
+  if (!title) { AdminToast.error(t('admin.knowledge.upload_error.no_title')); return false; }
+  if (!category) { AdminToast.error(t('admin.knowledge.upload_error.no_category')); return false; }
 
   const btn = document.getElementById('uploadBtn');
   btn.disabled = true;
-  btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">hourglass_empty</span> Uploading...';
+  btn.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px;">hourglass_empty</span> ${t('admin.knowledge.uploading')}`;
 
   try {
     const formData = new FormData();
@@ -410,12 +410,12 @@ async function handleUploadDocument(event) {
       throw new Error(data.detail || 'Upload failed');
     }
 
-    AdminToast.success('Document uploaded! Processing in background...');
+    AdminToast.success(t('admin.knowledge.upload_success'));
     closeModal('uploadDocModal');
 
     // Reset form
     document.getElementById('uploadDocForm').reset();
-    document.getElementById('dropZoneText').textContent = 'Click to select or drag & drop';
+    document.getElementById('dropZoneText').textContent = t('admin.knowledge.drop_zone_text');
 
     loadDocuments();
     loadStats();
@@ -423,7 +423,7 @@ async function handleUploadDocument(event) {
     AdminToast.error(err.message || 'Upload failed');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">upload</span> Upload';
+    btn.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px;">upload</span> ${t('admin.knowledge.upload_btn')}`;
   }
 
   return false;
@@ -432,10 +432,10 @@ async function handleUploadDocument(event) {
 // ── Delete ────────────────────────────────────────────────────────────────
 
 async function deleteDocument(id) {
-  if (!confirm('Delete this document? This cannot be undone.')) return;
+  if (!confirm(t('admin.knowledge.delete_confirm'))) return;
   try {
     await AdminAPI.del(`/api/knowledge/${id}`);
-    AdminToast.success('Document deleted');
+    AdminToast.success(t('admin.knowledge.document_deleted'));
     closeModal('docDetailModal');
     loadDocuments();
     loadStats();
@@ -449,7 +449,7 @@ async function deleteDocument(id) {
 async function retryDocument(id) {
   try {
     await AdminAPI.post(`/api/knowledge/${id}/retry`, {});
-    AdminToast.success('Reprocessing started');
+    AdminToast.success(t('admin.knowledge.reprocessing_started'));
     loadDocuments();
     loadStats();
   } catch {
@@ -472,13 +472,10 @@ function _fileIcon(fileType) {
 
 function formatFileSize(bytes) {
   if (bytes == null || isNaN(bytes)) return '--';
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  const lrm = '\u200E';
+  if (bytes < 1024) return lrm + bytes + ' B';
+  if (bytes < 1024 * 1024) return lrm + (bytes / 1024).toFixed(1) + ' KB';
+  return lrm + (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
-function formatDate(dateStr) {
-  if (!dateStr) return '--';
-  const d = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z');
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
+/* formatDate → shared-utils.js */

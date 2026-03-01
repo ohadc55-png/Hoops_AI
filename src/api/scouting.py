@@ -1,6 +1,9 @@
 """HOOPS AI - Scouting / Video Room API"""
+import logging
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from src.utils.database import get_db
@@ -193,11 +196,8 @@ async def create_video(
     from src.utils.feature_gate import require_feature
     await require_feature("video_room", db, coach_id=coach.id)
     svc = ScoutingService(db)
-    try:
-        video = await svc.register_video(coach.id, req.team_id, req.model_dump())
-        return {"success": True, "data": video_to_dict(video)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    video = await svc.register_video(coach.id, req.team_id, req.model_dump())
+    return {"success": True, "data": video_to_dict(video)}
 
 
 @router.get("/videos")
@@ -329,11 +329,8 @@ async def create_clip(
     db: AsyncSession = Depends(get_db),
 ):
     svc = ScoutingService(db)
-    try:
-        clip = await svc.create_clip(video_id, coach.id, req.model_dump())
-        return {"success": True, "data": clip_to_dict(clip)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    clip = await svc.create_clip(video_id, coach.id, req.model_dump())
+    return {"success": True, "data": clip_to_dict(clip)}
 
 
 @router.get("/videos/{video_id}/clips")
@@ -484,6 +481,303 @@ async def get_roster(
     }
 
 
+
+# ═══════════════════════════════════════════════════════════════
+#  PLAYLISTS (Phase 3.1)
+# ═══════════════════════════════════════════════════════════════
+
+class PlaylistCreateRequest(BaseModel):
+    name: str
+    description: str | None = None
+    team_id: int | None = None
+
+class PlaylistUpdateRequest(BaseModel):
+    name: str | None = None
+    description: str | None = None
+
+class PlaylistReorderRequest(BaseModel):
+    item_ids: list[int]
+
+class PlaylistItemAddRequest(BaseModel):
+    clip_id: int
+    note: str | None = None
+
+class PlaylistShareRequest(BaseModel):
+    team_id: int
+    share_with_parents: bool = False
+
+class BatchClipRequest(BaseModel):
+    clip_ids: list[int]
+
+class BatchClipUpdateRequest(BaseModel):
+    clip_ids: list[int]
+    rating: str | None = None
+
+def playlist_to_dict(p):
+    return {
+        "id": p.id, "name": p.name, "description": p.description,
+        "team_id": p.team_id, "shared_with_team": p.shared_with_team,
+        "shared_with_parents": p.shared_with_parents,
+        "item_count": len(p.items) if p.items else 0,
+        "items": [
+            {"id": i.id, "clip_id": i.clip_id, "sort_order": i.sort_order, "note": i.note}
+            for i in (p.items or [])
+        ],
+    }
+
+@router.post("/playlists")
+async def create_playlist(
+    req: PlaylistCreateRequest,
+    coach: Coach = Depends(get_current_coach),
+    db: AsyncSession = Depends(get_db),
+):
+    from src.models.clip_playlist import ClipPlaylist
+    pl = ClipPlaylist(coach_id=coach.id, name=req.name, description=req.description, team_id=req.team_id)
+    db.add(pl)
+    await db.flush()
+    await db.refresh(pl)
+    return {"data": {"id": pl.id, "name": pl.name}}
+
+@router.get("/playlists")
+async def list_playlists(
+    coach: Coach = Depends(get_current_coach),
+    db: AsyncSession = Depends(get_db),
+):
+    from src.models.clip_playlist import ClipPlaylist
+    from sqlalchemy.orm import selectinload
+    result = await db.execute(
+        select(ClipPlaylist).where(ClipPlaylist.coach_id == coach.id)
+        .options(selectinload(ClipPlaylist.items))
+        .order_by(ClipPlaylist.created_at.desc())
+    )
+    return {"data": [playlist_to_dict(p) for p in result.scalars().all()]}
+
+@router.get("/playlists/{playlist_id}")
+async def get_playlist(
+    playlist_id: int,
+    coach: Coach = Depends(get_current_coach),
+    db: AsyncSession = Depends(get_db),
+):
+    from src.models.clip_playlist import ClipPlaylist
+    from sqlalchemy.orm import selectinload
+    result = await db.execute(
+        select(ClipPlaylist).where(ClipPlaylist.id == playlist_id, ClipPlaylist.coach_id == coach.id)
+        .options(selectinload(ClipPlaylist.items))
+    )
+    pl = result.scalar_one_or_none()
+    if not pl:
+        raise HTTPException(404, "Playlist not found")
+    return {"data": playlist_to_dict(pl)}
+
+@router.delete("/playlists/{playlist_id}")
+async def delete_playlist(
+    playlist_id: int,
+    coach: Coach = Depends(get_current_coach),
+    db: AsyncSession = Depends(get_db),
+):
+    from src.models.clip_playlist import ClipPlaylist
+    result = await db.execute(
+        select(ClipPlaylist).where(ClipPlaylist.id == playlist_id, ClipPlaylist.coach_id == coach.id)
+    )
+    pl = result.scalar_one_or_none()
+    if not pl:
+        raise HTTPException(404, "Playlist not found")
+    await db.delete(pl)
+    return {"message": "Deleted"}
+
+@router.post("/playlists/{playlist_id}/items")
+async def add_playlist_item(
+    playlist_id: int,
+    req: PlaylistItemAddRequest,
+    coach: Coach = Depends(get_current_coach),
+    db: AsyncSession = Depends(get_db),
+):
+    from src.models.clip_playlist import ClipPlaylist, PlaylistItem
+    from sqlalchemy.orm import selectinload
+    result = await db.execute(
+        select(ClipPlaylist).where(ClipPlaylist.id == playlist_id, ClipPlaylist.coach_id == coach.id)
+        .options(selectinload(ClipPlaylist.items))
+    )
+    pl = result.scalar_one_or_none()
+    if not pl:
+        raise HTTPException(404, "Playlist not found")
+    max_order = max((i.sort_order for i in pl.items), default=-1) + 1
+    item = PlaylistItem(playlist_id=playlist_id, clip_id=req.clip_id, sort_order=max_order, note=req.note)
+    db.add(item)
+    await db.flush()
+    return {"data": {"id": item.id, "clip_id": item.clip_id, "sort_order": item.sort_order}}
+
+@router.delete("/playlists/{playlist_id}/items/{item_id}")
+async def remove_playlist_item(
+    playlist_id: int, item_id: int,
+    coach: Coach = Depends(get_current_coach),
+    db: AsyncSession = Depends(get_db),
+):
+    from src.models.clip_playlist import ClipPlaylist, PlaylistItem
+    result = await db.execute(
+        select(ClipPlaylist).where(ClipPlaylist.id == playlist_id, ClipPlaylist.coach_id == coach.id)
+    )
+    if not result.scalar_one_or_none():
+        raise HTTPException(404, "Playlist not found")
+    item_result = await db.execute(select(PlaylistItem).where(PlaylistItem.id == item_id, PlaylistItem.playlist_id == playlist_id))
+    item = item_result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(404, "Item not found")
+    await db.delete(item)
+    return {"message": "Removed"}
+
+@router.put("/playlists/{playlist_id}/reorder")
+async def reorder_playlist(
+    playlist_id: int,
+    req: PlaylistReorderRequest,
+    coach: Coach = Depends(get_current_coach),
+    db: AsyncSession = Depends(get_db),
+):
+    from src.models.clip_playlist import ClipPlaylist, PlaylistItem
+    from sqlalchemy.orm import selectinload
+    result = await db.execute(
+        select(ClipPlaylist).where(ClipPlaylist.id == playlist_id, ClipPlaylist.coach_id == coach.id)
+        .options(selectinload(ClipPlaylist.items))
+    )
+    pl = result.scalar_one_or_none()
+    if not pl:
+        raise HTTPException(404, "Playlist not found")
+    item_map = {i.id: i for i in pl.items}
+    for idx, item_id in enumerate(req.item_ids):
+        if item_id in item_map:
+            item_map[item_id].sort_order = idx
+    return {"message": "Reordered"}
+
+@router.post("/playlists/{playlist_id}/share")
+async def share_playlist(
+    playlist_id: int,
+    req: PlaylistShareRequest,
+    coach: Coach = Depends(get_current_coach),
+    db: AsyncSession = Depends(get_db),
+):
+    from src.models.clip_playlist import ClipPlaylist
+    result = await db.execute(
+        select(ClipPlaylist).where(ClipPlaylist.id == playlist_id, ClipPlaylist.coach_id == coach.id)
+    )
+    pl = result.scalar_one_or_none()
+    if not pl:
+        raise HTTPException(404, "Playlist not found")
+    pl.shared_with_team = True
+    pl.team_id = req.team_id
+    pl.shared_with_parents = req.share_with_parents
+    return {"message": "Shared"}
+
+@router.post("/playlists/{playlist_id}/unshare")
+async def unshare_playlist(
+    playlist_id: int,
+    coach: Coach = Depends(get_current_coach),
+    db: AsyncSession = Depends(get_db),
+):
+    from src.models.clip_playlist import ClipPlaylist
+    result = await db.execute(
+        select(ClipPlaylist).where(ClipPlaylist.id == playlist_id, ClipPlaylist.coach_id == coach.id)
+    )
+    pl = result.scalar_one_or_none()
+    if not pl:
+        raise HTTPException(404, "Playlist not found")
+    pl.shared_with_team = False
+    pl.shared_with_parents = False
+    return {"message": "Unshared"}
+
+# ─── Advanced Search (Phase 3.2) ──────────────────────────────
+
+@router.get("/clips/search")
+async def search_clips(
+    action_type: str | None = None,
+    rating: str | None = None,
+    player_id: int | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    opponent: str | None = None,
+    search: str | None = None,
+    coach: Coach = Depends(get_current_coach),
+    db: AsyncSession = Depends(get_db),
+):
+    from sqlalchemy.orm import selectinload
+    from src.models.clip_player_tag import ClipPlayerTag
+    query = select(VideoClip).join(ScoutingVideo).where(ScoutingVideo.coach_id == coach.id)
+    if action_type:
+        query = query.where(VideoClip.action_type == action_type)
+    if rating:
+        query = query.where(VideoClip.rating == rating)
+    if player_id:
+        query = query.join(ClipPlayerTag).where(ClipPlayerTag.player_id == player_id)
+    if date_from:
+        query = query.where(ScoutingVideo.game_date >= date_from)
+    if date_to:
+        query = query.where(ScoutingVideo.game_date <= date_to)
+    if opponent:
+        query = query.where(ScoutingVideo.opponent.ilike(f"%{opponent}%"))
+    if search:
+        query = query.where(VideoClip.notes.ilike(f"%{search}%"))
+    query = query.options(selectinload(VideoClip.player_tags), selectinload(VideoClip.views))
+    query = query.order_by(VideoClip.created_at.desc()).limit(100)
+    result = await db.execute(query)
+    clips = result.scalars().unique().all()
+    # Enrich with video info
+    data = []
+    for c in clips:
+        d = clip_to_dict(c)
+        d["video_id"] = c.video_id
+        data.append(d)
+    return {"data": data}
+
+# ─── Batch Clip Operations (Phase 3.3) ────────────────────────
+
+@router.post("/clips/batch-delete")
+async def batch_delete_clips(
+    req: BatchClipRequest,
+    coach: Coach = Depends(get_current_coach),
+    db: AsyncSession = Depends(get_db),
+):
+    for cid in req.clip_ids:
+        result = await db.execute(select(VideoClip).where(VideoClip.id == cid, VideoClip.coach_id == coach.id))
+        clip = result.scalar_one_or_none()
+        if clip:
+            await db.delete(clip)
+    return {"message": f"Deleted {len(req.clip_ids)} clips"}
+
+@router.post("/clips/batch-update")
+async def batch_update_clips(
+    req: BatchClipUpdateRequest,
+    coach: Coach = Depends(get_current_coach),
+    db: AsyncSession = Depends(get_db),
+):
+    for cid in req.clip_ids:
+        result = await db.execute(select(VideoClip).where(VideoClip.id == cid, VideoClip.coach_id == coach.id))
+        clip = result.scalar_one_or_none()
+        if clip and req.rating is not None:
+            clip.rating = req.rating
+    return {"message": f"Updated {len(req.clip_ids)} clips"}
+
+@router.post("/playlists/{playlist_id}/batch-add")
+async def batch_add_to_playlist(
+    playlist_id: int,
+    req: BatchClipRequest,
+    coach: Coach = Depends(get_current_coach),
+    db: AsyncSession = Depends(get_db),
+):
+    from src.models.clip_playlist import ClipPlaylist, PlaylistItem
+    from sqlalchemy.orm import selectinload
+    result = await db.execute(
+        select(ClipPlaylist).where(ClipPlaylist.id == playlist_id, ClipPlaylist.coach_id == coach.id)
+        .options(selectinload(ClipPlaylist.items))
+    )
+    pl = result.scalar_one_or_none()
+    if not pl:
+        raise HTTPException(404, "Playlist not found")
+    max_order = max((i.sort_order for i in pl.items), default=-1)
+    for i, cid in enumerate(req.clip_ids):
+        item = PlaylistItem(playlist_id=playlist_id, clip_id=cid, sort_order=max_order + 1 + i)
+        db.add(item)
+    return {"message": f"Added {len(req.clip_ids)} clips"}
+
+
 # ═══════════════════════════════════════════════════════════════
 #  PLAYER ENDPOINTS
 # ═══════════════════════════════════════════════════════════════
@@ -495,11 +789,19 @@ async def player_feed(
 ):
     """Player's personalized clip feed."""
     team_ids, player_ids = await _get_player_team_ids(db, user)
+    logger.debug(f"Player feed: user={user.id} ({user.email}), team_ids={team_ids}, player_ids={player_ids}")
     if not player_ids:
+        logger.debug(f"Player feed empty - no player_ids for user {user.id}")
         return {"success": True, "data": []}
 
     svc = ScoutingService(db)
+    # Debug: show shared videos for these teams
+    from sqlalchemy import select as _sel
+    _shared = await db.execute(_sel(ScoutingVideo).where(ScoutingVideo.shared_with_team == True))
+    _svids = _shared.scalars().all()
+    logger.debug(f"Player feed shared videos: {[(v.id, v.title[:30], f'team={v.team_id}') for v in _svids]}")
     clips = await svc.get_player_feed(player_ids[0], team_ids)
+    logger.debug(f"Player feed found {len(clips)} clips for player {player_ids[0]}")
 
     # Enrich with video info
     data = []
@@ -531,7 +833,6 @@ async def player_clip_detail(
     db: AsyncSession = Depends(get_db),
 ):
     """Get single clip detail with annotations for player view."""
-    import traceback
     try:
         svc = ScoutingService(db)
         detail = await svc.get_clip_detail(clip_id)
@@ -554,8 +855,7 @@ async def player_clip_detail(
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[SCOUTING ERROR] player_clip_detail: {e}")
-        traceback.print_exc()
+        logger.error(f"player_clip_detail error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -690,12 +990,15 @@ async def parent_feed(
 ):
     """Parent's video clip feed (only parent-shared videos)."""
     team_ids, player_ids = await _get_parent_team_ids(db, user)
+    logger.debug(f"Parent feed: user={user.id} ({user.email}), team_ids={team_ids}, player_ids={player_ids}")
     if not team_ids:
+        logger.debug(f"Parent feed empty - no team_ids for user {user.id}")
         return {"success": True, "data": []}
 
     svc = ScoutingService(db)
     child_id = player_ids[0] if player_ids else None
     clips = await svc.get_parent_feed(child_id, team_ids)
+    logger.debug(f"Parent feed found {len(clips)} clips for child={child_id}")
 
     data = []
     for clip in clips:

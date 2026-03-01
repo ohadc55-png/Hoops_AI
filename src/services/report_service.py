@@ -7,6 +7,7 @@ from src.repositories.game_report_repository import GameReportRepository
 from src.repositories.player_report_repository import PlayerReportRepository
 from src.repositories.player_repository import PlayerRepository
 from src.utils.openai_client import chat_completion_json
+from src.utils.exceptions import NotFoundError
 
 
 class ReportService:
@@ -150,7 +151,7 @@ class ReportService:
         """Generate a player report using AI based on attendance and game data."""
         player = await self.players.get_by_id(player_id)
         if not player:
-            raise ValueError("Player not found")
+            raise NotFoundError("Player")
 
         # Gather attendance stats
         stats = await self.attendance.get_player_stats(coach_id)
@@ -181,7 +182,9 @@ Period: {period}
 Game mentions: {'; '.join(mentions) if mentions else 'None'}
 Coach notes: {player.notes or 'None'}
 
-Write a professional, constructive assessment for a youth basketball player. Be specific and encouraging."""
+IMPORTANT: Write the ENTIRE report in Hebrew (עברית). All strengths, weaknesses, focus areas, progress notes, and recommendations must be in Hebrew.
+Write a professional, constructive assessment for a youth basketball player. Be specific and encouraging.
+Use the player's name naturally in Hebrew sentences where appropriate."""
 
         response = await chat_completion_json([{"role": "user", "content": prompt}])
         text = response.strip()

@@ -4,11 +4,17 @@
 let _playsCache = [];
 let _currentViewer = null;
 
-const TPL_NAMES = {
-  'empty': 'Empty', '5-out': '5-Out', '4-out-1-in': '4-Out 1-In',
-  'horns': 'Horns', 'box': 'Box', '1-4-high': '1-4 High',
-  'none': '', 'man': 'Man-to-Man', '23': '2-3 Zone', '32': '3-2 Zone',
-};
+function getTplName(key) {
+  const map = {
+    'empty': 'player.plays.tpl.empty', '5-out': 'player.plays.tpl.5_out',
+    '4-out-1-in': 'player.plays.tpl.4_out_1_in', 'horns': 'player.plays.tpl.horns',
+    'box': 'player.plays.tpl.box', '1-4-high': 'player.plays.tpl.1_4_high',
+    'man': 'player.plays.tpl.man', '23': 'player.plays.tpl.23_zone',
+    '32': 'player.plays.tpl.32_zone',
+  };
+  if (key === 'none' || !key) return '';
+  return map[key] ? t(map[key]) : key;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!PlayerAPI.token) return;
@@ -22,7 +28,7 @@ async function loadPlays() {
     const plays = res.data || [];
     _playsCache = plays;
     if (plays.length === 0) {
-      el.innerHTML = '<div class="empty-state-player"><span class="material-symbols-outlined">sports_basketball</span>No team plays shared yet</div>';
+      el.innerHTML = '<div class="empty-state-player"><span class="material-symbols-outlined">sports_basketball</span>' + t('player.plays.empty') + '</div>';
       return;
     }
     el.innerHTML = '<div class="plays-grid">' + plays.map(renderPlayCard).join('') + '</div>';
@@ -42,18 +48,18 @@ async function loadPlays() {
       }
     });
   } catch (e) {
-    el.innerHTML = '<div class="empty-state-player"><span class="material-symbols-outlined">error</span>Could not load plays</div>';
+    el.innerHTML = '<div class="empty-state-player"><span class="material-symbols-outlined">error</span>' + t('player.plays.load_error') + '</div>';
   }
 }
 
 function renderPlayCard(p) {
-  const off = TPL_NAMES[p.offense_template] || '';
-  const def = TPL_NAMES[p.defense_template] || '';
+  const off = getTplName(p.offense_template);
+  const def = getTplName(p.defense_template);
   const actionCount = (p.actions || []).length;
   const sharedAt = p.shared_at ? timeAgoSimple(p.shared_at) : '';
   const isNew = p.viewed === false;
   return '<div class="play-card' + (isNew ? ' play-card-new' : '') + '" id="play-card-' + p.id + '" onclick="openPlayViewer(' + p.id + ')">'
-    + (isNew ? '<span class="play-new-badge">חדש!</span>' : '')
+    + (isNew ? '<span class="play-new-badge">' + t('player.plays.new_badge') + '</span>' : '')
     + '<div class="play-card-preview" id="preview-' + p.id + '"></div>'
     + '<div class="play-card-info">'
     + '<div class="play-card-title">' + esc(p.name) + '</div>'
@@ -61,30 +67,14 @@ function renderPlayCard(p) {
     + '<div class="play-card-meta">'
     + (off ? '<span class="badge badge-neutral">' + off + '</span>' : '')
     + (def ? '<span class="badge badge-neutral">' + def + '</span>' : '')
-    + '<span style="font-size:11px;color:var(--text-muted)">' + actionCount + ' steps</span>'
+    + '<span style="font-size:11px;color:var(--text-muted)">' + t('player.plays.steps', { count: actionCount }) + '</span>'
     + (sharedAt ? '<span style="font-size:11px;color:rgba(74,222,128,0.5)">' + sharedAt + '</span>' : '')
     + '</div></div></div>';
 }
 
-function esc(s) {
-  if (!s) return '';
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
+/* esc → shared-utils.js */
 
-function timeAgoSimple(ts) {
-  if (!ts || ts === 'None') return '';
-  try {
-    const d = new Date(ts.endsWith('Z') ? ts : ts + 'Z');
-    const diff = (Date.now() - d.getTime()) / 1000;
-    if (diff < 60) return 'just now';
-    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-    if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
-    return d.toLocaleDateString();
-  } catch { return ''; }
-}
+/* timeAgoSimple → shared-utils.js */
 
 function openPlayViewer(playId) {
   const p = _playsCache.find(x => x.id === playId);

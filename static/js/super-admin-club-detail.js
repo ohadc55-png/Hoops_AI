@@ -69,6 +69,9 @@ function renderOverview() {
       ${infoRow('Video Storage', c.storage_quota_video_gb + ' GB')}
       ${infoRow('Media Storage', c.storage_quota_media_gb + ' GB')}
       ${infoRow('Region', c.region_name || '—')}
+      ${c.billing_tax_id ? infoRow('Tax ID', c.billing_tax_id) : ''}
+      ${c.billing_address ? infoRow('Address', c.billing_address) : ''}
+      ${c.billing_phone ? infoRow('Phone', c.billing_phone) : ''}
       ${infoRow('Created', formatDate(c.created_at))}
       ${c.notes ? infoRow('Notes', c.notes) : ''}
     </div>
@@ -352,8 +355,4 @@ function infoRow(label, value) {
 }
 
 
-function formatDate(dateStr) {
-  if (!dateStr) return '—';
-  const d = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z');
-  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-}
+/* formatDate → shared-utils.js */

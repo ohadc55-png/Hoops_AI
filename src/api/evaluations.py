@@ -32,6 +32,10 @@ class EvaluationRequest(BaseModel):
     fitness_notes: str | None = None
     improvement_rating: int | None = None
     improvement_notes: str | None = None
+    personal_improvement_rating: int | None = None
+    personal_improvement_notes: str | None = None
+    team_contribution_rating: int | None = None
+    team_contribution_notes: str | None = None
     overall_notes: str | None = None
     potential_notes: str | None = None
     report_request_id: int | None = None
@@ -62,6 +66,10 @@ def _eval_to_dict(ev) -> dict:
         "fitness_notes": ev.fitness_notes,
         "improvement_rating": ev.improvement_rating,
         "improvement_notes": ev.improvement_notes,
+        "personal_improvement_rating": ev.personal_improvement_rating,
+        "personal_improvement_notes": ev.personal_improvement_notes,
+        "team_contribution_rating": ev.team_contribution_rating,
+        "team_contribution_notes": ev.team_contribution_notes,
         "overall_notes": ev.overall_notes,
         "potential_notes": ev.potential_notes,
         "report_request_id": ev.report_request_id,
@@ -78,15 +86,12 @@ async def create_evaluation(
     from src.utils.feature_gate import require_feature
     await require_feature("reports_evaluations", db, coach_id=coach.id)
     service = EvaluationService(db)
-    try:
-        ev = await service.create_evaluation(
-            coach_id=coach.id,
-            **req.model_dump(exclude_none=False),
-        )
-        await db.commit()
-        return {"success": True, "data": _eval_to_dict(ev)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    ev = await service.create_evaluation(
+        coach_id=coach.id,
+        **req.model_dump(exclude_none=False),
+    )
+    await db.commit()
+    return {"success": True, "data": _eval_to_dict(ev)}
 
 
 @router.get("")
@@ -142,14 +147,11 @@ async def update_evaluation(
     db: AsyncSession = Depends(get_db),
 ):
     service = EvaluationService(db)
-    try:
-        ev = await service.update_evaluation(evaluation_id, coach.id, **req.model_dump(exclude_none=False))
-        if not ev:
-            raise HTTPException(status_code=404, detail="Evaluation not found")
-        await db.commit()
-        return {"success": True, "data": _eval_to_dict(ev)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    ev = await service.update_evaluation(evaluation_id, coach.id, **req.model_dump(exclude_none=False))
+    if not ev:
+        raise HTTPException(status_code=404, detail="Evaluation not found")
+    await db.commit()
+    return {"success": True, "data": _eval_to_dict(ev)}
 
 
 @router.delete("/{evaluation_id}")

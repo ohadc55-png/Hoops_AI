@@ -1,14 +1,14 @@
 {% extends "admin_base.html" %}
 {% block title %}HOOPS AI — Messages{% endblock %}
 {% block nav_messages %}active{% endblock %}
-{% block header_title %}Messages{% endblock %}
+{% block header_title %}<span data-i18n="admin.header.messages">הודעות</span>{% endblock %}
 {% block content %}
 <div class="admin-messages">
   <!-- Sub-tabs -->
   <div class="msg-tabs">
-    <div class="msg-tab active" onclick="switchMsgTab('inbox')">Inbox</div>
-    <div class="msg-tab" onclick="switchMsgTab('sent')">Sent</div>
-    <div class="msg-tab" onclick="switchMsgTab('scheduled')">Scheduled</div>
+    <div class="msg-tab active" onclick="switchMsgTab('inbox')" data-i18n="admin.messages.tab_inbox">Inbox</div>
+    <div class="msg-tab" onclick="switchMsgTab('sent')" data-i18n="admin.messages.tab_sent">Sent</div>
+    <div class="msg-tab" onclick="switchMsgTab('scheduled')" data-i18n="admin.messages.tab_scheduled">Scheduled</div>
     <div class="msg-tab" onclick="switchMsgTab('hoops')" style="position:relative;">
       <span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;margin-left:4px;">campaign</span>
       HOOPS
@@ -16,35 +16,35 @@
     </div>
     <div class="msg-tab" onclick="switchMsgTab('invoices')">
       <span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;margin-left:4px;">receipt_long</span>
-      Invoices
+      <span data-i18n="admin.messages.tab_invoices">Invoices</span>
     </div>
-    <div class="msg-tab" onclick="switchMsgTab('compose')">Compose</div>
+    <div class="msg-tab" onclick="switchMsgTab('compose')" data-i18n="admin.messages.tab_compose">Compose</div>
   </div>
 
   <!-- Inbox Tab -->
   <div class="msg-tab-content" id="msgTabInbox">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h3 style="font-size:16px;font-weight:600;">Inbox</h3>
-      <button class="btn btn-secondary btn-sm" onclick="markAllMsgRead()">Mark All Read</button>
+      <h3 style="font-size:16px;font-weight:600;" data-i18n="admin.messages.inbox_title">Inbox</h3>
+      <button class="btn btn-secondary btn-sm" onclick="markAllMsgRead()" data-i18n="admin.messages.btn_mark_all_read">Mark All Read</button>
     </div>
     <div class="msg-list" id="adminInboxList">
-      <div class="loading-state">Loading messages...</div>
+      <div class="loading-state" data-i18n="admin.messages.loading_messages">Loading messages...</div>
     </div>
   </div>
 
   <!-- Sent Tab -->
   <div class="msg-tab-content" id="msgTabSent" style="display:none;">
-    <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Sent Messages</h3>
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;" data-i18n="admin.messages.sent_title">Sent Messages</h3>
     <div class="msg-list" id="adminSentList">
-      <div class="loading-state">Loading...</div>
+      <div class="loading-state" data-i18n="admin.messages.loading">Loading...</div>
     </div>
   </div>
 
   <!-- Scheduled Tab -->
   <div class="msg-tab-content" id="msgTabScheduled" style="display:none;">
-    <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Scheduled Messages</h3>
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;" data-i18n="admin.messages.scheduled_title">Scheduled Messages</h3>
     <div class="msg-list" id="adminScheduledList">
-      <div class="loading-state">Loading...</div>
+      <div class="loading-state" data-i18n="admin.messages.loading">Loading...</div>
     </div>
   </div>
 
@@ -53,12 +53,12 @@
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="font-size:16px;font-weight:600;">
         <span class="material-symbols-outlined" style="font-size:20px;vertical-align:middle;margin-left:6px;color:#0891B2;">campaign</span>
-        HOOPS AI Updates
+        <span data-i18n="admin.messages.hoops_updates_title">HOOPS AI Updates</span>
       </h3>
-      <button class="btn btn-secondary btn-sm" onclick="markAllHoopsRead()">Mark All Read</button>
+      <button class="btn btn-secondary btn-sm" onclick="markAllHoopsRead()" data-i18n="admin.messages.btn_mark_all_read">Mark All Read</button>
     </div>
     <div class="msg-list" id="hoopsUpdatesList">
-      <div class="loading-state">Loading...</div>
+      <div class="loading-state" data-i18n="admin.messages.loading">Loading...</div>
     </div>
   </div>
 
@@ -66,7 +66,7 @@
   <div class="msg-tab-content" id="msgTabInvoices" style="display:none;">
     <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">
       <span class="material-symbols-outlined" style="font-size:20px;vertical-align:middle;margin-left:6px;color:#0891B2;">receipt_long</span>
-      Invoices & Billing
+      <span data-i18n="admin.messages.invoices_billing_title">Invoices & Billing</span>
     </h3>
 
     <!-- Invoice Summary Cards -->
@@ -75,111 +75,111 @@
     <!-- Filter -->
     <div style="display:flex;gap:8px;margin-bottom:12px;">
       <select class="input" id="invoiceFilter" onchange="filterInvoices()" style="max-width:180px;">
-        <option value="">All Types</option>
-        <option value="tax_invoice">Tax Invoice</option>
-        <option value="receipt">Receipt</option>
-        <option value="credit_note">Credit Note</option>
+        <option value="" data-i18n="admin.messages.invoice_filter_all_types">All Types</option>
+        <option value="tax_invoice" data-i18n="admin.messages.invoice.type.tax_invoice">Tax Invoice</option>
+        <option value="receipt" data-i18n="admin.messages.invoice.type.receipt">Receipt</option>
+        <option value="credit_note" data-i18n="admin.messages.invoice.type.credit_note">Credit Note</option>
       </select>
       <select class="input" id="invoiceStatusFilter" onchange="filterInvoices()" style="max-width:180px;">
-        <option value="">All Statuses</option>
-        <option value="draft">Draft</option>
-        <option value="sent">Sent</option>
-        <option value="paid">Paid</option>
-        <option value="overdue">Overdue</option>
-        <option value="cancelled">Cancelled</option>
+        <option value="" data-i18n="admin.messages.invoice_filter_all_statuses">All Statuses</option>
+        <option value="draft" data-i18n="admin.messages.invoice_status_draft">Draft</option>
+        <option value="sent" data-i18n="admin.messages.invoice_status_sent">Sent</option>
+        <option value="paid" data-i18n="admin.messages.invoice_status_paid">Paid</option>
+        <option value="overdue" data-i18n="admin.messages.invoice_status_overdue">Overdue</option>
+        <option value="cancelled" data-i18n="admin.messages.invoice_status_cancelled">Cancelled</option>
       </select>
     </div>
 
     <div class="msg-list" id="invoicesList">
-      <div class="loading-state">Loading...</div>
+      <div class="loading-state" data-i18n="admin.messages.loading">Loading...</div>
     </div>
   </div>
 
   <!-- Compose Tab -->
   <div class="msg-tab-content" id="msgTabCompose" style="display:none;">
-    <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Compose Message</h3>
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;" data-i18n="admin.messages.compose_title">Compose Message</h3>
     <div class="compose-form">
       <div class="form-group">
-        <label>Target</label>
+        <label data-i18n="admin.messages.form.target">Target</label>
         <select class="input" id="composeTarget" onchange="onTargetChange()">
-          <option value="all_club">All Club</option>
-          <option value="all_coaches">All Coaches</option>
-          <option value="all_players">All Players</option>
-          <option value="all_parents">All Parents</option>
-          <option value="team">Specific Teams</option>
-          <option value="individual">Specific Person</option>
+          <option value="all_club" data-i18n="admin.messages.target.all_club">All Club</option>
+          <option value="all_coaches" data-i18n="admin.messages.target.all_coaches">All Coaches</option>
+          <option value="all_players" data-i18n="admin.messages.target.all_players">All Players</option>
+          <option value="all_parents" data-i18n="admin.messages.target.all_parents">All Parents</option>
+          <option value="team" data-i18n="admin.messages.target.team">Specific Teams</option>
+          <option value="individual" data-i18n="admin.messages.form.specific_person">Specific Person</option>
         </select>
       </div>
 
       <div class="form-group" id="teamsMultiSection" style="display:none;">
-        <label>Select Teams</label>
+        <label data-i18n="admin.messages.form.select_teams">Select Teams</label>
         <div id="teamsCheckboxes" class="teams-checkboxes"></div>
       </div>
 
       <div id="individualSection" style="display:none;">
         <div class="form-group">
-          <label>Team</label>
+          <label data-i18n="admin.messages.form.team">Team</label>
           <select class="input" id="indivTeamSelect" onchange="onIndivTeamChange()">
-            <option value="">-- Select Team --</option>
+            <option value="" data-i18n="admin.messages.indiv.select_team">-- Select Team --</option>
           </select>
         </div>
         <div class="form-group" id="indivRoleSection" style="display:none;">
-          <label>Role</label>
+          <label data-i18n="admin.messages.form.role">Role</label>
           <select class="input" id="indivRoleSelect" onchange="onIndivRoleChange()">
-            <option value="">-- Select Role --</option>
-            <option value="coach">Coach</option>
-            <option value="player">Player</option>
-            <option value="parent">Parent</option>
+            <option value="" data-i18n="admin.messages.form.select_role">-- Select Role --</option>
+            <option value="coach" data-i18n="role.coach">Coach</option>
+            <option value="player" data-i18n="role.player">Player</option>
+            <option value="parent" data-i18n="role.parent">Parent</option>
           </select>
         </div>
         <div class="form-group" id="indivPersonSection" style="display:none;">
-          <label>Person</label>
+          <label data-i18n="admin.messages.form.person">Person</label>
           <select class="input" id="indivPersonSelect" onchange="onIndivPersonChange()">
-            <option value="">-- Select Person --</option>
+            <option value="" data-i18n="admin.messages.indiv.select_person">-- Select Person --</option>
           </select>
         </div>
         <input type="hidden" id="selectedUserId">
       </div>
 
       <div class="form-group">
-        <label>Type</label>
+        <label data-i18n="admin.messages.form.type">Type</label>
         <select class="input" id="composeType">
-          <option value="general">General</option>
-          <option value="announcement">Announcement</option>
-          <option value="update">Update</option>
-          <option value="urgent">Urgent</option>
+          <option value="general" data-i18n="admin.messages.type_general">General</option>
+          <option value="announcement" data-i18n="admin.messages.type_announcement">Announcement</option>
+          <option value="update" data-i18n="admin.messages.type_update">Update</option>
+          <option value="urgent" data-i18n="admin.messages.type_urgent">Urgent</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label>Subject (optional)</label>
-        <input type="text" class="input" id="composeSubject" placeholder="Subject...">
+        <label data-i18n="admin.messages.form.subject_optional">Subject (optional)</label>
+        <input type="text" class="input" id="composeSubject" data-i18n-placeholder="admin.messages.form.subject_placeholder" placeholder="Subject...">
       </div>
 
       <div class="form-group">
-        <label>Message</label>
-        <textarea class="input" id="composeBody" rows="5" placeholder="Write your message..."></textarea>
+        <label data-i18n="admin.messages.form.message">Message</label>
+        <textarea class="input" id="composeBody" rows="5" data-i18n-placeholder="admin.messages.form.message_placeholder" placeholder="Write your message..."></textarea>
       </div>
 
       <div class="form-group" style="display:flex;align-items:center;gap:12px;">
         <label style="margin:0;">
-          <input type="checkbox" id="scheduleToggle" onchange="toggleSchedule()"> Schedule for later
+          <input type="checkbox" id="scheduleToggle" onchange="toggleSchedule()"> <span data-i18n="admin.messages.form.schedule_later">Schedule for later</span>
         </label>
       </div>
 
       <div class="compose-schedule-section" id="scheduleSection">
         <div class="form-group">
-          <label>Date</label>
+          <label data-i18n="admin.messages.form.date">Date</label>
           <input type="date" class="input" id="scheduleDate">
         </div>
         <div class="form-group">
-          <label>Time</label>
+          <label data-i18n="admin.messages.form.time">Time</label>
           <input type="time" class="input" id="scheduleTime">
         </div>
       </div>
 
       <button class="btn btn-primary" onclick="sendAdminMessage()">
-        <span class="material-symbols-outlined">send</span> Send
+        <span class="material-symbols-outlined">send</span> <span data-i18n="btn.send">Send</span>
       </button>
     </div>
   </div>
@@ -189,7 +189,7 @@
 <div class="modal-overlay" id="msgDetailModal">
   <div class="modal">
     <div class="modal-header">
-      <h3 id="msgDetailSubject">Message</h3>
+      <h3 id="msgDetailSubject" data-i18n="admin.messages.detail.default_subject">Message</h3>
       <button class="btn-icon" onclick="closeModal('msgDetailModal')">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -206,7 +206,7 @@
 <div class="modal-overlay" id="msgStatsModal">
   <div class="modal">
     <div class="modal-header">
-      <h3>Delivery Stats</h3>
+      <h3 data-i18n="admin.messages.delivery_stats_title">Delivery Stats</h3>
       <button class="btn-icon" onclick="closeModal('msgStatsModal')">
         <span class="material-symbols-outlined">close</span>
       </button>

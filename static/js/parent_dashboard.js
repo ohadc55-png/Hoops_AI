@@ -20,11 +20,11 @@ async function loadDashboard() {
 
     // Welcome card
     const name = d.parent_name || ParentAPI.user?.name || 'Parent';
-    document.getElementById('welcomeName').textContent = `Welcome, ${esc(name)}!`;
+    document.getElementById('welcomeName').textContent = t('parent.dashboard.welcome', { name: esc(name) });
 
     if (d.child_name && d.team_name) {
       document.getElementById('welcomeTeam').textContent =
-        `Connected to ${esc(d.child_name)}'s team — ${esc(d.team_name)}`;
+        t('parent.dashboard.connected_to', { child: esc(d.child_name), team: esc(d.team_name) });
     } else if (d.team_name) {
       document.getElementById('welcomeTeam').textContent = esc(d.team_name);
     }
@@ -33,8 +33,9 @@ async function loadDashboard() {
     if (d.schedule && d.schedule.length > 0) {
       const e = d.schedule[0];
       const dt = new Date(e.date + 'T00:00:00');
+      const dateStr = `${MONTHS[dt.getMonth()]} ${dt.getDate()}${e.time_start ? ' at ' + e.time_start : ''}`;
       document.getElementById('welcomeNext').textContent =
-        `Next: ${e.title} — ${MONTHS[dt.getMonth()]} ${dt.getDate()}${e.time_start ? ' at ' + e.time_start : ''}`;
+        t('parent.dashboard.next_event', { title: e.title, date: dateStr });
     }
   } catch { /* ignore */ }
 }
@@ -46,7 +47,7 @@ async function loadFullSchedule() {
     const res = await ParentAPI.get('/api/parent/schedule');
     const events = (res.data || []).slice(0, 10);
     if (events.length === 0) {
-      el.innerHTML = '<div class="empty-state-parent"><span class="material-symbols-outlined">calendar_month</span>No upcoming events</div>';
+      el.innerHTML = `<div class="empty-state-parent"><span class="material-symbols-outlined">calendar_month</span>${t('parent.dashboard.no_events')}</div>`;
       return;
     }
     el.innerHTML = events.map(e => {
@@ -69,7 +70,7 @@ async function loadFullSchedule() {
       </div>`;
     }).join('');
   } catch {
-    el.innerHTML = '<div class="empty-state-parent">Could not load schedule</div>';
+    el.innerHTML = `<div class="empty-state-parent">${t('parent.dashboard.load_schedule_error')}</div>`;
   }
 }
 
@@ -83,7 +84,7 @@ async function loadClubContacts() {
     const res = await ParentAPI.get('/api/admin/roles/contacts');
     const contacts = res.data || [];
     if (contacts.length === 0) {
-      container.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.4);">No club contacts available</div>';
+      container.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.4);">${t('parent.dashboard.no_contacts')}</div>`;
       return;
     }
     container.innerHTML = contacts.map(c => `
@@ -97,6 +98,6 @@ async function loadClubContacts() {
       </div>
     `).join('');
   } catch {
-    container.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">Could not load contacts</div>';
+    container.innerHTML = `<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">${t('parent.dashboard.load_contacts_error')}</div>`;
   }
 }

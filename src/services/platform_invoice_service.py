@@ -1,8 +1,12 @@
 """HOOPS AI - Platform Invoice Service"""
+import logging
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
+
+logger = logging.getLogger(__name__)
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.utils.exceptions import ValidationError, NotFoundError, ConflictError
 from src.repositories.platform_invoice_repository import (
     PlatformInvoiceRepository,
     PlatformPaymentTransactionRepository,
@@ -41,12 +45,12 @@ class PlatformInvoiceService:
     ) -> PlatformInvoice:
         """Create a new invoice with line items."""
         if invoice_type not in INVOICE_TYPES:
-            raise ValueError(f"Invalid invoice type: {invoice_type}")
+            raise ValidationError(f"Invalid invoice type: {invoice_type}")
 
         # Get club info for billing details
         club = await self.session.get(PlatformClub, club_id)
         if not club:
-            raise ValueError("Club not found")
+            raise NotFoundError("Club", club_id)
 
         invoice_number = await self.invoice_repo.get_next_number(invoice_type)
 
@@ -197,7 +201,7 @@ class PlatformInvoiceService:
                 pdf_bytes=pdf_bytes,
             )
         except Exception as e:
-            print(f"[invoice-email] Failed: {e}")
+            logger.error(f"Invoice email failed: {e}")
 
     async def send_invoice(self, invoice_id: int) -> PlatformInvoice | None:
         """Mark invoice as sent."""
@@ -205,7 +209,7 @@ class PlatformInvoiceService:
         if not invoice:
             return None
         if invoice.status not in ("draft",):
-            raise ValueError(f"Cannot send invoice in status: {invoice.status}")
+            raise ValidationError(f"Cannot send invoice in status: {invoice.status}")
         invoice.status = "sent"
         await self.session.flush()
         return invoice
@@ -221,7 +225,7 @@ class PlatformInvoiceService:
         if not invoice:
             return None
         if invoice.status not in ("sent", "overdue", "draft"):
-            raise ValueError(f"Cannot mark as paid in status: {invoice.status}")
+            raise ValidationError(f"Cannot mark as paid in status: {invoice.status}")
 
         invoice.status = "paid"
         invoice.paid_date = date.today()
@@ -294,11 +298,11 @@ class PlatformInvoiceService:
         """Cancel an invoice and generate a credit note."""
         invoice = await self.invoice_repo.get_with_items(invoice_id)
         if not invoice:
-            raise ValueError("Invoice not found")
+            raise NotFoundError("Invoice", invoice_id)
         if invoice.status == "cancelled":
-            raise ValueError("Invoice is already cancelled")
+            raise ConflictError("Invoice is already cancelled")
         if invoice.invoice_type != "tax_invoice":
-            raise ValueError("Can only cancel tax invoices")
+            raise ValidationError("Can only cancel tax invoices")
 
         invoice.status = "cancelled"
         await self.session.flush()
@@ -366,7 +370,7 @@ class PlatformInvoiceService:
         """Create a new draft invoice based on an existing one."""
         source = await self.invoice_repo.get_with_items(invoice_id)
         if not source:
-            raise ValueError("Invoice not found")
+            raise NotFoundError("Invoice", invoice_id)
 
         line_items = [
             {
@@ -389,13 +393,13 @@ class PlatformInvoiceService:
         """Re-send invoice notification email to the club admin."""
         invoice = await self.invoice_repo.get_with_items(invoice_id)
         if not invoice:
-            raise ValueError("Invoice not found")
+            raise NotFoundError("Invoice", invoice_id)
         if invoice.status == "cancelled":
-            raise ValueError("Cannot resend a cancelled invoice")
+            raise ValidationError("Cannot resend a cancelled invoice")
 
         club = await self.session.get(PlatformClub, invoice.club_id)
         if not club:
-            raise ValueError("Club not found")
+            raise NotFoundError("Club")
 
         await self._notify_admin_invoice(club, invoice)
         return True
@@ -404,13 +408,13 @@ class PlatformInvoiceService:
         """Send a payment reminder for an unpaid invoice."""
         invoice = await self.invoice_repo.get_with_items(invoice_id)
         if not invoice:
-            raise ValueError("Invoice not found")
+            raise NotFoundError("Invoice", invoice_id)
         if invoice.status not in ("sent", "overdue"):
-            raise ValueError(f"Cannot send reminder for status: {invoice.status}")
+            raise ValidationError(f"Cannot send reminder for status: {invoice.status}")
 
         club = await self.session.get(PlatformClub, invoice.club_id)
         if not club or not club.admin_id:
-            raise ValueError("Club or admin not found")
+            raise NotFoundError("Club or admin")
 
         try:
             from src.models.club_message import ClubMessage
@@ -575,7 +579,7 @@ class PlatformInvoiceService:
         """Get billing info for a specific club."""
         club = await self.session.get(PlatformClub, club_id)
         if not club:
-            raise ValueError("Club not found")
+            raise NotFoundError("Club", club_id)
 
         invoices = await self.invoice_repo.get_by_club(club_id)
         transactions = await self.tx_repo.get_by_club(club_id)
@@ -673,7 +677,7 @@ class PlatformInvoiceService:
                 created += 1
 
             except Exception as e:
-                print(f"[billing-cycle] Error for club {config.club_id}: {e}")
+                logger.error(f"Billing cycle error for club {config.club_id}: {e}")
 
         if created:
             await self.notif_service.create(

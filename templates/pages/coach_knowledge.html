@@ -6,11 +6,11 @@
 {% block content %}
 <div class="page-header">
   <div>
-    <h1 class="page-title">Knowledge Base</h1>
-    <p class="page-subtitle">Upload coaching documents for AI-enhanced answers</p>
+    <h1 class="page-title" data-i18n="coach.nav.knowledge">Knowledge Base</h1>
+    <p class="page-subtitle" data-i18n="coach.knowledge.subtitle">Upload coaching documents for AI-enhanced answers</p>
   </div>
   <button class="btn btn-primary" onclick="openModal('uploadDocModal')">
-    <span class="material-symbols-outlined">upload_file</span> Upload Document
+    <span class="material-symbols-outlined">upload_file</span> <span data-i18n="coach.knowledge.btn.upload_document">Upload Document</span>
   </button>
 </div>
 
@@ -22,7 +22,7 @@
     </div>
     <div>
       <div style="font-size:var(--text-2xl);font-weight:700;" id="statMyDocs">0</div>
-      <div style="font-size:var(--text-sm);color:var(--text-muted);">My Documents</div>
+      <div style="font-size:var(--text-sm);color:var(--text-muted);" data-i18n="knowledge.stat.my_docs">My Documents</div>
     </div>
   </div>
   <div class="card" style="display:flex;align-items:center;gap:var(--sp-4);padding:var(--sp-4);">
@@ -31,7 +31,7 @@
     </div>
     <div>
       <div style="font-size:var(--text-2xl);font-weight:700;" id="statChunks">0</div>
-      <div style="font-size:var(--text-sm);color:var(--text-muted);">Total Chunks</div>
+      <div style="font-size:var(--text-sm);color:var(--text-muted);" data-i18n="coach.knowledge.stat.total_chunks">Total Chunks</div>
     </div>
   </div>
 </div>
@@ -41,17 +41,17 @@
   <div class="flex items-center justify-between" style="margin-bottom:var(--sp-4);">
     <h2 style="font-size:var(--text-lg);font-weight:700;display:flex;align-items:center;gap:var(--sp-2);">
       <span class="material-symbols-outlined" style="color:var(--primary);">folder_special</span>
-      My Documents
+      <span data-i18n="coach.knowledge.section.my_documents">My Documents</span>
     </h2>
     <div class="flex gap-3" style="align-items:center;">
       <select class="select" id="myFilterCategory" style="min-width:160px;" onchange="loadDocuments()">
-        <option value="">All Categories</option>
+        <option value="" data-i18n="knowledge.upload.all_categories">All Categories</option>
       </select>
       <select class="select" id="myFilterStatus" style="min-width:130px;" onchange="loadDocuments()">
-        <option value="">All Statuses</option>
-        <option value="ready">Ready</option>
-        <option value="processing">Processing</option>
-        <option value="error">Error</option>
+        <option value="" data-i18n="coach.knowledge.filter.all_statuses">All Statuses</option>
+        <option value="ready" data-i18n="knowledge.status.ready">Ready</option>
+        <option value="processing" data-i18n="knowledge.status.processing">Processing</option>
+        <option value="error" data-i18n="knowledge.status.error">Error</option>
       </select>
       <span style="font-size:var(--text-sm);color:var(--text-muted);" id="myDocCount"></span>
     </div>
@@ -59,8 +59,8 @@
   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:var(--sp-4);" id="myDocsGrid">
     <div class="empty-state" style="grid-column:1/-1;">
       <span class="material-symbols-outlined">folder_open</span>
-      <h3>No documents yet</h3>
-      <p>Upload your first coaching document</p>
+      <h3 data-i18n="knowledge.my_docs.empty.title">No documents yet</h3>
+      <p data-i18n="knowledge.my_docs.empty.subtitle">Upload your first coaching document</p>
     </div>
   </div>
 </div>
@@ -70,15 +70,15 @@
   <div class="flex items-center justify-between" style="margin-bottom:var(--sp-4);">
     <h2 style="font-size:var(--text-lg);font-weight:700;display:flex;align-items:center;gap:var(--sp-2);">
       <span class="material-symbols-outlined" style="color:var(--text-secondary);">public</span>
-      Club & System Documents
+      <span data-i18n="coach.knowledge.section.club_system">Club &amp; System Documents</span>
     </h2>
     <span style="font-size:var(--text-sm);color:var(--text-muted);" id="sharedDocCount"></span>
   </div>
   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:var(--sp-4);" id="sharedDocsGrid">
     <div class="empty-state" style="grid-column:1/-1;">
       <span class="material-symbols-outlined">library_books</span>
-      <h3>No shared documents</h3>
-      <p>Documents uploaded by your club admin will appear here</p>
+      <h3 data-i18n="knowledge.shared_docs.empty.title">No shared documents</h3>
+      <p data-i18n="knowledge.shared_docs.empty.subtitle">Documents uploaded by your club admin will appear here</p>
     </div>
   </div>
 </div>
@@ -87,60 +87,60 @@
 <div class="modal-overlay" id="uploadDocModal">
   <div class="modal" style="max-width:520px;">
     <div class="modal-header">
-      <h2 class="modal-title"><span class="material-symbols-outlined" style="color:var(--primary);">upload_file</span> Upload Document</h2>
+      <h2 class="modal-title"><span class="material-symbols-outlined" style="color:var(--primary);">upload_file</span> <span data-i18n="coach.knowledge.modal.upload_title">Upload Document</span></h2>
       <button class="modal-close" onclick="closeModal('uploadDocModal')"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body">
       <form id="uploadDocForm" onsubmit="return handleUpload(event)">
         <!-- Drop Zone -->
         <div class="input-group" style="margin-bottom:var(--sp-4);">
-          <label>File *</label>
+          <label data-i18n="coach.knowledge.field.file">File *</label>
           <div id="dropZone"
                style="border:2px dashed var(--border);border-radius:var(--r-lg);padding:var(--sp-6);text-align:center;cursor:pointer;transition:border-color 0.2s;"
                onclick="document.getElementById('docFile').click()">
             <span class="material-symbols-outlined" style="font-size:36px;color:var(--text-muted);display:block;margin-bottom:var(--sp-2);">cloud_upload</span>
-            <p style="color:var(--text-secondary);font-size:var(--text-sm);margin-bottom:var(--sp-1);" id="dropZoneText">
-              Click to select or drag & drop
+            <p style="color:var(--text-secondary);font-size:var(--text-sm);margin-bottom:var(--sp-1);" id="dropZoneText" data-i18n="knowledge.upload.select_or_drag">
+              Click to select or drag &amp; drop
             </p>
-            <p style="color:var(--text-muted);font-size:var(--text-xs);">PDF, DOCX, or TXT — Max 20MB</p>
+            <p style="color:var(--text-muted);font-size:var(--text-xs);" data-i18n="coach.knowledge.field.file_formats">PDF, DOCX, or TXT — Max 20MB</p>
           </div>
           <input type="file" id="docFile" accept=".pdf,.docx,.txt" style="display:none;" onchange="handleFileSelect(this)" required>
         </div>
 
         <!-- Title -->
         <div class="input-group" style="margin-bottom:var(--sp-4);">
-          <label>Title *</label>
-          <input type="text" class="input" id="docTitle" placeholder="Document title" required>
+          <label data-i18n="coach.knowledge.field.title">Title *</label>
+          <input type="text" class="input" id="docTitle" data-i18n-placeholder="coach.knowledge.field.title_placeholder" placeholder="Document title" required>
         </div>
 
         <!-- Category + Language -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-4);">
           <div class="input-group">
-            <label>Category *</label>
+            <label data-i18n="coach.knowledge.field.category">Category *</label>
             <select class="select" id="docCategory" required>
-              <option value="">Select...</option>
+              <option value="" data-i18n="knowledge.upload.select_prompt">Select...</option>
             </select>
           </div>
           <div class="input-group">
-            <label>Language *</label>
+            <label data-i18n="coach.knowledge.field.language">Language *</label>
             <select class="select" id="docLanguage" required>
-              <option value="en">English</option>
-              <option value="he">Hebrew</option>
+              <option value="en" data-i18n="knowledge.lang.english">English</option>
+              <option value="he" data-i18n="knowledge.lang.hebrew">Hebrew</option>
             </select>
           </div>
         </div>
 
         <!-- Description -->
         <div class="input-group">
-          <label>Description (optional)</label>
-          <textarea class="textarea" id="docDescription" rows="3" placeholder="Brief description of the document content"></textarea>
+          <label data-i18n="coach.knowledge.field.description">Description (optional)</label>
+          <textarea class="textarea" id="docDescription" rows="3" data-i18n-placeholder="coach.knowledge.field.description_placeholder" placeholder="Brief description of the document content"></textarea>
         </div>
       </form>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('uploadDocModal')">Cancel</button>
+      <button class="btn btn-secondary" onclick="closeModal('uploadDocModal')" data-i18n="btn.cancel">Cancel</button>
       <button class="btn btn-primary" id="uploadBtn" onclick="document.getElementById('uploadDocForm').requestSubmit()">
-        <span class="material-symbols-outlined" style="font-size:16px;">upload</span> Upload
+        <span class="material-symbols-outlined" style="font-size:16px;">upload</span> <span data-i18n="btn.upload">Upload</span>
       </button>
     </div>
   </div>
@@ -150,12 +150,12 @@
 <div class="modal-overlay" id="docDetailModal">
   <div class="modal" style="max-width:550px;">
     <div class="modal-header">
-      <h2 class="modal-title" id="detailDocTitle">Document Details</h2>
+      <h2 class="modal-title" id="detailDocTitle" data-i18n="coach.knowledge.modal.doc_details">Document Details</h2>
       <button class="modal-close" onclick="closeModal('docDetailModal')"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body" id="docDetailBody"></div>
     <div class="modal-footer" id="docDetailFooter">
-      <button class="btn btn-secondary" onclick="closeModal('docDetailModal')">Close</button>
+      <button class="btn btn-secondary" onclick="closeModal('docDetailModal')" data-i18n="btn.close">Close</button>
     </div>
   </div>
 </div>

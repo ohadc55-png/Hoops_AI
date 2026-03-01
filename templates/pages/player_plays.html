@@ -1,16 +1,16 @@
 {% extends "player_base.html" %}
 {% block title %}HOOPS AI — Team Plays{% endblock %}
 {% block nav_plays %}active{% endblock %}
-{% block header_title %}Team Plays{% endblock %}
+{% block header_title %}<span data-i18n="player.plays.page_title">Team Plays</span>{% endblock %}
 {% block styles %}<link rel="stylesheet" href="/static/css/pages/play-creator.css">{% endblock %}
 {% block content %}
 <div class="player-dashboard">
   <section class="dashboard-section">
     <div class="section-header">
-      <h2><span class="material-symbols-outlined">sports_basketball</span> Team Plays</h2>
+      <h2><span class="material-symbols-outlined">sports_basketball</span> <span data-i18n="player.plays.page_title">Team Plays</span></h2>
     </div>
     <div class="section-content" id="playsContent">
-      <div class="loading-state">Loading plays...</div>
+      <div class="loading-state" data-i18n="player.plays.loading">Loading plays...</div>
     </div>
   </section>
 </div>

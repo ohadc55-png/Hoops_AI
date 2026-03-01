@@ -6,22 +6,22 @@
 {% block content %}
 <div class="page-header">
   <div>
-    <h1 class="page-title">Drill Library</h1>
-    <p class="page-subtitle">Browse, create, and organize basketball drills</p>
+    <h1 class="page-title" data-i18n="coach.drills.title">Drill Library</h1>
+    <p class="page-subtitle" data-i18n="coach.drills.subtitle">Browse, create, and organize basketball drills</p>
   </div>
   <div class="flex gap-3">
     <button class="btn btn-secondary" onclick="openReviewsModal()" id="reviewsBtn" style="position:relative;">
-      <span class="material-symbols-outlined">rate_review</span> Video Reviews
+      <span class="material-symbols-outlined">rate_review</span> <span data-i18n="coach.drills.btn.video_reviews">Video Reviews</span>
       <span class="review-badge" id="reviewBadge" style="display:none;"></span>
     </button>
     <button class="btn btn-secondary" onclick="openTrackingModal()">
-      <span class="material-symbols-outlined">monitoring</span> Player Tracking
+      <span class="material-symbols-outlined">monitoring</span> <span data-i18n="coach.drills.btn.player_tracking">Player Tracking</span>
     </button>
     <button class="btn btn-secondary" onclick="openModal('generateDrillModal')">
-      <span class="material-symbols-outlined">auto_awesome</span> AI Generate
+      <span class="material-symbols-outlined">auto_awesome</span> <span data-i18n="coach.drills.btn.ai_generate">AI Generate</span>
     </button>
     <button class="btn btn-primary" onclick="openModal('drillModal')">
-      <span class="material-symbols-outlined">add</span> New Drill
+      <span class="material-symbols-outlined">add</span> <span data-i18n="coach.drills.btn.new_drill">New Drill</span>
     </button>
   </div>
 </div>
@@ -30,18 +30,22 @@
 <div class="flex gap-3" style="margin-bottom:var(--sp-6);">
   <div class="input-with-icon" style="flex:1;max-width:300px;">
     <span class="material-symbols-outlined">search</span>
-    <input type="text" class="input" id="drillSearch" placeholder="Search drills...">
+    <input type="text" class="input" id="drillSearch" data-i18n-placeholder="coach.drills.search_placeholder" placeholder="Search drills...">
   </div>
   <select class="select" style="width:160px;" id="categoryFilter">
-    <option value="">All Categories</option>
-    <option value="offense">Offense</option><option value="defense">Defense</option>
-    <option value="shooting">Shooting</option><option value="ball_handling">Ball Handling</option>
-    <option value="passing">Passing</option><option value="conditioning">Conditioning</option>
+    <option value="" data-i18n="coach.drills.filter.all_categories">All Categories</option>
+    <option value="offense" data-i18n="coach.drills.category.offense">Offense</option>
+    <option value="defense" data-i18n="coach.drills.category.defense">Defense</option>
+    <option value="shooting" data-i18n="drill.category.shooting">Shooting</option>
+    <option value="ball_handling" data-i18n="coach.drills.category.ball_handling">Ball Handling</option>
+    <option value="passing" data-i18n="drill.category.passing">Passing</option>
+    <option value="conditioning" data-i18n="drill.category.conditioning">Conditioning</option>
   </select>
   <select class="select" style="width:140px;" id="difficultyFilter">
-    <option value="">All Levels</option>
-    <option value="beginner">Beginner</option><option value="intermediate">Intermediate</option>
-    <option value="advanced">Advanced</option>
+    <option value="" data-i18n="coach.drills.filter.all_levels">All Levels</option>
+    <option value="beginner" data-i18n="difficulty.beginner">Beginner</option>
+    <option value="intermediate" data-i18n="difficulty.intermediate">Intermediate</option>
+    <option value="advanced" data-i18n="difficulty.advanced">Advanced</option>
   </select>
 </div>
 
@@ -49,8 +53,8 @@
 <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--sp-4);" id="drillGrid">
   <div class="empty-state" style="grid-column:1/-1;">
     <span class="material-symbols-outlined">fitness_center</span>
-    <h3>No drills yet</h3>
-    <p>Create your first drill or generate one with AI</p>
+    <h3 data-i18n="drills.empty.title">No drills yet</h3>
+    <p data-i18n="coach.drills.empty.subtitle">Create your first drill or generate one with AI</p>
   </div>
 </div>
 
@@ -58,34 +62,38 @@
 <div class="modal-overlay" id="drillModal">
   <div class="modal">
     <div class="modal-header">
-      <h2 class="modal-title">New Drill</h2>
+      <h2 class="modal-title" data-i18n="coach.drills.modal.new_drill">New Drill</h2>
       <button class="modal-close" onclick="closeModal('drillModal')"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body">
-      <div class="input-group"><label>Title</label><input type="text" class="input" id="drillTitle" placeholder="Drill name"></div>
-      <div class="input-group"><label>Description</label><textarea class="textarea" id="drillDesc" placeholder="Brief description"></textarea></div>
+      <div class="input-group"><label data-i18n="coach.drills.field.title">Title</label><input type="text" class="input" id="drillTitle" data-i18n-placeholder="coach.drills.field.title_placeholder" placeholder="Drill name"></div>
+      <div class="input-group"><label data-i18n="coach.drills.field.description">Description</label><textarea class="textarea" id="drillDesc" data-i18n-placeholder="coach.drills.field.description_placeholder" placeholder="Brief description"></textarea></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
-        <div class="input-group"><label>Category</label>
+        <div class="input-group"><label data-i18n="coach.drills.field.category">Category</label>
           <select class="select" id="drillCategory">
-            <option value="offense">Offense</option><option value="defense">Defense</option>
-            <option value="shooting">Shooting</option><option value="ball_handling">Ball Handling</option>
-            <option value="passing">Passing</option><option value="conditioning">Conditioning</option>
+            <option value="offense" data-i18n="coach.drills.category.offense">Offense</option>
+            <option value="defense" data-i18n="coach.drills.category.defense">Defense</option>
+            <option value="shooting" data-i18n="drill.category.shooting">Shooting</option>
+            <option value="ball_handling" data-i18n="coach.drills.category.ball_handling">Ball Handling</option>
+            <option value="passing" data-i18n="drill.category.passing">Passing</option>
+            <option value="conditioning" data-i18n="drill.category.conditioning">Conditioning</option>
           </select>
         </div>
-        <div class="input-group"><label>Difficulty</label>
+        <div class="input-group"><label data-i18n="coach.drills.field.difficulty">Difficulty</label>
           <select class="select" id="drillDifficulty">
-            <option value="beginner">Beginner</option><option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
+            <option value="beginner" data-i18n="difficulty.beginner">Beginner</option>
+            <option value="intermediate" data-i18n="difficulty.intermediate">Intermediate</option>
+            <option value="advanced" data-i18n="difficulty.advanced">Advanced</option>
           </select>
         </div>
       </div>
-      <div class="input-group"><label>Duration (min)</label><input type="number" class="input" id="drillDuration" value="10" min="1" max="60"></div>
-      <div class="input-group"><label>Instructions</label><textarea class="textarea" id="drillInstructions" placeholder="Step-by-step instructions" rows="4"></textarea></div>
-      <div class="input-group"><label>Video URL (optional)</label><input type="url" class="input" id="drillVideoUrl" placeholder="https://www.youtube.com/watch?v=..."></div>
+      <div class="input-group"><label data-i18n="coach.drills.field.duration">Duration (min)</label><input type="number" class="input" id="drillDuration" value="10" min="1" max="60"></div>
+      <div class="input-group"><label data-i18n="coach.drills.field.instructions">Instructions</label><textarea class="textarea" id="drillInstructions" data-i18n-placeholder="coach.drills.field.instructions_placeholder" placeholder="Step-by-step instructions" rows="4"></textarea></div>
+      <div class="input-group"><label data-i18n="coach.drills.field.video_url">Video URL (optional)</label><input type="url" class="input" id="drillVideoUrl" placeholder="https://www.youtube.com/watch?v=..."></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('drillModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="createDrill()">Create Drill</button>
+      <button class="btn btn-secondary" onclick="closeModal('drillModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="createDrill()" data-i18n="coach.drills.btn.create_drill">Create Drill</button>
     </div>
   </div>
 </div>
@@ -94,21 +102,32 @@
 <div class="modal-overlay" id="generateDrillModal">
   <div class="modal">
     <div class="modal-header">
-      <h2 class="modal-title"><span class="material-symbols-outlined" style="color:var(--primary);">auto_awesome</span> AI Drill Generator</h2>
+      <h2 class="modal-title"><span class="material-symbols-outlined" style="color:var(--primary);">auto_awesome</span> <span data-i18n="coach.drills.modal.ai_generator">AI Drill Generator</span></h2>
       <button class="modal-close" onclick="closeModal('generateDrillModal')"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body">
-      <div class="input-group"><label>Category</label>
-        <select class="select" id="genCategory"><option value="offense">Offense</option><option value="defense">Defense</option><option value="shooting">Shooting</option><option value="ball_handling">Ball Handling</option><option value="passing">Passing</option><option value="conditioning">Conditioning</option></select>
+      <div class="input-group"><label data-i18n="coach.drills.field.category">Category</label>
+        <select class="select" id="genCategory">
+          <option value="offense" data-i18n="coach.drills.category.offense">Offense</option>
+          <option value="defense" data-i18n="coach.drills.category.defense">Defense</option>
+          <option value="shooting" data-i18n="drill.category.shooting">Shooting</option>
+          <option value="ball_handling" data-i18n="coach.drills.category.ball_handling">Ball Handling</option>
+          <option value="passing" data-i18n="drill.category.passing">Passing</option>
+          <option value="conditioning" data-i18n="drill.category.conditioning">Conditioning</option>
+        </select>
       </div>
-      <div class="input-group"><label>Difficulty</label>
-        <select class="select" id="genDifficulty"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select>
+      <div class="input-group"><label data-i18n="coach.drills.field.difficulty">Difficulty</label>
+        <select class="select" id="genDifficulty">
+          <option value="beginner" data-i18n="difficulty.beginner">Beginner</option>
+          <option value="intermediate" data-i18n="difficulty.intermediate">Intermediate</option>
+          <option value="advanced" data-i18n="difficulty.advanced">Advanced</option>
+        </select>
       </div>
-      <div class="input-group"><label>Focus (optional)</label><input type="text" class="input" id="genFocus" placeholder="e.g. pick and roll, fast break"></div>
+      <div class="input-group"><label data-i18n="coach.drills.field.focus">Focus (optional)</label><input type="text" class="input" id="genFocus" data-i18n-placeholder="coach.drills.field.focus_placeholder" placeholder="e.g. pick and roll, fast break"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('generateDrillModal')">Cancel</button>
-      <button class="btn btn-primary" id="genDrillBtn" onclick="generateDrill()"><span class="material-symbols-outlined">auto_awesome</span> Generate</button>
+      <button class="btn btn-secondary" onclick="closeModal('generateDrillModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" id="genDrillBtn" onclick="generateDrill()"><span class="material-symbols-outlined">auto_awesome</span> <span data-i18n="drills.generate.btn">Generate</span></button>
     </div>
   </div>
 </div>
@@ -129,23 +148,23 @@
 <div class="modal-overlay" id="assignDrillModal">
   <div class="modal" style="max-width:550px;">
     <div class="modal-header">
-      <h2 class="modal-title"><span class="material-symbols-outlined" style="color:var(--primary);">assignment_ind</span> Assign Drill</h2>
+      <h2 class="modal-title"><span class="material-symbols-outlined" style="color:var(--primary);">assignment_ind</span> <span data-i18n="coach.drills.modal.assign_drill">Assign Drill</span></h2>
       <button class="modal-close" onclick="closeModal('assignDrillModal')"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-3);">
-        <span style="font-size:var(--text-sm);color:var(--text-secondary);">Select players to assign this drill to:</span>
-        <button class="btn btn-secondary" style="font-size:var(--text-xs);padding:var(--sp-1) var(--sp-3);" onclick="toggleAllPlayers()">Select All</button>
+        <span style="font-size:var(--text-sm);color:var(--text-secondary);" data-i18n="coach.drills.assign.select_players_label">Select players to assign this drill to:</span>
+        <button class="btn btn-secondary" style="font-size:var(--text-xs);padding:var(--sp-1) var(--sp-3);" onclick="toggleAllPlayers()" data-i18n="coach.drills.assign.select_all">Select All</button>
       </div>
       <div id="assignPlayerList" style="max-height:300px;overflow-y:auto;"></div>
       <div class="input-group" style="margin-top:var(--sp-4);">
-        <label>Note for players (optional)</label>
-        <textarea class="textarea" id="assignNote" placeholder="e.g. Do this drill 3 times before next practice" rows="2"></textarea>
+        <label data-i18n="coach.drills.assign.note_label">Note for players (optional)</label>
+        <textarea class="textarea" id="assignNote" data-i18n-placeholder="coach.drills.assign.note_placeholder" placeholder="e.g. Do this drill 3 times before next practice" rows="2"></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('assignDrillModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="submitAssignment()"><span class="material-symbols-outlined" style="font-size:18px;">send</span> Assign</button>
+      <button class="btn btn-secondary" onclick="closeModal('assignDrillModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAssignment()"><span class="material-symbols-outlined" style="font-size:18px;">send</span> <span data-i18n="drills.btn.assign">Assign</span></button>
     </div>
   </div>
 </div>
@@ -154,11 +173,11 @@
 <div class="modal-overlay" id="trackingModal">
   <div class="modal" style="max-width:750px;">
     <div class="modal-header">
-      <h2 class="modal-title"><span class="material-symbols-outlined" style="color:var(--primary);">monitoring</span> Player Drill Tracking</h2>
+      <h2 class="modal-title"><span class="material-symbols-outlined" style="color:var(--primary);">monitoring</span> <span data-i18n="coach.drills.modal.player_tracking">Player Drill Tracking</span></h2>
       <button class="modal-close" onclick="closeModal('trackingModal')"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body" id="trackingBody" style="max-height:65vh;overflow-y:auto;">
-      <div style="text-align:center;padding:var(--sp-6);color:var(--text-muted);">Loading...</div>
+      <div style="text-align:center;padding:var(--sp-6);color:var(--text-muted);" data-i18n="drills.tracking.loading">Loading...</div>
     </div>
   </div>
 </div>
@@ -167,11 +186,11 @@
 <div class="modal-overlay" id="reviewsModal">
   <div class="modal" style="max-width:800px;">
     <div class="modal-header">
-      <h2 class="modal-title"><span class="material-symbols-outlined" style="color:var(--primary);">rate_review</span> Video Reviews</h2>
+      <h2 class="modal-title"><span class="material-symbols-outlined" style="color:var(--primary);">rate_review</span> <span data-i18n="coach.drills.modal.video_reviews">Video Reviews</span></h2>
       <button class="modal-close" onclick="closeModal('reviewsModal')"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body" id="reviewsBody" style="max-height:70vh;overflow-y:auto;">
-      <div style="text-align:center;padding:var(--sp-6);color:var(--text-muted);">Loading...</div>
+      <div style="text-align:center;padding:var(--sp-6);color:var(--text-muted);" data-i18n="drills.tracking.loading">Loading...</div>
     </div>
   </div>
 </div>

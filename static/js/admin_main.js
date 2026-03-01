@@ -3,72 +3,15 @@
  * Auth, API helpers, Toast notifications for Management Portal
  */
 
-const AdminAPI = {
-  token: localStorage.getItem('hoops_admin_token'),
-  user: JSON.parse(localStorage.getItem('hoops_admin_user') || 'null'),
-
-  setAuth(token, user) {
-    this.token = token;
-    this.user = user;
-    localStorage.setItem('hoops_admin_token', token);
-    localStorage.setItem('hoops_admin_user', JSON.stringify(user));
-  },
-
-  clearAuth() {
-    this.token = null;
-    this.user = null;
-    localStorage.removeItem('hoops_admin_token');
-    localStorage.removeItem('hoops_admin_user');
-  },
-
-  async request(url, options = {}) {
-    const headers = { 'Content-Type': 'application/json', ...options.headers };
-    if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
-    try {
-      const res = await fetch(url, { ...options, headers });
-      const data = await res.json();
-      if (res.status === 401) {
-        this.clearAuth();
-        window.location.href = '/admin/login';
-        return null;
-      }
-      if (!res.ok) throw new Error(data.detail || 'Request failed');
-      return data;
-    } catch (err) {
-      AdminToast.error(err.message);
-      throw err;
-    }
-  },
-
-  get(url) { return this.request(url); },
-  post(url, body) { return this.request(url, { method: 'POST', body: JSON.stringify(body) }); },
-  put(url, body) { return this.request(url, { method: 'PUT', body: JSON.stringify(body) }); },
-  del(url) { return this.request(url, { method: 'DELETE' }); },
-};
-
-
-/* Toast Notifications */
-const AdminToast = {
-  container: null,
-
-  init() {
-    this.container = document.getElementById('toastContainer');
-  },
-
-  show(message, type = 'info') {
-    if (!this.container) this.init();
-    const icons = { success: 'check_circle', error: 'error', info: 'info' };
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.innerHTML = `<span class="material-symbols-outlined">${icons[type] || 'info'}</span>${esc(message)}`;
-    this.container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3500);
-  },
-
-  success(msg) { this.show(msg, 'success'); },
-  error(msg) { this.show(msg, 'error'); },
-  info(msg) { this.show(msg, 'info'); },
-};
+/* API & Toast — powered by api-core.js factory */
+const AdminToast = createHoopsToast();
+const AdminAPI = createHoopsAPI({
+  tokenKey: 'hoops_admin_token',
+  userKey: 'hoops_admin_user',
+  loginUrl: '/admin/login',
+  toastRef: () => AdminToast,
+  langEndpoint: '/api/admin-auth/language',
+});
 
 
 /* Auth Guard for Admin Pages */
@@ -82,6 +25,27 @@ function requireAdminAuth() {
 }
 
 
+/**
+ * Permission-based UI filtering.
+ * Reads `data-admin-section` attributes on sidebar nav items.
+ * If the logged-in admin has `permissions.allowed_pages`, hide anything not listed.
+ * null permissions = unrestricted (Chairman / CEO).
+ */
+function applyAdminPermissions() {
+  const user = AdminAPI.user;
+  if (!user) return;
+  const allowed = user.permissions?.allowed_pages;
+  if (!allowed) return; // null = all sections visible
+
+  document.querySelectorAll('[data-admin-section]').forEach(el => {
+    const section = el.dataset.adminSection;
+    if (!allowed.includes(section)) {
+      el.style.display = 'none';
+    }
+  });
+}
+
+
 /* Admin Logout */
 function adminLogout() {
   AdminAPI.clearAuth();
@@ -89,11 +53,7 @@ function adminLogout() {
 }
 
 
-/* Helpers */
-function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+/* esc, openModal, closeModal → shared-utils.js */
 
 
 /* Clipboard helper */
@@ -115,6 +75,8 @@ async function copyText(text, btn) {
 document.addEventListener('DOMContentLoaded', () => {
   AdminToast.init();
   requireAdminAuth();
+  applyAdminPermissions();
+  updateBillingBadge();
 
   // Update user avatar
   if (AdminAPI.user) {
@@ -124,18 +86,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Sidebar toggle (mobile)
-  const sidebarToggle = document.getElementById('sidebarToggle');
-  const sidebar = document.getElementById('sidebar');
-  const sidebarOverlay = document.getElementById('sidebarOverlay');
-  if (sidebarToggle && sidebar) {
-    sidebarToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('open');
-      sidebarOverlay?.classList.toggle('open');
-    });
-    sidebarOverlay?.addEventListener('click', () => {
-      sidebar.classList.remove('open');
-      sidebarOverlay.classList.remove('open');
-    });
-  }
+  // Sidebar toggle → shared-utils.js
 });
+
+// ── Billing badge (new payments count) ──
+async function updateBillingBadge() {
+  try {
+    const res = await AdminAPI.get('/api/billing/new-payments');
+    const count = (res.data || []).length;
+    const badge = document.getElementById('adminBillingBadge');
+    if (badge) {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+  } catch { /* ignore */ }
+}

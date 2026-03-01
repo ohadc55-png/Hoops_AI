@@ -10,17 +10,26 @@ const PLAYER_AGENT_ICONS = {
   shooting_coach: 'target', dribbling_coach: 'sports_basketball', passing_coach: 'swap_horiz',
   fitness_coach: 'exercise', nutritionist: 'restaurant',
 };
-const PLAYER_AGENT_NAMES = {
-  shooting_coach: 'מאמן קליעה', dribbling_coach: 'מאמן כדרור',
-  passing_coach: 'מאמן מסירה', fitness_coach: 'מאמן כושר', nutritionist: 'תזונאי',
-};
-const PLAYER_AGENT_DESCS = {
-  shooting_coach: 'טכניקת קליעה, פורם, בחירת זריקה ופיתוח טווח.',
-  dribbling_coach: 'שליטה בכדור, קרוסאובר, מהלכים ושבירת מגנים.',
-  passing_coach: 'טכניקת מסירה, ראיית מגרש וקבלת החלטות.',
-  fitness_coach: 'חיזוק, כושר, זריזות, מהירות ומניעת פציעות.',
-  nutritionist: 'תזונה, דיאטה, שתייה, ותכנון ארוחות לספורטאים.',
-};
+function getAgentName(key) {
+  const map = {
+    shooting_coach: 'player.chat.agent.shooting_coach',
+    dribbling_coach: 'player.chat.agent.dribbling_coach',
+    passing_coach: 'player.chat.agent.passing_coach',
+    fitness_coach: 'player.chat.agent.fitness_coach',
+    nutritionist: 'player.chat.agent.nutritionist',
+  };
+  return map[key] ? t(map[key]) : key;
+}
+function getAgentDesc(key) {
+  const map = {
+    shooting_coach: 'player.chat.desc.shooting_coach',
+    dribbling_coach: 'player.chat.desc.dribbling_coach',
+    passing_coach: 'player.chat.desc.passing_coach',
+    fitness_coach: 'player.chat.desc.fitness_coach',
+    nutritionist: 'player.chat.desc.nutritionist',
+  };
+  return map[key] ? t(map[key]) : '';
+}
 
 let currentConversationId = null;
 let isLoading = false;
@@ -93,7 +102,7 @@ async function sendMessage() {
     loadConversations();
   } catch (err) {
     removeTyping(typingEl);
-    addMessage('assistant', 'סליחה, משהו השתבש. נסה שוב.', null);
+    addMessage('assistant', t('player.chat.error'), null);
   } finally {
     isLoading = false;
   }
@@ -112,7 +121,7 @@ function addMessage(role, content, agentKey, agentMeta) {
   } else {
     const color = agentKey ? PLAYER_AGENT_COLORS[agentKey] : 'var(--primary)';
     const icon = agentKey ? PLAYER_AGENT_ICONS[agentKey] : 'auto_awesome';
-    const name = agentMeta ? agentMeta.name : (agentKey ? PLAYER_AGENT_NAMES[agentKey] : 'HOOPS AI');
+    const name = agentMeta ? agentMeta.name : (agentKey ? getAgentName(agentKey) : 'HOOPS AI');
     div.innerHTML = `
       <div class="message-avatar" style="background:${color}20;color:${color};">
         <span class="material-symbols-outlined">${icon}</span>
@@ -157,8 +166,8 @@ function removeTyping(el) {
 function updateAgentInfo(agentKey) {
   if (!agentKey) return;
   const color = PLAYER_AGENT_COLORS[agentKey];
-  document.getElementById('agentName').textContent = PLAYER_AGENT_NAMES[agentKey] || agentKey;
-  document.getElementById('agentDesc').textContent = PLAYER_AGENT_DESCS[agentKey] || '';
+  document.getElementById('agentName').textContent = getAgentName(agentKey);
+  document.getElementById('agentDesc').textContent = getAgentDesc(agentKey);
   const iconEl = document.querySelector('#agentInfoCard .agent-info-icon');
   iconEl.style.background = color + '20';
   iconEl.style.color = color;
@@ -170,12 +179,12 @@ async function loadConversations() {
     const res = await PlayerAPI.get('/api/player-chat/conversations');
     const list = document.getElementById('conversationList');
     if (!res?.data?.length) {
-      list.innerHTML = '<div class="empty-state" style="padding:var(--sp-6);"><p class="text-xs text-muted">אין שיחות עדיין</p></div>';
+      list.innerHTML = '<div class="empty-state" style="padding:var(--sp-6);"><p class="text-xs text-muted">' + t('player.chat.no_conversations') + '</p></div>';
       return;
     }
     list.innerHTML = res.data.slice(0, 20).map(c => `
       <div class="conversation-item ${c.id === currentConversationId ? 'active' : ''}" onclick="loadConversation(${c.id})">
-        <div class="conversation-item-title">${escapeHtml(c.title || 'שיחה חדשה')}</div>
+        <div class="conversation-item-title">${escapeHtml(c.title || t('player.chat.new_conversation'))}</div>
         <div class="conversation-item-time">${timeAgo(c.created_at)}</div>
       </div>
     `).join('');
@@ -192,7 +201,7 @@ async function loadConversation(id) {
       addMessage(m.role, m.content, m.agent);
     });
     loadConversations();
-  } catch (e) { PlayerToast.error('שגיאה בטעינת השיחה'); }
+  } catch (e) { PlayerToast.error(t('player.chat.load_error')); }
 }
 
 function startNewChat() {
@@ -206,7 +215,7 @@ function startNewChat() {
         <div class="message-agent-badge" style="color:var(--primary);">
           <span class="material-symbols-outlined" style="font-size:14px;">auto_awesome</span> HOOPS AI
         </div>
-        <div>שיחה חדשה נפתחה. על מה תרצה לעבוד?</div>
+        <div>${t('player.chat.new_chat_welcome')}</div>
       </div></div>
     </div>
   `;
@@ -220,21 +229,6 @@ function formatMessage(text) {
     .replace(/\n/g, '<br>');
 }
 
-function escapeHtml(str) {
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
-}
+/* escapeHtml → shared-utils.js */
 
-function timeAgo(dateStr) {
-  if (!dateStr) return '';
-  const d = !dateStr.endsWith('Z') ? dateStr + 'Z' : dateStr;
-  const diff = Date.now() - new Date(d).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'עכשיו';
-  if (mins < 60) return `לפני ${mins} דק׳`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `לפני ${hours} שע׳`;
-  const days = Math.floor(hours / 24);
-  return `לפני ${days} ימים`;
-}
+/* timeAgo → shared-utils.js */

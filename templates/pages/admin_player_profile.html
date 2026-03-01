@@ -1,0 +1,31 @@
+{% extends "admin_base.html" %}
+{% block title %}HOOPS AI — Player Profile{% endblock %}
+{% block header_title %}<span id="pageTitle" data-i18n="admin.player_profile.title">Player Profile</span>{% endblock %}
+{% block content %}
+<div id="profileContent" style="max-width:900px;margin:0 auto;">
+  <div style="text-align:center;padding:48px;color:var(--text-muted);">
+    <span class="material-symbols-outlined pp-spin" style="font-size:32px;">progress_activity</span>
+    <div style="margin-top:8px;" data-i18n="common.loading">Loading...</div>
+  </div>
+</div>
+<!-- Report / Evaluation View Modal (read-only) -->
+<div class="modal-overlay" id="adminReportViewModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <h2 class="modal-title" id="adminReportViewTitle">דוח שחקן</h2>
+      <button class="modal-close" onclick="closeAdminReportView()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body" id="adminReportViewBody" style="max-height:75vh;overflow-y:auto;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeAdminReportView()">סגור</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+  const PLAYER_ID = {{ player_id }};
+</script>
+<script src="/static/js/admin_player_profile.js"></script>
+{% endblock %}

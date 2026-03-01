@@ -3,6 +3,7 @@ import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.repositories.drill_repository import DrillRepository
 from src.utils.openai_client import chat_completion_json
+from src.utils.exceptions import ValidationError
 
 
 class DrillService:
@@ -36,7 +37,7 @@ class DrillService:
     def _extract_json(text: str) -> dict:
         """Extract JSON from response, handling markdown code fences."""
         if not text:
-            raise ValueError("Empty response from AI")
+            raise ValidationError("Empty response from AI")
         text = text.strip()
         if text.startswith("```"):
             lines = text.split("\n")
@@ -45,7 +46,7 @@ class DrillService:
         try:
             return json.loads(text)
         except (json.JSONDecodeError, TypeError):
-            raise ValueError("AI returned invalid drill data. Please try again.")
+            raise ValidationError("AI returned invalid drill data. Please try again.")
 
     async def ai_generate_drill(self, coach_id: int, category: str, difficulty: str, focus: str = ""):
         focus_text = focus.strip() if focus else category

@@ -2,9 +2,10 @@
 
 ## Overview
 
-Basketball coaching assistant web app with 4-role permission system (Admin / Coach / Player / Parent). FastAPI backend + vanilla JS frontend. 13 AI agents (8 coach + 5 player, GPT-4o) with real-time team data access + RAG knowledge base. Interactive play creator, drill library with assignment/tracking, practice planner, reports & evaluations, video scouting room with telestrator, billing & payments, universal messaging, carpool coordination, admin schedule management with coach request/approval workflow.
+Basketball coaching assistant web app with 5-role permission system (Super-Admin / Admin / Coach / Player / Parent). FastAPI backend + vanilla JS frontend with full Hebrew/English i18n. 13 AI agents (8 coach + 5 player, GPT-4o) with real-time team data access + RAG knowledge base. Interactive play creator, drill library with assignment/tracking, practice planner with session summaries, reports & evaluations, video scouting room with telestrator & clip playlists, billing & payments with platform invoicing, universal messaging with timestamps, carpool coordination, admin schedule management with coach request/approval workflow, support ticket system.
 
 **URLs:**
+- Super-Admin Portal: `http://localhost:8000/super-admin`
 - Admin Portal: `http://localhost:8000/admin`
 - Coach Portal: `http://localhost:8000` (main app)
 - Player Portal: `http://localhost:8000/player`
@@ -20,6 +21,7 @@ Basketball coaching assistant web app with 4-role permission system (Admin / Coa
 - **Vector DB:** ChromaDB (PersistentClient, cosine similarity)
 - **Video:** Cloudinary (browser upload, HLS streaming, thumbnails, CDN)
 - **Frontend:** Jinja2 templates, vanilla JS, vanilla CSS (design tokens), Material Symbols icons
+- **i18n:** Client-side translation engine (i18n.js), 6 modules (common/admin/coach/player/parent/auth), HE/EN with RTL/LTR
 - **Font:** Space Grotesk
 
 ---
@@ -28,7 +30,7 @@ Basketball coaching assistant web app with 4-role permission system (Admin / Coa
 
 ```
 hoops_ai/
-├── app.py                          # FastAPI entry point, 32 routers, 50+ page routes, 6 background tasks
+├── app.py                          # FastAPI entry point, 46 routers, 60+ page routes, 6 background tasks
 ├── config.py                       # Pydantic settings (env vars, DB URL, OpenAI, Cloudinary, RAG config)
 ├── requirements.txt
 ├── .env                            # OPENAI_API_KEY, SECRET_KEY, CLOUDINARY_* (optional)
@@ -43,7 +45,7 @@ hoops_ai/
 │   │   ├── player_agent.py         # PlayerAgent class + route_to_player_agent (keyword routing)
 │   │   └── player_prompts.py       # System prompts for 5 player agents
 │   │
-│   ├── api/                        # FastAPI routers (32 files, 200+ endpoints)
+│   ├── api/                        # FastAPI routers (46 files, 250+ endpoints)
 │   │   ├── auth.py                 # Coach: register, register-with-invite, login, profile, join-team
 │   │   ├── admin_auth.py           # Admin: register, login, get_current_admin guard
 │   │   ├── admin_dashboard.py      # GET /api/admin/dashboard (rich aggregated stats)
@@ -75,9 +77,19 @@ hoops_ai/
 │   │   ├── transport.py            # Admin: away game transport view
 │   │   ├── knowledge.py            # RAG: upload, list, delete, retry, preview, download
 │   │   ├── scouting.py             # Video room: coach + player + admin + parent endpoints
-│   │   └── insights.py             # Financial + professional AI agents
+│   │   ├── insights.py             # Financial + professional AI agents
+│   │   ├── admin_practice.py       # Admin: practice plans oversight across teams
+│   │   ├── support.py              # Admin: support ticket CRUD + replies
+│   │   ├── super_admin_auth.py     # Super-admin: register, login
+│   │   ├── super_admin_dashboard.py # Super-admin: platform overview
+│   │   ├── super_admin_clubs.py    # Super-admin: multi-club management
+│   │   ├── super_admin_billing.py  # Super-admin: platform billing & invoicing
+│   │   ├── super_admin_analytics.py # Super-admin: platform analytics
+│   │   ├── super_admin_tickets.py  # Super-admin: support ticket management
+│   │   ├── super_admin_features.py # Super-admin: feature toggles
+│   │   └── super_admin_notifications.py # Super-admin: system notifications
 │   │
-│   ├── models/                     # SQLAlchemy ORM (42 tables)
+│   ├── models/                     # SQLAlchemy ORM (45+ tables, 52 model files)
 │   │   ├── base.py                 # TimestampMixin, JSONText custom type for SQLite
 │   │   ├── user.py                 # User (name, email, password_hash, role, phone, date_of_birth)
 │   │   ├── coach.py                # Coach profile (user_id FK)
@@ -119,9 +131,11 @@ hoops_ai/
 │   │   ├── carpool_passenger.py    # Ride passengers
 │   │   ├── standing_carpool.py     # Recurring carpool groups
 │   │   ├── standing_carpool_member.py # Carpool group members
-│   │   └── standing_carpool_signup.py # Event signups for standing carpools
+│   │   ├── standing_carpool_signup.py # Event signups for standing carpools
+│   │   ├── annotation_template.py  # Reusable telestrator drawing presets (coach_id, name, annotations_data)
+│   │   └── clip_playlist.py        # ClipPlaylist + PlaylistItem (video clip organization, team/parent sharing)
 │   │
-│   ├── repositories/              # Data access layer (28 repositories)
+│   ├── repositories/              # Data access layer (34 repositories)
 │   │   ├── base_repository.py     # Generic BaseRepository<T> (create, get, update, delete)
 │   │   ├── user_repository.py     # get_by_email, get_by_email_and_role
 │   │   ├── coach_repository.py    # get_by_email
@@ -149,7 +163,7 @@ hoops_ai/
 │   │   ├── carpool_repository.py  # CarpoolRideRepo + CarpoolPassengerRepo
 │   │   └── standing_carpool_repository.py # 3 classes (Carpool, Member, Signup)
 │   │
-│   ├── services/                  # Business logic + AI integration (33 services)
+│   ├── services/                  # Business logic + AI integration (40 services)
 │   │   ├── auth_service.py        # Coach auth + shared JWT functions (exported to all 4 auth services)
 │   │   ├── admin_auth_service.py  # Admin auth
 │   │   ├── player_auth_service.py # Player auth (invite code + email child linking)
@@ -195,19 +209,21 @@ hoops_ai/
 │       ├── database.py            # Async engine, session factory, get_db, init_db (migrations), close_db
 │       └── openai_client.py       # Lazy client: chat_completion, chat_completion_json, create_embedding(s)
 │
-├── templates/                     # Jinja2 (4 base layouts + 9 auth + 44 page templates = 57 total)
+├── templates/                     # Jinja2 (5 base layouts + 11 auth + 49 page templates = 65 total)
 │   ├── base.html                  # Coach layout (orange theme, 11-item sidebar)
 │   ├── admin_base.html            # Admin layout (blue theme, management sidebar)
 │   ├── player_base.html           # Player layout (green gamer theme)
 │   ├── parent_base.html           # Parent layout (warm theme)
-│   ├── auth/                      # 9 auth pages
+│   ├── super_admin_base.html      # Super-admin layout
+│   ├── auth/                      # 11 auth pages
 │   │   ├── login.html, register.html                    # Coach
 │   │   ├── coach_invite_register.html                   # Coach invite registration
 │   │   ├── admin_login.html, admin_register.html        # Admin
 │   │   ├── player_login.html, player_register.html      # Player
 │   │   └── parent_login.html, parent_register.html      # Parent
-│   └── pages/                     # 44 page templates
+│   └── pages/                     # 49 page templates
 │       ├── chat.html, drills.html, plays.html, practice.html  # Coach tools
+│       ├── practice_detail.html                                # Practice session detail + summary
 │       ├── schedule.html, logistics.html, reports.html        # Coach management
 │       ├── analytics.html, settings.html, messages.html       # Coach misc
 │       ├── coach_knowledge.html, scouting.html                # Coach features
@@ -226,7 +242,11 @@ hoops_ai/
 │       ├── admin_insights.html, admin_scouting.html           # Admin
 │       ├── admin_messages.html, admin_coaches.html            # Admin
 │       ├── admin_player_development.html                      # Admin
-│       └── admin_transport.html, admin_transport_detail.html  # Admin
+│       ├── admin_transport.html, admin_transport_detail.html  # Admin
+│       ├── admin_practice_plans.html                          # Admin practice oversight
+│       ├── admin_player_profile.html, admin_coach_profile.html # Admin profiles
+│       ├── admin_support.html                                 # Admin support tickets
+│       └── player_profile_page.html                           # Coach→Player profile
 │
 ├── static/
 │   ├── css/
@@ -246,7 +266,7 @@ hoops_ai/
 │   │       ├── scouting.css       # Video room (grid, player, telestrator)
 │   │       └── admin-scouting.css # Admin video room (blue overrides)
 │   │
-│   └── js/                        # 45 JS files
+│   └── js/                        # 59 JS files + 6 i18n translation modules
 │       ├── main.js                # Coach API wrapper, Toast, auth, notifications, search, sidebar
 │       ├── admin_main.js          # Admin API wrapper (hoops_admin_token)
 │       ├── player_main.js         # Player API wrapper (hoops_player_token)
@@ -288,7 +308,15 @@ hoops_ai/
 │       ├── admin_coaches.js       # Coach engagement
 │       ├── admin_player_development.js # Player development
 │       ├── admin_transport.js     # Transportation management
-│       └── admin_transport_detail.js # Transport detail view
+│       ├── admin_transport_detail.js # Transport detail view
+│       ├── admin_practice_plans.js # Admin practice plans oversight
+│       ├── admin_player_profile.js # Admin player profile view
+│       ├── admin_coach_profile.js  # Admin coach profile + engagement
+│       ├── admin_support.js        # Admin support tickets
+│       ├── player_profile_page.js  # Coach→Player profile (shared renderer)
+│       ├── player-profile.js       # Shared player profile renderer
+│       ├── i18n.js                 # i18n engine (t(), data-i18n, RTL/LTR, localStorage)
+│       └── translations/           # 6 i18n modules (common, admin, coach, player, parent, auth)
 │
 ├── database/
 │   ├── hoops_ai.db                # Auto-created on startup (42 tables)
@@ -455,7 +483,7 @@ Each agent can only search categories relevant to its domain (e.g., tactician �
 
 ### Architecture
 - **Cloudinary integration:** Direct browser→cloud upload, adaptive HLS streaming, CDN delivery, auto-thumbnails
-- **6 DB tables:** scouting_videos, video_clips, clip_player_tags, video_annotations, clip_views, team_storage_quotas
+- **8 DB tables:** scouting_videos, video_clips, clip_player_tags, video_annotations, clip_views, team_storage_quotas, annotation_templates, clip_playlists + playlist_items
 
 ### Features
 - **Coach Video Room** (`/scouting`): Video grid, analysis view with Video.js, 13 basketball action tag buttons, timeline with markers, clips sidebar
@@ -464,6 +492,8 @@ Each agent can only search categories relevant to its domain (e.g., tactician �
 - **Parent Video Feed** (`/parent/scouting`): Shared clips only, read-only view
 - **Admin Video View** (`/admin/scouting`): Cross-team video overview
 - **Storage Quota:** 50GB default per team, configurable TTL, background cleanup task
+- **Annotation Templates:** Reusable telestrator drawing presets per coach (name, category, annotations_data JSON)
+- **Clip Playlists:** Organize clips into named collections with sort order, notes, team/parent sharing flags
 - **Notifications:** Players notified when tagged in clips via messaging
 
 ### Files
@@ -534,6 +564,48 @@ all_club, all_coaches, all_players, all_parents, team, team_players, team_parent
 - `src/services/carpool_service.py`, `standing_carpool_service.py`
 - `src/api/carpool.py`
 - `static/js/parent_carpool.js`
+
+---
+
+## Internationalization (i18n)
+
+### Architecture
+- **Engine:** `static/js/i18n.js` — client-side, no server dependency
+- **Language toggle:** Header button, stored in `localStorage('hoops_language')`, default Hebrew
+- **RTL/LTR:** Auto-switches `dir` attribute on `<html>` based on language
+- **Translation function:** `t(key, params)` with `{param}` interpolation
+- **DOM attributes:** `data-i18n`, `data-i18n-placeholder`, `data-i18n-title`, `data-i18n-html`
+- **Registration:** `I18N.register({ he: {...}, en: {...} })` per module
+
+### 6 Translation Modules (`static/js/translations/`)
+| Module | Scope |
+|--------|-------|
+| `common.js` | Sidebar nav, buttons, roles, positions, time strings, payment statuses |
+| `admin.js` | All admin pages (dashboard, billing, contacts, knowledge, scouting, support, etc.) |
+| `coach.js` | Coach portal strings |
+| `player.js` | Player portal strings |
+| `parent.js` | Parent portal strings |
+| `auth.js` | Login/register pages |
+
+### Loading Order
+Translation files MUST load BEFORE page-specific JS in templates (loaded in base layouts).
+
+---
+
+## Support Ticket System
+
+- Admin creates/views tickets at `/admin/support`
+- Categories: general, billing, technical, feature_request, account, bug_report, onboarding
+- Priority levels: low, medium, high, urgent
+- Status flow: open → in_progress → waiting_on_club → resolved → closed
+- Super-admin manages tickets via `/super-admin/tickets` (3-level support)
+- Full Hebrew localization with `data-i18n` attributes
+
+### Files
+- `src/api/support.py` — Admin ticket CRUD + reply
+- `src/api/super_admin_tickets.py` — Super-admin ticket management
+- `static/js/admin_support.js` — Admin frontend
+- `templates/pages/admin_support.html` — Admin template
 
 ---
 
@@ -641,30 +713,36 @@ The most complex frontend component (~320 lines, dense).
 
 ---
 
-## Permission System (4 Roles)
+## Permission System (5 Roles)
 
 ```
-Admin (role="admin" in users table)
-  ├── Creates teams (POST /api/teams)
-  ├── Generates invite codes: coach, player, parent (3 pairs: code + token)
-  ├── Manages: schedule, roles, contacts, facilities, billing, knowledge, scouting, insights
+Super-Admin (platform-wide)
+  ├── Multi-club management, platform billing & invoicing, analytics
+  ├── Support ticket system (3-level), feature toggles, system notifications
   │
-  └── Coach (role="coach") — joins via coach_invite_code
-        ├── AI chat (8 agents), drills (assign+track), plays (create+share), practice, reports, evaluations
-        ├── Video scouting (clips, telestrator, player tagging)
-        ├── Knowledge base (upload personal docs), messaging
+  └── Admin (role="admin" in users table)
+        ├── Creates teams (POST /api/teams)
+        ├── Generates invite codes: coach, player, parent (3 pairs: code + token)
+        ├── Manages: schedule, roles, contacts, facilities, billing, knowledge, scouting, insights
+        ├── Practice plans oversight, coach/player profiles, support tickets
         │
-        ├── Player (role="player") — joins via player_invite_code
-        │     └── AI chat (5 agents), drills (video proof), plays (view), schedule, reports, leaderboard, video feed, messaging
-        │
-        └── Parent (role="parent") — joins via parent_invite_code
-              └── Dashboard, schedule, payments, video feed, messaging, carpool
+        └── Coach (role="coach") — joins via coach_invite_code
+              ├── AI chat (8 agents), drills (assign+track), plays (create+share), practice + summaries, reports, evaluations
+              ├── Video scouting (clips, telestrator, annotation templates, clip playlists, player tagging)
+              ├── Knowledge base (upload personal docs), messaging
+              │
+              ├── Player (role="player") — joins via player_invite_code
+              │     └── AI chat (5 agents), drills (video proof), plays (view), schedule, reports, leaderboard, video feed, messaging
+              │
+              └── Parent (role="parent") — joins via parent_invite_code
+                    └── Dashboard, schedule, payments, video feed, messaging, carpool
 ```
 
-### Auth Flow (4 Separate Flows)
+### Auth Flow (5 Separate Flows)
 
 | Role | Register | Login | Token Key | Auth Guard |
 |------|----------|-------|-----------|------------|
+| Super-Admin | `POST /api/super-admin/auth/register` | `POST /api/super-admin/auth/login` | `hoops_super_admin_token` | `get_current_super_admin` |
 | Admin | `POST /api/admin-auth/register` | `POST /api/admin-auth/login` | `hoops_admin_token` | `get_current_admin` |
 | Coach | `POST /api/auth/register` | `POST /api/auth/login` | `hoops_token` | `get_current_coach` |
 | Player | `POST /api/player-auth/register` | `POST /api/player-auth/login` | `hoops_player_token` | `get_current_player` |
@@ -735,7 +813,7 @@ python app.py
 - **SQLAlchemy `func.case()` vs `case()`** — Always use `from sqlalchemy import case` directly
 - Agent routing keywords must include **Hebrew** terms — English-only causes fallback to default agent
 - **DB schema changes** require deleting `database/hoops_ai.db` — `init_db()` recreates all tables
-- **4 separate localStorage token keys** — `hoops_token`, `hoops_player_token`, `hoops_admin_token`, `hoops_parent_token`
+- **5 separate localStorage token keys** — `hoops_token`, `hoops_player_token`, `hoops_admin_token`, `hoops_parent_token`, `hoops_super_admin_token`
 - **`auth_service.py`** exports standalone functions used by all 4 auth services
 - **Coach legacy table** — coaches table exists alongside users table; Coach.user_id links to User
 - **Player registration** links to existing roster Player by name match or creates new
@@ -744,3 +822,8 @@ python app.py
 - **RAG failure = silent None** — never breaks chat flow
 - **Cloudinary lazy init** — only configured if CLOUDINARY_CLOUD_NAME exists in .env
 - **ChromaDB singleton** — `_get_chroma()` creates PersistentClient once, reused globally
+- **i18n translation files** must load BEFORE page JS — order matters in base layouts
+- **`t()` function** is global shorthand for `I18N.translate()` — available in all JS files after i18n.js loads
+- **RTL numbers/percentages** — wrap in `<span dir="ltr">` or prepend `\u200E` (LTR mark)
+- **timeAgo functions** — duplicated across 13+ JS files, each file has its own version; admin versions use `t()` keys, others still hardcoded English
+- **Billing `total_expected`** — calculated from actual installment amounts (not `plan.total_amount`) to avoid rounding mismatches

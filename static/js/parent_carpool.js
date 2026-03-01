@@ -27,14 +27,14 @@ async function loadEvents() {
     renderEventChips(_events);
     populateEventDropdown(_events);
   } catch {
-    el.innerHTML = '<div class="empty-state-parent"><span class="material-symbols-outlined">error</span>שגיאה בטעינת אירועים</div>';
+    el.innerHTML = `<div class="empty-state-parent"><span class="material-symbols-outlined">error</span>${t('parent.carpool.events_error')}</div>`;
   }
 }
 
 function renderEventChips(events) {
   const el = document.getElementById('eventChips');
   if (!events.length) {
-    el.innerHTML = '<div class="empty-state-parent"><span class="material-symbols-outlined">event_busy</span>אין אירועים קרובים</div>';
+    el.innerHTML = `<div class="empty-state-parent"><span class="material-symbols-outlined">event_busy</span>${t('parent.carpool.no_events')}</div>`;
     return;
   }
   el.innerHTML = events.map(e => `
@@ -68,13 +68,13 @@ function selectEvent(eventId) {
 
 async function loadRides(eventId) {
   const el = document.getElementById('ridesSection');
-  el.innerHTML = '<div class="loading-state">טוען הסעות...</div>';
+  el.innerHTML = `<div class="loading-state">${t('parent.carpool.loading_rides')}</div>`;
   try {
     const res = await ParentAPI.get(`/api/carpool/rides?event_id=${eventId}`);
     _currentRides = res.data || [];
     renderRides(_currentRides);
   } catch {
-    el.innerHTML = '<div class="empty-state-parent">שגיאה בטעינת הסעות</div>';
+    el.innerHTML = `<div class="empty-state-parent">${t('parent.carpool.rides_error')}</div>`;
   }
 }
 
@@ -84,8 +84,8 @@ function renderRides(rides) {
     el.innerHTML = `
       <div class="empty-state-parent">
         <span class="material-symbols-outlined">no_transfer</span>
-        אין הסעות זמינות לאירוע הזה
-        <br><small>היה הראשון להציע הסעה!</small>
+        ${t('parent.carpool.no_rides')}
+        <br><small>${t('parent.carpool.be_first')}</small>
       </div>`;
     return;
   }
@@ -95,21 +95,21 @@ function renderRides(rides) {
 function rideCard(r) {
   const passHtml = r.passengers.length
     ? `<div class="ride-passengers">
-        <small>נוסעים:</small>
+        <small>${t('parent.carpool.passengers')}</small>
         ${r.passengers.map(p => `<span class="passenger-chip">${esc(p.user_name)}${p.player_name ? ' (' + esc(p.player_name) + ')' : ''}</span>`).join('')}
        </div>` : '';
 
   let actions = '';
   if (r.is_mine) {
     actions = `
-      <button class="btn btn-sm btn-secondary" onclick="editRide(${r.id})">ערוך</button>
-      <button class="btn btn-sm btn-danger" onclick="cancelRide(${r.id})">בטל</button>`;
+      <button class="btn btn-sm btn-secondary" onclick="editRide(${r.id})">${t('parent.carpool.edit')}</button>
+      <button class="btn btn-sm btn-danger" onclick="cancelRide(${r.id})">${t('parent.carpool.cancel_ride')}</button>`;
   } else if (r.i_joined) {
-    actions = `<button class="btn btn-sm btn-warning" onclick="leaveRide(${r.id})">עזוב הסעה</button>`;
+    actions = `<button class="btn btn-sm btn-warning" onclick="leaveRide(${r.id})">${t('parent.carpool.leave_ride')}</button>`;
   } else if (r.is_full) {
-    actions = `<span class="ride-full-label">מלא</span>`;
+    actions = `<span class="ride-full-label">${t('parent.carpool.full')}</span>`;
   } else {
-    actions = `<button class="btn btn-sm btn-primary" onclick="openJoinModal(${r.id})">הצטרף</button>`;
+    actions = `<button class="btn btn-sm btn-primary" onclick="openJoinModal(${r.id})">${t('parent.carpool.join')}</button>`;
   }
 
   return `
@@ -118,7 +118,7 @@ function rideCard(r) {
         <div class="ride-driver">
           <span class="material-symbols-outlined">person</span>
           <strong>${esc(r.driver_name)}</strong>
-          ${r.is_mine ? '<span class="ride-mine-badge">שלי</span>' : ''}
+          ${r.is_mine ? `<span class="ride-mine-badge">${t('parent.carpool.mine_badge')}</span>` : ''}
         </div>
         <span class="direction-badge ${r.direction}">${dirLabel(r.direction)}</span>
       </div>
@@ -128,7 +128,7 @@ function rideCard(r) {
         ${r.meeting_point ? `<div class="ride-detail"><span class="material-symbols-outlined">pin_drop</span>${esc(r.meeting_point)}</div>` : ''}
         <div class="ride-detail">
           <span class="material-symbols-outlined">airline_seat_recline_normal</span>
-          <span class="${r.is_full ? 'seats-full' : ''}">${r.occupied_seats}/${r.available_seats} מקומות תפוסים</span>
+          <span class="${r.is_full ? 'seats-full' : ''}">${t('parent.carpool.seats_occupied', { occupied: r.occupied_seats, total: r.available_seats })}</span>
         </div>
         ${r.notes ? `<div class="ride-detail ride-notes"><span class="material-symbols-outlined">notes</span>${esc(r.notes)}</div>` : ''}
       </div>
@@ -151,8 +151,8 @@ function openOfferModal() {
   document.getElementById('rideNotes').value = '';
   // Restore default footer
   document.getElementById('offerModalFooter').innerHTML = `
-    <button class="btn btn-secondary" onclick="closeModal('offerRideModal')">ביטול</button>
-    <button class="btn btn-primary" onclick="submitRide()">פרסם הסעה</button>`;
+    <button class="btn btn-secondary" onclick="closeModal('offerRideModal')">${t('parent.carpool.cancel_btn')}</button>
+    <button class="btn btn-primary" onclick="submitRide()">${t('parent.carpool.publish_ride')}</button>`;
   openModal('offerRideModal');
 }
 
@@ -161,7 +161,7 @@ async function submitRide() {
   if (!body) return;
   try {
     await ParentAPI.post('/api/carpool/rides', body);
-    ParentToast.success('ההסעה פורסמה!');
+    ParentToast.success(t('parent.carpool.ride_published'));
     closeModal('offerRideModal');
     if (_selectedEventId) loadRides(_selectedEventId);
   } catch { /* ParentAPI handles */ }
@@ -184,8 +184,8 @@ function editRide(rideId) {
   document.getElementById('rideNotes').value = r.notes || '';
 
   document.getElementById('offerModalFooter').innerHTML = `
-    <button class="btn btn-secondary" onclick="closeModal('offerRideModal')">ביטול</button>
-    <button class="btn btn-primary" onclick="submitEditRide(${rideId})">עדכן הסעה</button>`;
+    <button class="btn btn-secondary" onclick="closeModal('offerRideModal')">${t('parent.carpool.cancel_btn')}</button>
+    <button class="btn btn-primary" onclick="submitEditRide(${rideId})">${t('parent.carpool.update_ride')}</button>`;
   openModal('offerRideModal');
 }
 
@@ -195,7 +195,7 @@ async function submitEditRide(rideId) {
   delete data.event_id; // can't change event
   try {
     await ParentAPI.put(`/api/carpool/rides/${rideId}`, data);
-    ParentToast.success('ההסעה עודכנה');
+    ParentToast.success(t('parent.carpool.ride_updated'));
     closeModal('offerRideModal');
     if (_selectedEventId) loadRides(_selectedEventId);
   } catch { /* handled */ }
@@ -210,8 +210,8 @@ function gatherRideForm() {
   const direction = document.querySelector('input[name="rideDirection"]:checked').value;
   const notes = document.getElementById('rideNotes').value.trim() || null;
 
-  if (!neighborhood) { ParentToast.error('יש להזין שכונה'); return null; }
-  if (!seats || seats < 1) { ParentToast.error('יש להזין מספר מקומות'); return null; }
+  if (!neighborhood) { ParentToast.error(t('parent.carpool.neighborhood_required')); return null; }
+  if (!seats || seats < 1) { ParentToast.error(t('parent.carpool.seats_required')); return null; }
 
   return { event_id: eventId, neighborhood, available_seats: seats, departure_time: depTime, meeting_point: meetPoint, direction, notes };
 }
@@ -225,11 +225,11 @@ function openJoinModal(rideId) {
   if (!r) return;
   document.getElementById('joinRideId').value = rideId;
   document.getElementById('joinRideInfo').innerHTML = `
-    <p><strong>נהג:</strong> ${esc(r.driver_name)}</p>
-    <p><strong>שכונה:</strong> ${esc(r.neighborhood)}</p>
-    ${r.departure_time ? `<p><strong>שעה:</strong> ${r.departure_time}</p>` : ''}
-    ${r.meeting_point ? `<p><strong>נקודת מפגש:</strong> ${esc(r.meeting_point)}</p>` : ''}
-    <p><strong>מקומות פנויים:</strong> ${r.available_seats - r.occupied_seats}</p>`;
+    <p><strong>${t('parent.carpool.driver')}</strong> ${esc(r.driver_name)}</p>
+    <p><strong>${t('parent.carpool.neighborhood')}</strong> ${esc(r.neighborhood)}</p>
+    ${r.departure_time ? `<p><strong>${t('parent.carpool.time')}</strong> ${r.departure_time}</p>` : ''}
+    ${r.meeting_point ? `<p><strong>${t('parent.carpool.meeting_point')}</strong> ${esc(r.meeting_point)}</p>` : ''}
+    <p><strong>${t('parent.carpool.available_seats')}</strong> ${r.available_seats - r.occupied_seats}</p>`;
   document.getElementById('joinNotes').value = '';
   openModal('joinRideModal');
 }
@@ -239,26 +239,26 @@ async function confirmJoin() {
   const notes = document.getElementById('joinNotes').value.trim() || null;
   try {
     await ParentAPI.post(`/api/carpool/rides/${rideId}/join`, { notes });
-    ParentToast.success('הצטרפת להסעה!');
+    ParentToast.success(t('parent.carpool.joined'));
     closeModal('joinRideModal');
     if (_selectedEventId) loadRides(_selectedEventId);
   } catch { /* handled */ }
 }
 
 async function leaveRide(rideId) {
-  if (!confirm('בטוח שברצונך לעזוב את ההסעה?')) return;
+  if (!confirm(t('parent.carpool.confirm_leave'))) return;
   try {
     await ParentAPI.del(`/api/carpool/rides/${rideId}/leave`);
-    ParentToast.success('עזבת את ההסעה');
+    ParentToast.success(t('parent.carpool.left_ride'));
     if (_selectedEventId) loadRides(_selectedEventId);
   } catch { /* handled */ }
 }
 
 async function cancelRide(rideId) {
-  if (!confirm('בטוח שברצונך לבטל את ההסעה?')) return;
+  if (!confirm(t('parent.carpool.confirm_cancel'))) return;
   try {
     await ParentAPI.del(`/api/carpool/rides/${rideId}`);
-    ParentToast.success('ההסעה בוטלה');
+    ParentToast.success(t('parent.carpool.ride_cancelled'));
     if (_selectedEventId) loadRides(_selectedEventId);
   } catch { /* handled */ }
 }
@@ -271,13 +271,13 @@ async function showMyRides() {
   _selectedEventId = null;
   document.querySelectorAll('.event-chip').forEach(c => c.classList.remove('active'));
   const el = document.getElementById('ridesSection');
-  el.innerHTML = '<div class="loading-state">טוען...</div>';
+  el.innerHTML = `<div class="loading-state">${t('parent.carpool.loading')}</div>`;
   try {
     const res = await ParentAPI.get('/api/carpool/my');
     const { offered, joined } = res.data;
-    let html = '<h3 class="carpool-section-title">הסעות שהצעתי</h3>';
+    let html = `<h3 class="carpool-section-title">${t('parent.carpool.my_offered')}</h3>`;
     if (!offered.length) {
-      html += '<div class="empty-state-parent"><span class="material-symbols-outlined">directions_car</span>עוד לא הצעת הסעות</div>';
+      html += `<div class="empty-state-parent"><span class="material-symbols-outlined">directions_car</span>${t('parent.carpool.no_offered')}</div>`;
     } else {
       html += offered.map(r => `
         <div class="ride-card my-ride">
@@ -287,16 +287,16 @@ async function showMyRides() {
           </div>
           <div class="ride-details">
             <div class="ride-detail"><span class="material-symbols-outlined">location_on</span>${esc(r.neighborhood)}</div>
-            <div class="ride-detail"><span class="material-symbols-outlined">airline_seat_recline_normal</span>${r.occupied_seats}/${r.available_seats} מקומות</div>
+            <div class="ride-detail"><span class="material-symbols-outlined">airline_seat_recline_normal</span>${r.occupied_seats}/${r.available_seats} ${t('parent.carpool.seats')}</div>
             ${r.departure_time ? `<div class="ride-detail"><span class="material-symbols-outlined">schedule</span>${r.departure_time}</div>` : ''}
           </div>
-          ${r.passengers.length ? `<div class="ride-passengers"><small>נוסעים:</small> ${r.passengers.map(p => `<span class="passenger-chip">${esc(p.user_name)}</span>`).join('')}</div>` : ''}
+          ${r.passengers.length ? `<div class="ride-passengers"><small>${t('parent.carpool.passengers')}</small> ${r.passengers.map(p => `<span class="passenger-chip">${esc(p.user_name)}</span>`).join('')}</div>` : ''}
         </div>`).join('');
     }
 
-    html += '<h3 class="carpool-section-title" style="margin-top:24px;">הסעות שהצטרפתי</h3>';
+    html += `<h3 class="carpool-section-title" style="margin-top:24px;">${t('parent.carpool.my_joined')}</h3>`;
     if (!joined.length) {
-      html += '<div class="empty-state-parent"><span class="material-symbols-outlined">hail</span>עוד לא הצטרפת להסעות</div>';
+      html += `<div class="empty-state-parent"><span class="material-symbols-outlined">hail</span>${t('parent.carpool.no_joined')}</div>`;
     } else {
       html += joined.map(j => {
         const r = j.ride;
@@ -313,14 +313,14 @@ async function showMyRides() {
               ${r.meeting_point ? `<div class="ride-detail"><span class="material-symbols-outlined">pin_drop</span>${esc(r.meeting_point)}</div>` : ''}
             </div>
             <div class="ride-actions">
-              <button class="btn btn-sm btn-warning" onclick="leaveRide(${r.id})">עזוב הסעה</button>
+              <button class="btn btn-sm btn-warning" onclick="leaveRide(${r.id})">${t('parent.carpool.leave_ride')}</button>
             </div>
           </div>`;
       }).join('');
     }
     el.innerHTML = html;
   } catch {
-    el.innerHTML = '<div class="empty-state-parent">שגיאה בטעינה</div>';
+    el.innerHTML = `<div class="empty-state-parent">${t('parent.carpool.loading_error')}</div>`;
   }
 }
 
@@ -337,12 +337,24 @@ function fmtDate(s) {
   return `${wd} ${day}/${mon}`;
 }
 
-function typeLabel(t) {
-  return { practice: 'אימון', game: 'משחק', tournament: 'טורניר', meeting: 'פגישה', other: 'אחר' }[t] || t;
+function typeLabel(tp) {
+  const map = {
+    practice: t('parent.carpool.type.practice'),
+    game: t('parent.carpool.type.game'),
+    tournament: t('parent.carpool.type.tournament'),
+    meeting: t('parent.carpool.type.meeting'),
+    other: t('parent.carpool.type.other'),
+  };
+  return map[tp] || tp;
 }
 
 function dirLabel(d) {
-  return { to_event: 'לאירוע', from_event: 'מהאירוע', both: 'הלוך וחזור' }[d] || d;
+  const map = {
+    to_event: t('parent.carpool.dir.to_event'),
+    from_event: t('parent.carpool.dir.from_event'),
+    both: t('parent.carpool.dir.both'),
+  };
+  return map[d] || d;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -365,7 +377,7 @@ async function loadMyTeams() {
 function populateTeamDropdown(teams) {
   const sel = document.getElementById('scTeamId');
   if (!sel) return;
-  sel.innerHTML = teams.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  sel.innerHTML = teams.map(tm => `<option value="${tm.id}">${esc(tm.name)}</option>`).join('');
 }
 
 async function loadStandingCarpools() {
@@ -375,7 +387,7 @@ async function loadStandingCarpools() {
     _standingCarpools = res.data || [];
     renderStandingCarpools(_standingCarpools);
   } catch {
-    el.innerHTML = '<div class="empty-state-parent">שגיאה בטעינת הסעות קבועות</div>';
+    el.innerHTML = `<div class="empty-state-parent">${t('parent.carpool.standing_error')}</div>`;
   }
 }
 
@@ -385,7 +397,7 @@ function renderStandingCarpools(carpools) {
     el.innerHTML = `
       <div class="empty-state-parent">
         <span class="material-symbols-outlined">group_off</span>
-        אין הסעות קבועות עדיין — צור את הראשונה!
+        ${t('parent.carpool.no_standing')}
       </div>`;
     return;
   }
@@ -414,32 +426,32 @@ function scCard(c) {
             <div class="sc-event-info">
               <span class="sc-event-date">${fmtDate(e.date)}</span>
               <span class="sc-event-title">${esc(e.title)}</span>
-              ${sigCount > 0 ? `<span class="sc-event-signups" title="${sigNames}">${sigCount} נרשמו</span>` : ''}
+              ${sigCount > 0 ? `<span class="sc-event-signups" title="${sigNames}">${t('parent.carpool.signed_up_count', { count: sigCount })}</span>` : ''}
             </div>
             ${c.is_member ? (
               isSigned
                 ? `<button class="btn btn-sm sc-signup-btn signed" onclick="cancelScSignup(${c.id},${e.id})">
-                     <span class="material-symbols-outlined">check_circle</span> שובץ
+                     <span class="material-symbols-outlined">check_circle</span> ${t('parent.carpool.assigned')}
                    </button>`
                 : `<button class="btn btn-sm sc-signup-btn" onclick="scSignup(${c.id},${e.id})">
-                     שבץ עצמי
+                     ${t('parent.carpool.assign_self')}
                    </button>`
             ) : ''}
           </div>`;
       }).join('')
-    : '<div class="sc-no-events">אין אירועים קרובים</div>';
+    : `<div class="sc-no-events">${t('parent.carpool.no_upcoming_events')}</div>`;
 
   let actionBtns = '';
   if (c.is_organizer) {
     actionBtns = `
-      <button class="btn btn-sm btn-secondary" onclick="openEditStandingModal(${c.id})">ערוך</button>
-      <button class="btn btn-sm btn-danger" onclick="deleteStanding(${c.id})">מחק</button>`;
+      <button class="btn btn-sm btn-secondary" onclick="openEditStandingModal(${c.id})">${t('parent.carpool.edit')}</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteStanding(${c.id})">${t('parent.carpool.delete_standing')}</button>`;
   } else if (c.is_member) {
-    actionBtns = `<button class="btn btn-sm btn-warning" onclick="leaveStanding(${c.id})">עזוב</button>`;
+    actionBtns = `<button class="btn btn-sm btn-warning" onclick="leaveStanding(${c.id})">${t('parent.carpool.leave_standing')}</button>`;
   } else if (!c.is_full) {
-    actionBtns = `<button class="btn btn-sm btn-primary" onclick="joinStanding(${c.id})">הצטרף</button>`;
+    actionBtns = `<button class="btn btn-sm btn-primary" onclick="joinStanding(${c.id})">${t('parent.carpool.join')}</button>`;
   } else {
-    actionBtns = `<span class="ride-full-label">מלא</span>`;
+    actionBtns = `<span class="ride-full-label">${t('parent.carpool.full')}</span>`;
   }
 
   return `
@@ -447,11 +459,11 @@ function scCard(c) {
       <div class="sc-card-header">
         <div class="sc-card-title-row">
           <h3 class="sc-card-name">${esc(c.name)}</h3>
-          ${c.is_organizer ? '<span class="sc-organizer-badge">מארגן</span>' : c.is_member ? '<span class="sc-member-badge">חבר</span>' : ''}
+          ${c.is_organizer ? `<span class="sc-organizer-badge">${t('parent.carpool.organizer')}</span>` : c.is_member ? `<span class="sc-member-badge">${t('parent.carpool.member')}</span>` : ''}
         </div>
         <div class="sc-card-meta">
           <span><span class="material-symbols-outlined">location_on</span>${esc(c.neighborhood)}</span>
-          <span><span class="material-symbols-outlined">group</span>${c.member_count}/${c.max_members} חברים</span>
+          <span><span class="material-symbols-outlined">group</span>${t('parent.carpool.members_count', { count: c.member_count, max: c.max_members })}</span>
           ${c.meeting_point ? `<span><span class="material-symbols-outlined">pin_drop</span>${esc(c.meeting_point)}</span>` : ''}
           <span class="sc-team-label">${esc(c.team_name || '')}</span>
         </div>
@@ -461,14 +473,14 @@ function scCard(c) {
 
       ${c.is_member ? `
         <div class="sc-events-section">
-          <div class="sc-events-title">אירועים קרובים — שיבוץ:</div>
+          <div class="sc-events-title">${t('parent.carpool.upcoming_events')}</div>
           ${eventsHtml}
         </div>` : ''}
 
       ${c.notes ? `<div class="sc-notes">${esc(c.notes)}</div>` : ''}
 
       <div class="sc-card-footer">
-        <span class="sc-organizer-label">מארגן: ${esc(c.organizer_name)}</span>
+        <span class="sc-organizer-label">${t('parent.carpool.organizer_label', { name: esc(c.organizer_name) })}</span>
         <div class="ride-actions">${actionBtns}</div>
       </div>
     </div>`;
@@ -493,13 +505,13 @@ async function submitCreateStanding() {
   const meetingPoint = document.getElementById('scMeetingPoint').value.trim() || null;
   const notes = document.getElementById('scNotes').value.trim() || null;
 
-  if (!name) { ParentToast.error('יש להזין שם'); return; }
-  if (!neighborhood) { ParentToast.error('יש להזין שכונה'); return; }
-  if (!teamId) { ParentToast.error('יש לבחור קבוצה'); return; }
+  if (!name) { ParentToast.error(t('parent.carpool.name_required')); return; }
+  if (!neighborhood) { ParentToast.error(t('parent.carpool.neighborhood_required_standing')); return; }
+  if (!teamId) { ParentToast.error(t('parent.carpool.team_required')); return; }
 
   try {
     await ParentAPI.post('/api/carpool/standing', { team_id: teamId, name, neighborhood, max_members: maxMembers, meeting_point: meetingPoint, notes });
-    ParentToast.success('הסעה קבועה נוצרה!');
+    ParentToast.success(t('parent.carpool.standing_created'));
     closeModal('createStandingModal');
     loadStandingCarpools();
   } catch { /* handled */ }
@@ -528,10 +540,10 @@ async function submitEditStanding() {
     meeting_point: document.getElementById('editScMeetingPoint').value.trim() || null,
     notes: document.getElementById('editScNotes').value.trim() || null,
   };
-  if (!data.name || !data.neighborhood) { ParentToast.error('יש למלא שם ושכונה'); return; }
+  if (!data.name || !data.neighborhood) { ParentToast.error(t('parent.carpool.name_neighborhood_required')); return; }
   try {
     await ParentAPI.put(`/api/carpool/standing/${id}`, data);
-    ParentToast.success('ההסעה עודכנה');
+    ParentToast.success(t('parent.carpool.standing_updated'));
     closeModal('editStandingModal');
     loadStandingCarpools();
   } catch { /* handled */ }
@@ -540,10 +552,10 @@ async function submitEditStanding() {
 /* ── Delete ── */
 
 async function deleteStanding(carpoolId) {
-  if (!confirm('בטוח שברצונך למחוק את ההסעה הקבועה? כל החברים יוסרו.')) return;
+  if (!confirm(t('parent.carpool.confirm_delete_standing'))) return;
   try {
     await ParentAPI.del(`/api/carpool/standing/${carpoolId}`);
-    ParentToast.success('ההסעה הקבועה נמחקה');
+    ParentToast.success(t('parent.carpool.standing_deleted'));
     loadStandingCarpools();
   } catch { /* handled */ }
 }
@@ -553,16 +565,16 @@ async function deleteStanding(carpoolId) {
 async function joinStanding(carpoolId) {
   try {
     await ParentAPI.post(`/api/carpool/standing/${carpoolId}/join`, {});
-    ParentToast.success('הצטרפת להסעה הקבועה!');
+    ParentToast.success(t('parent.carpool.joined_standing'));
     loadStandingCarpools();
   } catch { /* handled */ }
 }
 
 async function leaveStanding(carpoolId) {
-  if (!confirm('בטוח שברצונך לעזוב הסעה זו?')) return;
+  if (!confirm(t('parent.carpool.confirm_leave_standing'))) return;
   try {
     await ParentAPI.del(`/api/carpool/standing/${carpoolId}/leave`);
-    ParentToast.success('עזבת את ההסעה הקבועה');
+    ParentToast.success(t('parent.carpool.left_standing'));
     loadStandingCarpools();
   } catch { /* handled */ }
 }
@@ -572,7 +584,7 @@ async function leaveStanding(carpoolId) {
 async function scSignup(carpoolId, eventId) {
   try {
     await ParentAPI.post(`/api/carpool/standing/${carpoolId}/signup`, { event_id: eventId });
-    ParentToast.success('שובצת לאירוע!');
+    ParentToast.success(t('parent.carpool.signup_success'));
     loadStandingCarpools();
   } catch { /* handled */ }
 }
@@ -580,7 +592,7 @@ async function scSignup(carpoolId, eventId) {
 async function cancelScSignup(carpoolId, eventId) {
   try {
     await ParentAPI.del(`/api/carpool/standing/${carpoolId}/signup/${eventId}`);
-    ParentToast.info('בוטל השיבוץ');
+    ParentToast.info(t('parent.carpool.signup_cancelled'));
     loadStandingCarpools();
   } catch { /* handled */ }
 }

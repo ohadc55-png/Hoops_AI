@@ -8,6 +8,7 @@ from src.models.team_member import TeamMember
 from src.models.user import User
 from src.repositories.message_repository import ClubMessageRepository, MessageRecipientRepository
 from src.repositories.team_member_repository import TeamMemberRepository
+from src.utils.exceptions import NotFoundError, ForbiddenError, ValidationError
 
 
 class MessagingService:
@@ -43,7 +44,6 @@ class MessagingService:
         }
 
         if scheduled_at:
-            from datetime import datetime
             msg_data["is_scheduled"] = True
             msg_data["scheduled_at"] = datetime.fromisoformat(scheduled_at)
             msg_data["is_sent"] = False
@@ -78,21 +78,21 @@ class MessagingService:
             pass  # admin and system (platform) messages can target anyone
         elif sender_role == "coach":
             if target_type not in coach_allowed:
-                raise ValueError(f"Coaches cannot send to target_type={target_type}")
+                raise ForbiddenError(f"Coaches cannot send to target_type={target_type}")
             if is_scheduled:
-                raise ValueError("Only admins can schedule messages")
+                raise ForbiddenError("Only admins can schedule messages")
         elif sender_role == "player":
             if target_type not in player_allowed:
-                raise ValueError(f"Players cannot send to target_type={target_type}")
+                raise ForbiddenError(f"Players cannot send to target_type={target_type}")
             if is_scheduled:
-                raise ValueError("Only admins can schedule messages")
+                raise ForbiddenError("Only admins can schedule messages")
         elif sender_role == "parent":
             if target_type not in parent_allowed:
-                raise ValueError(f"Parents cannot send to target_type={target_type}")
+                raise ForbiddenError(f"Parents cannot send to target_type={target_type}")
             if is_scheduled:
-                raise ValueError("Only admins can schedule messages")
+                raise ForbiddenError("Only admins can schedule messages")
         else:
-            raise ValueError(f"Unknown sender role: {sender_role}")
+            raise ValidationError(f"Unknown sender role: {sender_role}")
 
     async def _resolve_recipients(
         self,
@@ -160,7 +160,7 @@ class MessagingService:
                 from src.repositories.user_repository import UserRepository
                 target = await UserRepository(self.session).get_by_id(target_user_id)
                 if not target or target.role != "admin":
-                    raise ValueError("Target must be an admin")
+                    raise ValidationError("Target must be an admin")
                 user_ids.add(target_user_id)
 
         elif target_type == "admin":
@@ -237,7 +237,7 @@ class MessagingService:
     async def get_message_stats(self, message_id: int, sender_id: int):
         msg = await self.msg_repo.get_by_id(message_id)
         if not msg or msg.sender_id != sender_id:
-            raise ValueError("Not found or not authorized")
+            raise NotFoundError("Message")
         recipients = await self.recipient_repo.get_recipients_for_message(message_id)
         total = len(recipients)
         read_count = sum(1 for r in recipients if r.is_read)
@@ -249,9 +249,9 @@ class MessagingService:
     async def cancel_scheduled(self, message_id: int, sender_id: int):
         msg = await self.msg_repo.get_by_id(message_id)
         if not msg or msg.sender_id != sender_id:
-            raise ValueError("Not found")
+            raise NotFoundError("Message")
         if msg.is_sent:
-            raise ValueError("Already sent, cannot cancel")
+            raise ValidationError("Already sent, cannot cancel")
         return await self.msg_repo.update(message_id, is_active=False)
 
     async def process_scheduled_messages(self):

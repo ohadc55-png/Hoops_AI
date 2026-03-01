@@ -1,0 +1,82 @@
+{% extends "parent_base.html" %}
+{% block title %}HOOPS AI — Child Progress{% endblock %}
+{% block nav_progress %}active{% endblock %}
+{% block header_title %}<span data-i18n="parent.progress.title">התקדמות הילד</span>{% endblock %}
+{% block content %}
+<div class="parent-progress" id="progressPage">
+
+  <!-- Loading -->
+  <div id="progressLoading" class="loading-state" style="text-align:center;padding:48px;">
+    <span class="material-symbols-outlined spin-icon" style="font-size:32px;">progress_activity</span>
+    <div style="margin-top:8px;" data-i18n="common.loading">Loading...</div>
+  </div>
+
+  <!-- No Child State -->
+  <div id="noChildState" style="display:none;text-align:center;padding:48px;">
+    <span class="material-symbols-outlined" style="font-size:48px;color:var(--text-muted);">child_care</span>
+    <p style="margin-top:8px;color:var(--text-muted);" data-i18n="parent.progress.no_child">עדיין לא מקושר ילד לחשבון שלך.</p>
+  </div>
+
+  <!-- Main Content -->
+  <div id="progressContent" style="display:none;">
+
+    <!-- Player Header Card -->
+    <div class="progress-player-card" id="playerHeader"></div>
+
+    <!-- Stats Row: Attendance + Drills -->
+    <div class="progress-stats-row" id="statsRow"></div>
+
+    <!-- Proud Moments -->
+    <section class="progress-section">
+      <h2><span class="material-symbols-outlined">stars</span> <span data-i18n="parent.progress.proud_moments">רגעי גאווה</span></h2>
+      <div id="proudMomentsList"></div>
+    </section>
+
+    <!-- Drills & Assignments -->
+    <section class="progress-section">
+      <h2><span class="material-symbols-outlined">fitness_center</span> <span data-i18n="parent.progress.drills_title">תרגילים ומשימות</span></h2>
+      <div id="drillsList"></div>
+    </section>
+
+    <!-- Charts -->
+    <section class="progress-section">
+      <h2><span class="material-symbols-outlined">bar_chart</span> <span data-i18n="parent.progress.charts_title">התקדמות לאורך זמן</span></h2>
+      <div class="charts-grid">
+        <div class="chart-container">
+          <h3 data-i18n="parent.progress.chart_attendance">נוכחות חודשית</h3>
+          <canvas id="attendanceChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h3 data-i18n="parent.progress.chart_drills">תרגילים חודשיים</h3>
+          <canvas id="drillsChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Latest Evaluation -->
+    <section class="progress-section" id="evalSection" style="display:none;">
+      <h2><span class="material-symbols-outlined">assessment</span> <span data-i18n="parent.progress.latest_evaluation">הערכת מאמן אחרונה</span></h2>
+      <div id="evalContent"></div>
+    </section>
+
+    <!-- AI Progress Report -->
+    <section class="progress-section">
+      <div class="section-header-row">
+        <h2><span class="material-symbols-outlined">smart_toy</span> <span data-i18n="parent.progress.ai_report_title">דוח התקדמות AI</span></h2>
+        <button class="btn btn-primary btn-sm" id="generateReportBtn" onclick="generateReport()" style="display:none;">
+          <span class="material-symbols-outlined" style="font-size:16px;">auto_awesome</span>
+          <span data-i18n="parent.progress.generate_report">צור דוח</span>
+        </button>
+      </div>
+      <div id="reportLimitsInfo" class="report-limits-info"></div>
+      <div id="aiReportsList"></div>
+    </section>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="/static/js/parent_progress.js"></script>
+{% endblock %}

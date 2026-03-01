@@ -10,6 +10,7 @@ let _allInvoices = [];
 document.addEventListener('DOMContentLoaded', () => {
   if (!AdminAPI.token) return;
   loadMsgInbox();
+  loadComposeTargets();
   updateAdminMsgBadge();
   setInterval(updateAdminMsgBadge, 30000);
 });
@@ -26,8 +27,8 @@ const TAB_ELEMENTS = {
 
 function switchMsgTab(tab) {
   currentMsgTab = tab;
-  document.querySelectorAll('.msg-tab').forEach((t, i) => {
-    t.classList.toggle('active', TAB_KEYS[i] === tab);
+  document.querySelectorAll('.msg-tab').forEach((tabEl, i) => {
+    tabEl.classList.toggle('active', TAB_KEYS[i] === tab);
   });
   document.querySelectorAll('.msg-tab-content').forEach(c => c.style.display = 'none');
   document.getElementById(TAB_ELEMENTS[tab]).style.display = 'block';
@@ -49,7 +50,7 @@ async function loadMsgInbox() {
     const res = await AdminAPI.get('/api/messages/inbox');
     const msgs = res.data || [];
     if (msgs.length === 0) {
-      list.innerHTML = '<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">inbox</span>No messages</div>';
+      list.innerHTML = `<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">inbox</span>${t('admin.messages.empty.inbox')}</div>`;
       return;
     }
     list.innerHTML = msgs.map(m => `
@@ -60,25 +61,25 @@ async function loadMsgInbox() {
             <span class="msg-role-badge ${m.sender_role}">${m.sender_role}</span>
             ${m.message_type !== 'general' ? `<span class="msg-type-badge ${m.message_type}">${m.message_type}</span>` : ''}
           </div>
-          <span class="msg-time">${timeAgo(m.created_at)}</span>
+          <span class="msg-time">${timeAgo(m.created_at)} · ${formatMsgDate(m.created_at)}</span>
         </div>
         ${m.subject ? `<div class="msg-subject">${esc(m.subject)}</div>` : ''}
         <div class="msg-preview">${esc((m.body || '').substring(0, 80))}${m.body && m.body.length > 80 ? '...' : ''}</div>
       </div>
     `).join('');
   } catch {
-    list.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">Could not load messages</div>';
+    list.innerHTML = `<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">${t('admin.messages.empty.load_error')}</div>`;
   }
 }
 
 
 function openMsgDetail(msg) {
-  document.getElementById('msgDetailSubject').textContent = msg.subject || 'Message';
+  document.getElementById('msgDetailSubject').textContent = msg.subject || t('admin.messages.detail.default_subject');
   document.getElementById('msgDetailMeta').innerHTML = `
     <span class="msg-sender">${esc(msg.sender_name)}</span>
     <span class="msg-role-badge ${msg.sender_role}">${msg.sender_role}</span>
     ${msg.message_type !== 'general' ? `<span class="msg-type-badge ${msg.message_type}">${msg.message_type}</span>` : ''}
-    <span class="msg-time">${timeAgo(msg.created_at)}</span>
+    <span class="msg-time">${timeAgo(msg.created_at)} · ${formatMsgDate(msg.created_at)}</span>
   `;
   document.getElementById('msgDetailBody').textContent = msg.body;
 
@@ -90,7 +91,7 @@ function openMsgDetail(msg) {
       actionsEl.innerHTML = `
         <button class="btn btn-primary btn-sm" onclick="downloadInvoicePDF(${match[1]})">
           <span class="material-symbols-outlined" style="font-size:16px;">download</span>
-          Download PDF
+          ${t('admin.messages.detail.download_pdf')}
         </button>
       `;
     } else {
@@ -117,7 +118,7 @@ async function markMsgRead(id) {
 async function markAllMsgRead() {
   try {
     await AdminAPI.put('/api/messages/read-all');
-    AdminToast.success('All messages marked as read');
+    AdminToast.success(t('admin.messages.all_read'));
     loadMsgInbox();
     updateAdminMsgBadge();
   } catch { /* ignore */ }
@@ -132,7 +133,7 @@ async function loadMsgSent() {
     const res = await AdminAPI.get('/api/messages/sent');
     const msgs = res.data || [];
     if (msgs.length === 0) {
-      list.innerHTML = '<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">outbox</span>No sent messages</div>';
+      list.innerHTML = `<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">outbox</span>${t('admin.messages.empty.sent')}</div>`;
       return;
     }
     list.innerHTML = msgs.map(m => `
@@ -143,7 +144,7 @@ async function loadMsgSent() {
             ${m.message_type !== 'general' ? `<span class="msg-type-badge ${m.message_type}">${m.message_type}</span>` : ''}
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
-            <span class="msg-time">${timeAgo(m.created_at)}</span>
+            <span class="msg-time">${timeAgo(m.created_at)} · ${formatMsgDate(m.created_at)}</span>
             <button class="btn-icon" onclick="event.stopPropagation();showMsgStats(${m.id})" title="Stats">
               <span class="material-symbols-outlined" style="font-size:18px;">bar_chart</span>
             </button>
@@ -154,7 +155,7 @@ async function loadMsgSent() {
       </div>
     `).join('');
   } catch {
-    list.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">Could not load messages</div>';
+    list.innerHTML = `<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">${t('admin.messages.empty.load_error')}</div>`;
   }
 }
 
@@ -167,21 +168,21 @@ async function showMsgStats(msgId) {
       <div style="display:flex;gap:24px;justify-content:center;padding:16px;">
         <div style="text-align:center;">
           <div style="font-size:28px;font-weight:700;">${s.total}</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.5);">Total</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);">${t('admin.messages.stats.total')}</div>
         </div>
         <div style="text-align:center;">
           <div style="font-size:28px;font-weight:700;color:#66bb6a;">${s.read}</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.5);">Read</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);">${t('admin.messages.stats.read')}</div>
         </div>
         <div style="text-align:center;">
           <div style="font-size:28px;font-weight:700;color:#ef5350;">${s.unread}</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.5);">Unread</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);">${t('admin.messages.stats.unread')}</div>
         </div>
       </div>
     `;
     openModal('msgStatsModal');
   } catch {
-    AdminToast.error('Could not load stats');
+    AdminToast.error(t('admin.messages.stats_error'));
   }
 }
 
@@ -194,7 +195,7 @@ async function loadMsgScheduled() {
     const res = await AdminAPI.get('/api/messages/scheduled');
     const msgs = res.data || [];
     if (msgs.length === 0) {
-      list.innerHTML = '<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">schedule_send</span>No scheduled messages</div>';
+      list.innerHTML = `<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">schedule_send</span>${t('admin.messages.empty.scheduled')}</div>`;
       return;
     }
     list.innerHTML = msgs.map(m => `
@@ -205,23 +206,23 @@ async function loadMsgScheduled() {
             ${m.subject ? ` — ${esc(m.subject)}` : ''}
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
-            <span class="msg-time">Scheduled: ${m.scheduled_at || ''}</span>
-            <button class="btn btn-secondary btn-sm" onclick="cancelScheduled(${m.id})" style="color:#ef5350;">Cancel</button>
+            <span class="msg-time">${t('admin.messages.scheduled_prefix')} ${m.scheduled_at || ''}</span>
+            <button class="btn btn-secondary btn-sm" onclick="cancelScheduled(${m.id})" style="color:#ef5350;">${t('admin.messages.cancel_btn')}</button>
           </div>
         </div>
       </div>
     `).join('');
   } catch {
-    list.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">Could not load</div>';
+    list.innerHTML = `<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">${t('admin.messages.empty.load_error_short')}</div>`;
   }
 }
 
 
 async function cancelScheduled(id) {
-  if (!confirm('Cancel this scheduled message?')) return;
+  if (!confirm(t('admin.messages.cancel_confirm'))) return;
   try {
     await AdminAPI.del(`/api/messages/scheduled/${id}`);
-    AdminToast.success('Scheduled message cancelled');
+    AdminToast.success(t('admin.messages.scheduled_cancelled'));
     loadMsgScheduled();
   } catch { /* ignore */ }
 }
@@ -241,14 +242,14 @@ async function loadHoopsUpdates() {
       list.innerHTML = `
         <div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);">
           <span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">campaign</span>
-          No system updates
+          ${t('admin.messages.empty.hoops')}
         </div>`;
       return;
     }
 
     list.innerHTML = msgs.map(m => {
       const icon = m.message_type === 'billing_notification' ? 'receipt_long' : 'campaign';
-      const typeLabel = m.message_type === 'billing_notification' ? 'Billing' : 'System';
+      const typeLabel = m.message_type === 'billing_notification' ? t('admin.messages.hoops.type.billing') : t('admin.messages.hoops.type.system');
       return `
         <div class="msg-item ${m.is_read ? '' : 'unread'}" onclick="openMsgDetail(${JSON.stringify(m).replace(/"/g, '&quot;')})">
           <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -257,7 +258,7 @@ async function loadHoopsUpdates() {
               <span class="msg-sender">HOOPS AI</span>
               <span class="msg-type-badge billing_notification">${typeLabel}</span>
             </div>
-            <span class="msg-time">${timeAgo(m.created_at)}</span>
+            <span class="msg-time">${timeAgo(m.created_at)} · ${formatMsgDate(m.created_at)}</span>
           </div>
           ${m.subject ? `<div class="msg-subject">${esc(m.subject)}</div>` : ''}
           <div class="msg-preview">${esc((m.body || '').substring(0, 100))}${m.body && m.body.length > 100 ? '...' : ''}</div>
@@ -265,14 +266,14 @@ async function loadHoopsUpdates() {
       `;
     }).join('');
   } catch {
-    list.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">Could not load</div>';
+    list.innerHTML = `<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">${t('admin.messages.empty.load_error_short')}</div>`;
   }
 }
 
 async function markAllHoopsRead() {
   try {
     await AdminAPI.put('/api/messages/read-all');
-    AdminToast.success('All marked as read');
+    AdminToast.success(t('admin.messages.all_hoops_read'));
     loadHoopsUpdates();
     updateAdminMsgBadge();
   } catch { /* ignore */ }
@@ -297,26 +298,26 @@ async function loadMyInvoices() {
 
     summary.innerHTML = `
       <div class="summary-card" style="background:var(--surface-1);border-radius:8px;padding:12px;text-align:center;">
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;">Total Invoiced</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;">${t('admin.messages.invoice.total_invoiced')}</div>
         <div style="font-size:22px;font-weight:700;margin-top:4px;">₪${totalInvoiced.toLocaleString()}</div>
       </div>
       <div class="summary-card" style="background:var(--surface-1);border-radius:8px;padding:12px;text-align:center;">
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;">Paid</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;">${t('admin.messages.invoice.paid')}</div>
         <div style="font-size:22px;font-weight:700;color:#66bb6a;margin-top:4px;">₪${totalPaid.toLocaleString()}</div>
       </div>
       <div class="summary-card" style="background:var(--surface-1);border-radius:8px;padding:12px;text-align:center;">
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;">Open</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;">${t('admin.messages.invoice.open')}</div>
         <div style="font-size:22px;font-weight:700;color:#42a5f5;margin-top:4px;">₪${totalOpen.toLocaleString()}</div>
       </div>
       <div class="summary-card" style="background:var(--surface-1);border-radius:8px;padding:12px;text-align:center;">
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;">Overdue</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;">${t('admin.messages.invoice.overdue')}</div>
         <div style="font-size:22px;font-weight:700;color:#ef5350;margin-top:4px;">₪${totalOverdue.toLocaleString()}</div>
       </div>
     `;
 
     renderInvoiceList(_allInvoices);
   } catch {
-    list.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">Could not load invoices</div>';
+    list.innerHTML = `<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">${t('admin.messages.empty.invoices_error')}</div>`;
   }
 }
 
@@ -337,12 +338,12 @@ function renderInvoiceList(invoices) {
     list.innerHTML = `
       <div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);">
         <span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">receipt_long</span>
-        No invoices
+        ${t('admin.messages.empty.invoices')}
       </div>`;
     return;
   }
 
-  const typeLabels = { tax_invoice: 'חשבונית מס', receipt: 'קבלה', credit_note: 'זיכוי', quote: 'הצעת מחיר' };
+  const typeLabels = { tax_invoice: t('admin.messages.invoice.type.tax_invoice'), receipt: t('admin.messages.invoice.type.receipt'), credit_note: t('admin.messages.invoice.type.credit_note'), quote: t('admin.messages.invoice.type.quote') };
   const statusColors = { draft: '#9e9e9e', sent: '#42a5f5', paid: '#66bb6a', overdue: '#ef5350', cancelled: '#757575' };
 
   list.innerHTML = invoices.map(inv => {
@@ -364,15 +365,15 @@ function renderInvoiceList(invoices) {
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
             <span style="font-weight:700;font-size:16px;color:${inv.total >= 0 ? '#fff' : '#ef5350'};">₪${Math.abs(inv.total).toLocaleString()}</span>
-            <button class="btn-icon" title="Download PDF" style="color:#42a5f5;" onclick="event.stopPropagation();downloadInvoicePDF(${inv.id})">
+            <button class="btn-icon" title="${t('admin.messages.invoice.download_pdf')}" style="color:#42a5f5;" onclick="event.stopPropagation();downloadInvoicePDF(${inv.id})">
               <span class="material-symbols-outlined" style="font-size:18px;">download</span>
             </button>
           </div>
         </div>
         <div style="display:flex;gap:16px;margin-top:4px;font-size:12px;color:rgba(255,255,255,0.5);">
-          <span>Issued: ${issueDate}</span>
-          ${dueDate ? `<span>Due: ${dueDate}</span>` : ''}
-          ${inv.paid_date ? `<span style="color:#66bb6a;">Paid: ${new Date(inv.paid_date).toLocaleDateString('he-IL')}</span>` : ''}
+          <span>${t('admin.messages.invoice.issued')} ${issueDate}</span>
+          ${dueDate ? `<span>${t('admin.messages.invoice.due')} ${dueDate}</span>` : ''}
+          ${inv.paid_date ? `<span style="color:#66bb6a;">${t('admin.messages.invoice.paid_date')} ${new Date(inv.paid_date).toLocaleDateString('he-IL')}</span>` : ''}
         </div>
       </div>
     `;
@@ -387,10 +388,10 @@ async function loadComposeTargets() {
     const res = await AdminAPI.get('/api/messages/targets/teams');
     const teams = res.data || [];
     const el = document.getElementById('teamsCheckboxes');
-    el.innerHTML = teams.map(t => `
+    el.innerHTML = teams.map(tm => `
       <label style="display:flex;align-items:center;gap:8px;padding:4px 0;">
-        <input type="checkbox" class="team-checkbox" value="${t.id}">
-        ${esc(t.name)} ${t.age_group ? '(' + esc(t.age_group) + ')' : ''}
+        <input type="checkbox" class="team-checkbox" value="${tm.id}">
+        ${esc(tm.name)} ${tm.age_group ? '(' + esc(tm.age_group) + ')' : ''}
       </label>
     `).join('');
   } catch { /* ignore */ }
@@ -419,8 +420,8 @@ async function loadIndivTeams() {
   try {
     const res = await AdminAPI.get('/api/messages/targets/teams');
     const teams = res.data || [];
-    sel.innerHTML = '<option value="">-- Select Team --</option>' +
-      teams.map(t => `<option value="${t.id}">${esc(t.name)} ${t.age_group ? '(' + esc(t.age_group) + ')' : ''}</option>`).join('');
+    sel.innerHTML = `<option value="">${t('admin.messages.indiv.select_team')}</option>` +
+      teams.map(tm => `<option value="${tm.id}">${esc(tm.name)} ${tm.age_group ? '(' + esc(tm.age_group) + ')' : ''}</option>`).join('');
   } catch { /* ignore */ }
   // Reset cascading
   document.getElementById('indivRoleSection').style.display = 'none';
@@ -457,20 +458,20 @@ async function onIndivRoleChange() {
     return;
   }
 
-  personSelect.innerHTML = '<option value="">Loading...</option>';
+  personSelect.innerHTML = `<option value="">${t('admin.messages.indiv.loading')}</option>`;
   personSection.style.display = 'block';
 
   try {
     const res = await AdminAPI.get(`/api/messages/targets/team-members?team_id=${teamId}&role=${role}`);
     const members = res.data || [];
     if (members.length === 0) {
-      personSelect.innerHTML = '<option value="">-- No members found --</option>';
+      personSelect.innerHTML = `<option value="">${t('admin.messages.indiv.no_members')}</option>`;
       return;
     }
-    personSelect.innerHTML = '<option value="">-- Select Person --</option>' +
+    personSelect.innerHTML = `<option value="">${t('admin.messages.indiv.select_person')}</option>` +
       members.map(m => `<option value="${m.user_id}">${esc(m.name)}</option>`).join('');
   } catch {
-    personSelect.innerHTML = '<option value="">-- Error loading --</option>';
+    personSelect.innerHTML = `<option value="">${t('admin.messages.indiv.load_error')}</option>`;
   }
 }
 
@@ -484,7 +485,7 @@ function onIndivPersonChange() {
 async function sendAdminMessage() {
   const target = document.getElementById('composeTarget').value;
   const body = document.getElementById('composeBody').value.trim();
-  if (!body) { AdminToast.error('Message body is required'); return; }
+  if (!body) { AdminToast.error(t('admin.messages.compose.body_required')); return; }
 
   const payload = {
     body,
@@ -495,29 +496,29 @@ async function sendAdminMessage() {
 
   if (target === 'team') {
     const checked = [...document.querySelectorAll('.team-checkbox:checked')].map(c => parseInt(c.value));
-    if (checked.length === 0) { AdminToast.error('Select at least one team'); return; }
+    if (checked.length === 0) { AdminToast.error(t('admin.messages.compose.select_team')); return; }
     payload.target_team_ids = checked;
   }
 
   if (target === 'individual') {
     const uid = parseInt(document.getElementById('selectedUserId').value);
-    if (!uid) { AdminToast.error('Select a user'); return; }
+    if (!uid) { AdminToast.error(t('admin.messages.compose.select_user')); return; }
     payload.target_user_id = uid;
   }
 
   if (document.getElementById('scheduleToggle').checked) {
-    const d = document.getElementById('scheduleDate').value;
-    const t = document.getElementById('scheduleTime').value;
-    if (!d || !t) { AdminToast.error('Set date and time for scheduling'); return; }
-    payload.scheduled_at = `${d}T${t}:00`;
+    const schedDate = document.getElementById('scheduleDate').value;
+    const schedTime = document.getElementById('scheduleTime').value;
+    if (!schedDate || !schedTime) { AdminToast.error(t('admin.messages.compose.set_schedule')); return; }
+    payload.scheduled_at = `${schedDate}T${schedTime}:00`;
   }
 
   try {
     const res = await AdminAPI.post('/api/messages/send', payload);
     if (res.data.is_scheduled) {
-      AdminToast.success('Message scheduled');
+      AdminToast.success(t('admin.messages.compose.scheduled'));
     } else {
-      AdminToast.success('Message sent');
+      AdminToast.success(t('admin.messages.compose.sent'));
     }
     document.getElementById('composeSubject').value = '';
     document.getElementById('composeBody').value = '';
@@ -561,34 +562,26 @@ async function downloadInvoicePDF(invoiceId) {
     a.remove();
     URL.revokeObjectURL(url);
   } catch {
-    AdminToast.error('Failed to download PDF');
+    AdminToast.error(t('admin.messages.pdf_error'));
   }
 }
 
 
 /* === Helpers === */
 
-function formatTarget(t) {
+function formatTarget(targetType) {
   const labels = {
-    all_club: 'All Club', all_coaches: 'All Coaches',
-    all_players: 'All Players', all_parents: 'All Parents',
-    team: 'Specific Teams', team_players: 'Team Players',
-    team_parents: 'Team Parents', team_coaches: 'Team Coaches',
-    individual: 'Individual', admin: 'Admin',
-    my_team: 'My Team', my_coach: 'My Coach',
-    my_team_players: 'Team Players', my_team_parents: 'Team Parents',
+    all_club: t('admin.messages.target.all_club'), all_coaches: t('admin.messages.target.all_coaches'),
+    all_players: t('admin.messages.target.all_players'), all_parents: t('admin.messages.target.all_parents'),
+    team: t('admin.messages.target.team'), team_players: t('admin.messages.target.team_players'),
+    team_parents: t('admin.messages.target.team_parents'), team_coaches: t('admin.messages.target.team_coaches'),
+    individual: t('admin.messages.target.individual'), admin: t('admin.messages.target.admin'),
+    my_team: t('admin.messages.target.my_team'), my_coach: t('admin.messages.target.my_coach'),
+    my_team_players: t('admin.messages.target.my_team_players'), my_team_parents: t('admin.messages.target.my_team_parents'),
   };
-  return labels[t] || t;
+  return labels[targetType] || targetType;
 }
 
-function timeAgo(dateStr) {
-  if (!dateStr) return '';
-  let d = dateStr;
-  if (!d.endsWith('Z') && !d.includes('+')) d += 'Z';
-  const diff = (Date.now() - new Date(d).getTime()) / 1000;
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-  if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
-  return new Date(d).toLocaleDateString();
-}
+/* timeAgo → shared-utils.js */
+
+/* formatMsgDate → shared-utils.js */

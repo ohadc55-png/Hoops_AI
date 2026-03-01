@@ -68,24 +68,26 @@ function renderPlayerProfile(d) {
   }
 
   // ── Attendance ──
+  const attTotal = att.total_events ?? att.total ?? 0;
   html += `<div class="pp-section">
     <h4 class="pp-section-title"><span class="material-symbols-outlined">event_available</span> Attendance</h4>
-    ${att.total > 0 ? `
+    ${attTotal > 0 ? `
       <div class="pp-stat-row">
         <div class="pp-stat-bar-wrap"><div class="pp-stat-bar" style="width:${att.percentage}%;background:${pctColorVar(att.percentage)}"></div></div>
         <span class="pp-stat-value ${pctColor(att.percentage)}">${att.percentage}%</span>
       </div>
-      <div class="pp-stat-detail">${att.attended} / ${att.total} events attended</div>
+      <div class="pp-stat-detail">${att.attended} / ${attTotal} events attended</div>
     ` : '<div class="pp-empty">No attendance data yet</div>'}
   </div>`;
 
   // ── Drill Completion ──
+  const drPct = dr.assigned > 0 ? Math.round(dr.completed / dr.assigned * 100) : (dr.percentage ?? 0);
   html += `<div class="pp-section">
     <h4 class="pp-section-title"><span class="material-symbols-outlined">fitness_center</span> Drill Completion</h4>
     ${dr.assigned > 0 ? `
       <div class="pp-stat-row">
-        <div class="pp-stat-bar-wrap"><div class="pp-stat-bar" style="width:${dr.percentage}%;background:${pctColorVar(dr.percentage)}"></div></div>
-        <span class="pp-stat-value ${pctColor(dr.percentage)}">${dr.percentage}%</span>
+        <div class="pp-stat-bar-wrap"><div class="pp-stat-bar" style="width:${drPct}%;background:${pctColorVar(drPct)}"></div></div>
+        <span class="pp-stat-value ${pctColor(drPct)}">${drPct}%</span>
       </div>
       <div class="pp-stat-detail">${dr.completed} / ${dr.assigned} drills completed${dr.last_completed ? ' \u00B7 Last: ' + new Date(dr.last_completed.endsWith('Z') ? dr.last_completed : dr.last_completed + 'Z').toLocaleDateString() : ''}</div>
     ` : '<div class="pp-empty">No drills assigned yet</div>'}

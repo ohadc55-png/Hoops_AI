@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}HOOPS AI - Player Profile{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="/static/css/pages/player-profile.css">
+<style>
+  .profile-page-wrap { max-width: 700px; margin: 0 auto; }
+  .profile-back-btn { margin-bottom: var(--sp-4); }
+</style>
+{% endblock %}
+{% block content %}
+<div class="profile-page-wrap">
+  <button class="btn btn-ghost profile-back-btn" onclick="history.back()">
+    <span class="material-symbols-outlined">arrow_back</span>
+    <span data-i18n="btn.back">Back</span>
+  </button>
+  <div id="profilePageContent">
+    <div style="text-align:center;padding:var(--sp-10);color:var(--text-muted);">
+      <span class="material-symbols-outlined pp-spin" style="font-size:32px;">progress_activity</span>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>const PLAYER_ID = {{ player_id }};</script>
+<script src="/static/js/player-profile.js"></script>
+<script src="/static/js/player_profile_page.js"></script>
+{% endblock %}

@@ -6,6 +6,7 @@ from src.repositories.user_repository import UserRepository
 from src.repositories.platform_club_repository import PlatformClubRepository
 from src.services.auth_service import hash_password, create_access_token
 from src.services.notification_service import NotificationService
+from src.utils.exceptions import ValidationError, NotFoundError, ConflictError
 
 
 class ClubRegistrationService:
@@ -20,11 +21,11 @@ class ClubRegistrationService:
         """Validate a registration link and return club info."""
         link = await self.link_repo.get_by_token(token)
         if not link:
-            raise ValueError("Registration link not found")
+            raise NotFoundError("Registration link")
         if not link.is_active:
-            raise ValueError("This registration link has been deactivated")
+            raise ValidationError("This registration link has been deactivated")
         if link.expires_at and link.expires_at < datetime.utcnow():
-            raise ValueError("This registration link has expired")
+            raise ValidationError("This registration link has expired")
         return {
             "club_id": link.club.id,
             "club_name": link.club.name,
@@ -44,16 +45,16 @@ class ClubRegistrationService:
         # Validate the link
         link = await self.link_repo.get_by_token(token)
         if not link:
-            raise ValueError("Registration link not found")
+            raise NotFoundError("Registration link")
         if not link.is_active:
-            raise ValueError("This registration link has been deactivated")
+            raise ValidationError("This registration link has been deactivated")
         if link.expires_at and link.expires_at < datetime.utcnow():
-            raise ValueError("This registration link has expired")
+            raise ValidationError("This registration link has expired")
 
         # Check email not already used for admin role
         existing = await self.user_repo.get_by_email_and_role(email, "admin")
         if existing:
-            raise ValueError("Email already registered as admin")
+            raise ConflictError("Email already registered as admin")
 
         # Create user with admin role
         user = await self.user_repo.create(

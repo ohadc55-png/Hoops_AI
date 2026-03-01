@@ -5,6 +5,7 @@ import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.repositories.team_repository import TeamRepository
 from src.repositories.team_member_repository import TeamMemberRepository
+from src.utils.exceptions import ValidationError, ForbiddenError, NotFoundError, ConflictError
 
 
 class TeamService:
@@ -36,9 +37,9 @@ class TeamService:
         """Only the admin who created the team can regenerate coach invite."""
         team = await self.team_repo.get_by_id(team_id)
         if not team:
-            raise ValueError("Team not found")
+            raise NotFoundError("Team", team_id)
         if team.created_by_admin_id != admin_id:
-            raise ValueError("Only the admin who created this team can regenerate invite codes")
+            raise ForbiddenError("Only the admin who created this team can regenerate invite codes")
         new_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
         new_token = str(uuid.uuid4())
         return await self.team_repo.update(team_id, coach_invite_code=new_code, coach_invite_token=new_token)
@@ -47,9 +48,9 @@ class TeamService:
         """Admin regenerates the player invite code."""
         team = await self.team_repo.get_by_id(team_id)
         if not team:
-            raise ValueError("Team not found")
+            raise NotFoundError("Team", team_id)
         if team.created_by_admin_id != admin_id:
-            raise ValueError("Only the admin who created this team can regenerate invite codes")
+            raise ForbiddenError("Only the admin who created this team can regenerate invite codes")
         new_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
         new_token = str(uuid.uuid4())
         return await self.team_repo.update(team_id, player_invite_code=new_code, player_invite_token=new_token)
@@ -58,9 +59,9 @@ class TeamService:
         """Admin regenerates the parent invite code."""
         team = await self.team_repo.get_by_id(team_id)
         if not team:
-            raise ValueError("Team not found")
+            raise NotFoundError("Team", team_id)
         if team.created_by_admin_id != admin_id:
-            raise ValueError("Only the admin who created this team can regenerate invite codes")
+            raise ForbiddenError("Only the admin who created this team can regenerate invite codes")
         new_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
         new_token = str(uuid.uuid4())
         return await self.team_repo.update(team_id, parent_invite_code=new_code, parent_invite_token=new_token)
@@ -70,10 +71,10 @@ class TeamService:
         """Coach joins a team using coach_invite_code."""
         team = await self.team_repo.get_by_coach_invite_code(code)
         if not team:
-            raise ValueError("Invalid coach invite code")
+            raise ValidationError("Invalid coach invite code")
         existing = await self.member_repo.get_membership(team.id, user_id)
         if existing:
-            raise ValueError("Already a member of this team")
+            raise ConflictError("Already a member of this team")
         member = await self.member_repo.create(
             team_id=team.id, user_id=user_id, role_in_team="coach",
         )
@@ -100,7 +101,7 @@ class TeamService:
         """Admin removes a member from team."""
         team = await self.team_repo.get_by_id(team_id)
         if not team or team.created_by_admin_id != admin_id:
-            raise ValueError("Not authorized")
+            raise ForbiddenError("Not authorized")
         return await self.member_repo.delete(member_id)
 
     async def get_team_members(self, team_id: int):

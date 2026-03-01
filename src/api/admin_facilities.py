@@ -15,6 +15,8 @@ class FacilityRequest(BaseModel):
     facility_type: str
     address: str | None = None
     capacity: int | None = None
+    manager_name: str | None = None
+    manager_phone: str | None = None
     notes: str | None = None
 
 
@@ -25,6 +27,8 @@ def _fac_to_dict(f):
         "facility_type": f.facility_type,
         "address": f.address,
         "capacity": f.capacity,
+        "manager_name": f.manager_name,
+        "manager_phone": f.manager_phone,
         "notes": f.notes,
     }
 
@@ -44,7 +48,8 @@ async def create_facility(req: FacilityRequest, admin: User = Depends(get_curren
         raise HTTPException(status_code=400, detail="Invalid facility type")
     repo = FacilityRepository(db)
     fac = await repo.create(admin_id=admin.id, name=req.name.strip(), facility_type=req.facility_type,
-                            address=req.address, capacity=req.capacity, notes=req.notes)
+                            address=req.address, capacity=req.capacity,
+                            manager_name=req.manager_name, manager_phone=req.manager_phone, notes=req.notes)
     return {"success": True, "data": _fac_to_dict(fac)}
 
 
@@ -55,7 +60,8 @@ async def update_facility(facility_id: int, req: FacilityRequest, admin: User = 
     if not fac or fac.admin_id != admin.id:
         raise HTTPException(status_code=404, detail="Facility not found")
     updated = await repo.update(facility_id, name=req.name.strip(), facility_type=req.facility_type,
-                                address=req.address, capacity=req.capacity, notes=req.notes)
+                                address=req.address, capacity=req.capacity,
+                                manager_name=req.manager_name, manager_phone=req.manager_phone, notes=req.notes)
     return {"success": True, "data": _fac_to_dict(updated)}
 
 

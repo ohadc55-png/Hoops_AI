@@ -2,8 +2,11 @@
 HOOPS AI - OpenAI Client Wrapper
 """
 import asyncio
+import logging
 from openai import AsyncOpenAI
 from config import get_settings
+
+logger = logging.getLogger(__name__)
 
 _client = None
 
@@ -30,7 +33,7 @@ async def _log_usage(usage_context: dict, usage, model: str):
             model=model,
         )
     except Exception as e:
-        print(f"[ai-usage] Logging error: {e}")
+        logger.warning(f"AI usage logging error: {e}")
 
 
 async def chat_completion(

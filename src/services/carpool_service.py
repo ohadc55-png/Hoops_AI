@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.repositories.carpool_repository import CarpoolRideRepository, CarpoolPassengerRepository
 from src.repositories.team_event_repository import TeamEventRepository
 from src.models.team_member import TeamMember
+from src.utils.exceptions import NotFoundError, ForbiddenError, ValidationError, ConflictError
 
 
 class CarpoolService:
@@ -50,10 +51,10 @@ class CarpoolService:
     async def get_rides_for_event(self, event_id: int, parent_user_id: int):
         event = await self.event_repo.get_by_id(event_id)
         if not event:
-            raise ValueError("Event not found")
+            raise NotFoundError("Event")
         team_ids = await self._get_parent_team_ids(parent_user_id)
         if event.team_id not in team_ids:
-            raise ValueError("Not authorized")
+            raise ForbiddenError("Not authorized")
         return await self.ride_repo.get_by_event(event_id)
 
     async def create_ride(self, parent_user_id: int, event_id: int,
@@ -64,24 +65,24 @@ class CarpoolService:
                           notes: str | None = None):
         event = await self.event_repo.get_by_id(event_id)
         if not event or not event.is_active:
-            raise ValueError("Event not found")
+            raise NotFoundError("Event")
 
         team_ids = await self._get_parent_team_ids(parent_user_id)
         if event.team_id not in team_ids:
-            raise ValueError("Not authorized")
+            raise ForbiddenError("Not authorized")
 
         if event.date < date.today():
-            raise ValueError("Cannot offer ride for past event")
+            raise ValidationError("Cannot offer ride for past event")
 
         if available_seats < 1 or available_seats > 8:
-            raise ValueError("Seats must be between 1 and 8")
+            raise ValidationError("Seats must be between 1 and 8")
 
         if direction not in ("to_event", "from_event", "both"):
-            raise ValueError("Invalid direction")
+            raise ValidationError("Invalid direction")
 
         existing = await self.ride_repo.get_by_event_and_driver(event_id, parent_user_id)
         if existing and existing.direction == direction:
-            raise ValueError("You already offered a ride for this event")
+            raise ConflictError("You already offered a ride for this event")
 
         return await self.ride_repo.create(
             team_event_id=event_id,
@@ -98,9 +99,9 @@ class CarpoolService:
     async def update_ride(self, ride_id: int, parent_user_id: int, **kwargs):
         ride = await self.ride_repo.get_by_id(ride_id)
         if not ride or not ride.is_active:
-            raise ValueError("Ride not found")
+            raise NotFoundError("Ride")
         if ride.driver_user_id != parent_user_id:
-            raise ValueError("Not your ride")
+            raise ForbiddenError("Not your ride")
         allowed = {"neighborhood", "available_seats", "departure_time", "meeting_point", "direction", "notes"}
         filtered = {k: v for k, v in kwargs.items() if k in allowed}
         return await self.ride_repo.update(ride_id, **filtered)
@@ -108,9 +109,9 @@ class CarpoolService:
     async def cancel_ride(self, ride_id: int, parent_user_id: int):
         ride = await self.ride_repo.get_by_id(ride_id)
         if not ride or not ride.is_active:
-            raise ValueError("Ride not found")
+            raise NotFoundError("Ride")
         if ride.driver_user_id != parent_user_id:
-            raise ValueError("Not your ride")
+            raise ForbiddenError("Not your ride")
         return await self.ride_repo.update(ride_id, is_active=False)
 
     # ── Join / Leave ───────────────────────────────────────────
@@ -120,27 +121,27 @@ class CarpoolService:
                         notes: str | None = None):
         ride = await self.ride_repo.get_by_id(ride_id)
         if not ride or not ride.is_active:
-            raise ValueError("Ride not found")
+            raise NotFoundError("Ride")
 
         team_ids = await self._get_parent_team_ids(parent_user_id)
         if ride.team_id not in team_ids:
-            raise ValueError("Not authorized")
+            raise ForbiddenError("Not authorized")
 
         if ride.driver_user_id == parent_user_id:
-            raise ValueError("Cannot join your own ride")
+            raise ValidationError("Cannot join your own ride")
 
         existing = await self.passenger_repo.get_by_user_and_ride(ride_id, parent_user_id)
         if existing:
-            raise ValueError("Already joined this ride")
+            raise ConflictError("Already joined this ride")
 
         current_count = await self.passenger_repo.count_by_ride(ride_id)
         if current_count >= ride.available_seats:
-            raise ValueError("Ride is full")
+            raise ConflictError("Ride is full")
 
         if player_id:
             player_ids = await self._get_parent_player_ids(parent_user_id)
             if player_id not in player_ids:
-                raise ValueError("Not your child")
+                raise ForbiddenError("Not your child")
 
         return await self.passenger_repo.create(
             ride_id=ride_id,
@@ -152,7 +153,7 @@ class CarpoolService:
     async def leave_ride(self, ride_id: int, parent_user_id: int):
         passenger = await self.passenger_repo.get_by_user_and_ride(ride_id, parent_user_id)
         if not passenger:
-            raise ValueError("Not joined to this ride")
+            raise NotFoundError("Passenger")
         await self.session.delete(passenger)
         await self.session.flush()
         return True

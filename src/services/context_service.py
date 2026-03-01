@@ -467,6 +467,7 @@ class ContextService:
         return "\n".join(lines)
 
 
+
 async def _empty():
     """No-op coroutine for when no data context is needed."""
     return None

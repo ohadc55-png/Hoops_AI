@@ -1,7 +1,7 @@
 """HOOPS AI - Coach Engagement Scoring Service"""
 import math
 from datetime import datetime, timedelta
-from sqlalchemy import select, func
+from sqlalchemy import select, func, distinct
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.team import Team
@@ -19,6 +19,7 @@ from src.models.practice_session import PracticeSession
 from src.models.conversation import Conversation
 from src.models.event import Event
 from src.models.team_event import TeamEvent
+from src.models.player import Player
 
 
 class EngagementService:
@@ -158,6 +159,33 @@ class EngagementService:
         team_events_result = await self.session.execute(team_events_stmt)
         total_team_events = team_events_result.scalar() or 0
 
+        # Player report coverage: % of coach's players with ≥1 report in last 90 days
+        covered_stmt = (
+            select(func.count(distinct(PlayerReport.player_id)))
+            .where(PlayerReport.coach_id == coach_id, PlayerReport.created_at >= cutoff_90)
+        )
+        covered_result = await self.session.execute(covered_stmt)
+        players_with_reports = covered_result.scalar() or 0
+
+        total_players_stmt = select(func.count(Player.id)).where(Player.coach_id == coach_id)
+        total_players_result = await self.session.execute(total_players_stmt)
+        total_players = total_players_result.scalar() or 0
+
+        player_report_coverage_pct = int(players_with_reports / total_players * 100) if total_players > 0 else 0
+
+        # Practice summary completion: % of sessions in last 90 days that have a summary
+        summarized_stmt = (
+            select(func.count(PracticeSession.id))
+            .where(
+                PracticeSession.coach_id == coach_id,
+                PracticeSession.created_at >= cutoff_90,
+                PracticeSession.goal_achieved.isnot(None),
+            )
+        )
+        summarized_result = await self.session.execute(summarized_stmt)
+        sessions_with_summary = summarized_result.scalar() or 0
+        practice_summary_pct = int(sessions_with_summary / max(practice_sessions, 1) * 100)
+
         return {
             "evaluations": evaluations,
             "player_reports": player_reports,
@@ -170,6 +198,11 @@ class EngagementService:
             "conversations": conversations,
             "attendance_events": attendance_events,
             "total_team_events": total_team_events,
+            "player_report_coverage_pct": player_report_coverage_pct,
+            "players_with_reports": players_with_reports,
+            "total_players": total_players,
+            "practice_summary_pct": practice_summary_pct,
+            "sessions_with_summary": sessions_with_summary,
             "last_activity": str(last_activity) if last_activity else None,
         }
 
@@ -184,11 +217,12 @@ class EngagementService:
             """pow(0.7) curve: rewards effort without over-inflating."""
             return min(raw, 1.0) ** 0.7
 
-        # Reports (0-10): evaluations (target 4), game_reports (target 6), player_reports (target 4)
+        # Reports (0-10): evaluations + game/player reports + player coverage (45% weight)
         reports_raw = (
-            min(counts["evaluations"] / 4, 1) * 0.35 +
-            min(counts["game_reports"] / 6, 1) * 0.35 +
-            min(counts["player_reports"] / 4, 1) * 0.30
+            min(counts["evaluations"] / 4, 1) * 0.20 +
+            min(counts["game_reports"] / 6, 1) * 0.20 +
+            min(counts["player_reports"] / 4, 1) * 0.15 +
+            min(counts.get("player_report_coverage_pct", 0) / 80, 1) * 0.45
         )
         reports_score = min(round(curve(reports_raw) * 10), 10)
 
@@ -200,11 +234,12 @@ class EngagementService:
         )
         communication_score = min(round(curve(comm_raw) * 10), 10)
 
-        # Training (0-10): drills (target 8), plays (target 5), practices (target 6)
+        # Training (0-10): drills + plays + practices + summary completion (30% weight)
         train_raw = (
-            min(counts["drills_created"] / 8, 1) * 0.35 +
-            min(counts["plays_created"] / 5, 1) * 0.30 +
-            min(counts["practice_sessions"] / 6, 1) * 0.35
+            min(counts["drills_created"] / 8, 1) * 0.25 +
+            min(counts["plays_created"] / 5, 1) * 0.20 +
+            min(counts["practice_sessions"] / 6, 1) * 0.25 +
+            min(counts.get("practice_summary_pct", 0) / 70, 1) * 0.30
         )
         training_score = min(round(curve(train_raw) * 10), 10)
 
@@ -260,7 +295,7 @@ class EngagementService:
             from src.models.player import Player
             player = await self.session.get(Player, ev.player_id)
             pname = player.name if player else f"#{ev.player_id}"
-            timeline.append({"type": "evaluation", "date": str(ev.created_at), "detail": f"Player evaluation: {pname} ({ev.period_label})"})
+            timeline.append({"type": "evaluation", "id": ev.id, "player_id": ev.player_id, "date": str(ev.created_at), "detail": f"הערכת שחקן: {pname} ({ev.period_label})"})
 
         # Player reports
         stmt = select(PlayerReport).where(PlayerReport.coach_id == cid, PlayerReport.created_at >= cutoff).order_by(PlayerReport.created_at.desc()).limit(10)
@@ -269,32 +304,64 @@ class EngagementService:
             from src.models.player import Player
             player = await self.session.get(Player, r.player_id)
             pname = player.name if player else f"#{r.player_id}"
-            timeline.append({"type": "player_report", "date": str(r.created_at), "detail": f"Player report: {pname} ({r.period})"})
+            timeline.append({"type": "player_report", "id": r.id, "player_id": r.player_id, "date": str(r.created_at), "detail": f"דוח שחקן תקופתי: {pname} ({r.period})"})
 
         # Game reports
         stmt = select(GameReport).where(GameReport.coach_id == cid, GameReport.created_at >= cutoff).order_by(GameReport.created_at.desc()).limit(10)
         result = await self.session.execute(stmt)
         for g in result.scalars().all():
-            result_str = f"{'W' if g.result == 'win' else 'L' if g.result == 'loss' else 'D'} {g.score_us or '?'}-{g.score_them or '?'}"
-            timeline.append({"type": "game_report", "date": str(g.created_at), "detail": f"Game report: vs {g.opponent} ({result_str})"})
+            result_label = "נ" if g.result == "win" else "ה" if g.result == "loss" else "ת"
+            if g.score_us is not None and g.score_them is not None:
+                score_part = f"{result_label} {g.score_us}-{g.score_them}"
+            else:
+                score_part = "טרם הוזנה תוצאה"
+            timeline.append({"type": "game_report", "id": g.id, "date": str(g.created_at), "detail": f"דוח משחק: מול {g.opponent} ({score_part})"})
 
         # Drills created
         stmt = select(Drill).where(Drill.coach_id == cid, Drill.created_at >= cutoff).order_by(Drill.created_at.desc()).limit(5)
         result = await self.session.execute(stmt)
         for d in result.scalars().all():
-            timeline.append({"type": "drill", "date": str(d.created_at), "detail": f"Created drill: {d.title}"})
+            timeline.append({"type": "drill", "id": d.id, "date": str(d.created_at), "detail": f"תרגיל חדש: {d.title}"})
 
         # Messages sent
         stmt = select(ClubMessage).where(ClubMessage.sender_id == user_id, ClubMessage.created_at >= cutoff).order_by(ClubMessage.created_at.desc()).limit(5)
         result = await self.session.execute(stmt)
         for m in result.scalars().all():
-            timeline.append({"type": "message", "date": str(m.created_at), "detail": f"Sent message: {m.subject}"})
+            subj = m.subject if (m.subject and m.subject != 'None') else 'ללא נושא'
+            timeline.append({"type": "message", "id": m.id, "date": str(m.created_at), "detail": f"הודעה נשלחה: {subj}"})
 
         # Sort by date desc
         timeline.sort(key=lambda x: x["date"], reverse=True)
 
+        # Get engagement scores for this coach
+        # Need the team_id — use first team found
+        team_stmt = (
+            select(TeamMember.team_id)
+            .join(Team, TeamMember.team_id == Team.id)
+            .where(
+                TeamMember.user_id == user_id,
+                TeamMember.role_in_team == "coach",
+                Team.created_by_admin_id == admin_id,
+            )
+            .limit(1)
+        )
+        team_result = await self.session.execute(team_stmt)
+        team_row = team_result.first()
+        team_id = team_row[0] if team_row else 0
+
+        counts = await self._get_counts(cid, user_id, cutoff, datetime.now() - timedelta(days=30), datetime.now() - timedelta(days=7), team_id)
+        scores = self._calculate_scores(counts)
+
         return {
             "coach_id": cid,
             "coach_name": name,
+            "overall_score": scores["overall_score"],
+            "scores": {
+                "reports": scores["reports_score"],
+                "communication": scores["communication_score"],
+                "training": scores["training_score"],
+                "attendance": scores["attendance_score"],
+                "ai_usage": scores["ai_usage_score"],
+            },
             "timeline": timeline[:30],
         }

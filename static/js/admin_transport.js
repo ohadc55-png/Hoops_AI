@@ -6,7 +6,9 @@
 let _awayGames = [];
 let _transportTeams = [];
 
-const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_SHORT_HE = ['ינו׳','פבר׳','מרץ','אפר׳','מאי','יוני','יולי','אוג׳','ספט׳','אוק׳','נוב׳','דצמ׳'];
+const MONTHS_SHORT_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function getMonthShort(idx) { return (I18N.getLang() === 'he' ? MONTHS_SHORT_HE : MONTHS_SHORT_EN)[idx]; }
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!AdminAPI.token) return;
@@ -20,8 +22,8 @@ async function loadTeams() {
     _transportTeams = res.data || [];
     const sel = document.getElementById('transportTeamFilter');
     if (sel) {
-      sel.innerHTML = '<option value="">All Teams</option>'
-        + _transportTeams.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+      sel.innerHTML = `<option value="">${t('admin.transport.all_teams')}</option>`
+        + _transportTeams.map(tm => `<option value="${tm.id}">${esc(tm.name)}</option>`).join('');
     }
   } catch { /* ignore */ }
 }
@@ -45,27 +47,27 @@ async function loadAwayGames() {
     if (filtered.length > 0) {
       const nextDate = new Date(filtered[0].date + 'T00:00:00');
       document.getElementById('nextAwayDate').textContent =
-        `${nextDate.getDate()} ${MONTHS_SHORT[nextDate.getMonth()]}`;
+        `${nextDate.getDate()} ${getMonthShort(nextDate.getMonth())}`;
     } else {
       document.getElementById('nextAwayDate').textContent = '-';
     }
 
     if (filtered.length === 0) {
-      el.innerHTML = '<div class="empty-state-admin"><span class="material-symbols-outlined">directions_bus</span><h3>No upcoming away games</h3><p>Create a game event and mark it as "Away Game" in the schedule</p></div>';
+      el.innerHTML = `<div class="empty-state-admin"><span class="material-symbols-outlined">directions_bus</span><h3>${t('admin.transport.empty.no_away_games')}</h3><p>${t('admin.transport.empty.no_away_desc')}</p></div>`;
       return;
     }
 
     el.innerHTML = filtered.map(renderAwayGame).join('');
   } catch {
-    el.innerHTML = '<div class="empty-state-admin">Could not load away games</div>';
+    el.innerHTML = `<div class="empty-state-admin">${t('admin.transport.empty.load_error')}</div>`;
   }
 }
 
 function renderAwayGame(e) {
   const d = new Date(e.date + 'T00:00:00');
   const day = d.getDate();
-  const month = MONTHS_SHORT[d.getMonth()];
-  const weekday = d.toLocaleDateString('en-US', { weekday: 'short' });
+  const month = getMonthShort(d.getMonth());
+  const weekday = d.toLocaleDateString(I18N.getLang() === 'he' ? 'he-IL' : 'en-US', { weekday: 'short' });
 
   return `<div class="event-item" style="border-left:3px solid #F87171;">
     <div class="event-date-col">
@@ -76,7 +78,7 @@ function renderAwayGame(e) {
     <div class="event-info" style="flex:1;">
       <div class="event-title">
         ${esc(e.title)}
-        <span class="badge" style="background:rgba(248,113,113,0.15);color:#F87171;font-size:10px;padding:2px 6px;border-radius:4px;">Away</span>
+        <span class="badge" style="background:rgba(248,113,113,0.15);color:#F87171;font-size:10px;padding:2px 6px;border-radius:4px;">${t('admin.transport.away_badge')}</span>
       </div>
       <div class="event-meta">
         ${e.team_name ? esc(e.team_name) + ' · ' : ''}
@@ -86,21 +88,21 @@ function renderAwayGame(e) {
       <div style="display:flex;gap:var(--sp-4);margin-top:var(--sp-1);font-size:var(--text-sm);">
         <span style="color:${e.departure_time ? '#34D399' : 'var(--text-muted)'};">
           <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;">schedule</span>
-          Departure: ${e.departure_time || 'Not set'}
+          ${t('admin.transport.departure')} ${e.departure_time || t('admin.transport.not_set')}
         </span>
         <span style="color:${e.venue_address ? 'var(--text-secondary)' : 'var(--text-muted)'};">
           <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;">location_on</span>
-          ${e.venue_address ? esc(e.venue_address) : 'No address'}
+          ${e.venue_address ? esc(e.venue_address) : t('admin.transport.no_address')}
         </span>
         ${e.venue_address ? `<a href="https://waze.com/ul?q=${encodeURIComponent(e.venue_address)}&navigate=yes" target="_blank" rel="noopener"
           style="color:#33ccff;font-size:var(--text-xs);text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:3px;">
-          <span class="material-symbols-outlined" style="font-size:14px;">navigation</span>Waze
+          <span class="material-symbols-outlined" style="font-size:14px;">navigation</span>${t('admin.transport.waze')}
         </a>` : ''}
       </div>
     </div>
     <div class="event-actions">
       <a href="/admin/transport/${e.id}" class="btn btn-primary btn-xs" style="text-decoration:none;">
-        <span class="material-symbols-outlined" style="font-size:16px;">visibility</span> Details
+        <span class="material-symbols-outlined" style="font-size:16px;">visibility</span> ${t('admin.transport.details_btn')}
       </a>
     </div>
   </div>`;

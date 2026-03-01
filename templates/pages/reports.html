@@ -4,20 +4,23 @@
 {% block styles %}<link rel="stylesheet" href="/static/css/pages/reports.css">{% endblock %}
 {% block content %}
 <div class="page-header">
-  <div><h1 class="page-title">Reports</h1><p class="page-subtitle">Attendance, game reports, and player assessments</p></div>
+  <div>
+    <h1 class="page-title" data-i18n="coach.nav.reports">Reports</h1>
+    <p class="page-subtitle" data-i18n="coach.reports.subtitle">Attendance, game reports, and player assessments</p>
+  </div>
 </div>
 <div class="tabs" id="reportTabs">
-  <button class="tab active" data-tab="attendance">Attendance</button>
-  <button class="tab" data-tab="games">Game Reports</button>
-  <button class="tab" data-tab="playerReports">Player Reports</button>
-  <button class="tab" data-tab="evaluations">Player Evaluations</button>
+  <button class="tab active" data-tab="attendance" data-i18n="reports.tab.attendance">Attendance</button>
+  <button class="tab" data-tab="games" data-i18n="reports.tab.games">Game Reports</button>
+  <button class="tab" data-tab="playerReports" data-i18n="reports.tab.player_reports">Player Reports</button>
+  <button class="tab" data-tab="evaluations" data-i18n="coach.reports.tab.evaluations">Player Evaluations</button>
 </div>
 
 <!-- Attendance Tab -->
 <div id="tab-attendance">
   <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);flex-wrap:wrap;">
     <select class="select" id="attEventSelect" onchange="loadAttendanceForEvent()" style="max-width:320px;">
-      <option value="">Select practice...</option>
+      <option value="" data-i18n="reports.att.select_practice">Select practice...</option>
     </select>
   </div>
   <div id="attGrid"></div>
@@ -27,7 +30,7 @@
 <!-- Game Reports Tab -->
 <div id="tab-games" class="hidden">
   <div style="margin-bottom:var(--sp-4);">
-    <button class="btn btn-primary" onclick="openGameReportModal()"><span class="material-symbols-outlined" style="font-size:18px;">add</span> New Game Report</button>
+    <button class="btn btn-primary" onclick="openGameReportModal()"><span class="material-symbols-outlined" style="font-size:18px;">add</span> <span data-i18n="reports.games.modal.new">New Game Report</span></button>
   </div>
   <div id="gameReportsList"></div>
 </div>
@@ -36,9 +39,21 @@
 <div id="tab-playerReports" class="hidden">
   <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);flex-wrap:wrap;">
     <select class="select player-select" id="prPlayerSelect" onchange="loadPlayerReports()" style="max-width:280px;">
-      <option value="">Select player...</option>
+      <option value="" data-i18n="reports.player.select">Select player...</option>
     </select>
-    <button class="btn btn-primary" id="genReportBtn" onclick="generatePlayerReport()"><span class="material-symbols-outlined" style="font-size:18px;">auto_awesome</span> AI Generate Report</button>
+    <button class="btn btn-secondary" onclick="openPlayerReportModal()"><span class="material-symbols-outlined" style="font-size:18px;">add</span> דוח ידני</button>
+    <button class="btn btn-primary" id="genReportBtn" onclick="generatePlayerReport()"><span class="material-symbols-outlined" style="font-size:18px;">auto_awesome</span> <span data-i18n="reports.player.generate_btn">AI Generate Report</span></button>
+  </div>
+  <!-- Progress chart for selected player -->
+  <div id="playerProgressChartWrap" style="display:none;margin-bottom:var(--sp-6);">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-3);">
+        <span class="material-symbols-outlined" style="color:var(--primary);">show_chart</span>
+        <h3 style="font-weight:700;">גרף התקדמות</h3>
+        <span id="progressChartStandouts" class="badge badge-primary" style="margin-right:auto;display:none;"></span>
+      </div>
+      <canvas id="playerProgressChart" style="max-height:280px;"></canvas>
+    </div>
   </div>
   <div id="playerReportsList"></div>
 </div>
@@ -48,16 +63,16 @@
   <div id="evalRequestsBanner"></div>
   <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);flex-wrap:wrap;">
     <select class="select player-select" id="evalPlayerSelect" onchange="loadEvaluations()" style="max-width:280px;">
-      <option value="">Select player...</option>
+      <option value="" data-i18n="reports.eval.select_player">Select player...</option>
     </select>
     <select class="select" id="evalPeriodFilter" style="max-width:180px;">
-      <option value="">All periods</option>
-      <option value="weekly">Weekly</option>
-      <option value="monthly">Monthly</option>
-      <option value="semi_annual">Semi-Annual</option>
-      <option value="annual">Annual</option>
+      <option value="" data-i18n="coach.reports.eval.all_periods">All periods</option>
+      <option value="weekly" data-i18n="reports.eval.period.weekly">Weekly</option>
+      <option value="monthly" data-i18n="reports.eval.period.monthly">Monthly</option>
+      <option value="semi_annual" data-i18n="reports.eval.period.semi_annual">Semi-Annual</option>
+      <option value="annual" data-i18n="reports.eval.period.annual">Annual</option>
     </select>
-    <button class="btn btn-primary" onclick="openEvaluationModal()"><span class="material-symbols-outlined" style="font-size:18px;">add</span> New Evaluation</button>
+    <button class="btn btn-primary" onclick="openEvaluationModal()"><span class="material-symbols-outlined" style="font-size:18px;">add</span> <span data-i18n="reports.eval.modal.new">New Evaluation</span></button>
   </div>
   <div id="evaluationsList"></div>
 </div>
@@ -66,7 +81,7 @@
 <div class="modal-overlay" id="evaluationModal">
   <div class="modal" style="max-width:700px;">
     <div class="modal-header">
-      <h2 class="modal-title" id="evalModalTitle">New Player Evaluation</h2>
+      <h2 class="modal-title" id="evalModalTitle" data-i18n="reports.eval.modal.new">New Player Evaluation</h2>
       <button class="modal-close" onclick="closeModal('evaluationModal')"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
@@ -74,98 +89,112 @@
       <input type="hidden" id="evalRequestId">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-4);">
         <div class="input-group">
-          <label>Player</label>
+          <label data-i18n="role.player">Player</label>
           <select class="select player-select" id="evalModalPlayer" required>
-            <option value="">Select player...</option>
+            <option value="" data-i18n="reports.eval.select_player">Select player...</option>
           </select>
         </div>
         <div class="input-group">
-          <label>Period Type</label>
+          <label data-i18n="coach.reports.eval.period_type">Period Type</label>
           <select class="select" id="evalModalPeriodType" onchange="updatePeriodLabel()">
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-            <option value="semi_annual">Semi-Annual</option>
-            <option value="annual">Annual</option>
+            <option value="weekly" data-i18n="reports.eval.period.weekly">Weekly</option>
+            <option value="monthly" data-i18n="reports.eval.period.monthly">Monthly</option>
+            <option value="semi_annual" data-i18n="reports.eval.period.semi_annual">Semi-Annual</option>
+            <option value="annual" data-i18n="reports.eval.period.annual">Annual</option>
           </select>
         </div>
       </div>
       <div class="input-group" style="margin-bottom:var(--sp-4);">
-        <label>Period Label</label>
-        <input type="text" class="input" id="evalModalPeriodLabel" placeholder="Auto-calculated" readonly style="max-width:200px;">
+        <label data-i18n="coach.reports.eval.period_label">Period Label</label>
+        <input type="text" class="input" id="evalModalPeriodLabel" data-i18n-placeholder="coach.reports.eval.period_label_placeholder" placeholder="Auto-calculated" readonly style="max-width:200px;">
       </div>
 
-      <h3 style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--sp-3);color:var(--primary);">Ratings (1-10)</h3>
+      <h3 style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--sp-3);color:var(--primary);" data-i18n="coach.reports.eval.ratings_heading">Ratings (1-10)</h3>
 
       <div class="eval-ratings-grid">
         <div class="eval-rating-row">
-          <div class="eval-rating-label">Offensive Abilities</div>
+          <div class="eval-rating-label" data-i18n="coach.reports.eval.label.offensive">Offensive Abilities</div>
           <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalOffRating" oninput="this.nextElementSibling.textContent=this.value">
           <span class="eval-rating-value">5</span>
-          <input type="text" class="input eval-note" id="evalOffNotes" placeholder="Notes...">
+          <input type="text" class="input eval-note" id="evalOffNotes" data-i18n-placeholder="coach.reports.eval.notes_placeholder" placeholder="Notes...">
         </div>
         <div class="eval-rating-row">
-          <div class="eval-rating-label">Defensive Abilities</div>
+          <div class="eval-rating-label" data-i18n="coach.reports.eval.label.defensive">Defensive Abilities</div>
           <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalDefRating" oninput="this.nextElementSibling.textContent=this.value">
           <span class="eval-rating-value">5</span>
-          <input type="text" class="input eval-note" id="evalDefNotes" placeholder="Notes...">
+          <input type="text" class="input eval-note" id="evalDefNotes" data-i18n-placeholder="coach.reports.eval.notes_placeholder" placeholder="Notes...">
         </div>
         <div class="eval-rating-row">
-          <div class="eval-rating-label">Basketball IQ</div>
+          <div class="eval-rating-label" data-i18n="reports.eval.category.iq">Basketball IQ</div>
           <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalIqRating" oninput="this.nextElementSibling.textContent=this.value">
           <span class="eval-rating-value">5</span>
-          <input type="text" class="input eval-note" id="evalIqNotes" placeholder="Notes...">
+          <input type="text" class="input eval-note" id="evalIqNotes" data-i18n-placeholder="coach.reports.eval.notes_placeholder" placeholder="Notes...">
         </div>
         <div class="eval-rating-row">
-          <div class="eval-rating-label">Social / Teamwork</div>
+          <div class="eval-rating-label" data-i18n="coach.reports.eval.label.social">Social / Teamwork</div>
           <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalSocialRating" oninput="this.nextElementSibling.textContent=this.value">
           <span class="eval-rating-value">5</span>
-          <input type="text" class="input eval-note" id="evalSocialNotes" placeholder="Notes...">
+          <input type="text" class="input eval-note" id="evalSocialNotes" data-i18n-placeholder="coach.reports.eval.notes_placeholder" placeholder="Notes...">
         </div>
         <div class="eval-rating-row">
-          <div class="eval-rating-label">Leadership</div>
+          <div class="eval-rating-label" data-i18n="reports.eval.category.leadership">Leadership</div>
           <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalLeaderRating" oninput="this.nextElementSibling.textContent=this.value">
           <span class="eval-rating-value">5</span>
-          <input type="text" class="input eval-note" id="evalLeaderNotes" placeholder="Notes...">
+          <input type="text" class="input eval-note" id="evalLeaderNotes" data-i18n-placeholder="coach.reports.eval.notes_placeholder" placeholder="Notes...">
         </div>
         <div class="eval-rating-row">
-          <div class="eval-rating-label">Work Ethic</div>
+          <div class="eval-rating-label" data-i18n="reports.eval.category.work_ethic">Work Ethic</div>
           <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalWorkRating" oninput="this.nextElementSibling.textContent=this.value">
           <span class="eval-rating-value">5</span>
-          <input type="text" class="input eval-note" id="evalWorkNotes" placeholder="Notes...">
+          <input type="text" class="input eval-note" id="evalWorkNotes" data-i18n-placeholder="coach.reports.eval.notes_placeholder" placeholder="Notes...">
         </div>
         <div class="eval-rating-row">
-          <div class="eval-rating-label">Physical Fitness</div>
+          <div class="eval-rating-label" data-i18n="coach.reports.eval.label.fitness">Physical Fitness</div>
           <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalFitRating" oninput="this.nextElementSibling.textContent=this.value">
           <span class="eval-rating-value">5</span>
-          <input type="text" class="input eval-note" id="evalFitNotes" placeholder="Notes...">
+          <input type="text" class="input eval-note" id="evalFitNotes" data-i18n-placeholder="coach.reports.eval.notes_placeholder" placeholder="Notes...">
         </div>
         <div class="eval-rating-row">
-          <div class="eval-rating-label">Improvement</div>
+          <div class="eval-rating-label" data-i18n="reports.eval.category.improvement">Improvement</div>
           <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalImpRating" oninput="this.nextElementSibling.textContent=this.value">
           <span class="eval-rating-value">5</span>
-          <input type="text" class="input eval-note" id="evalImpNotes" placeholder="Notes...">
+          <input type="text" class="input eval-note" id="evalImpNotes" data-i18n-placeholder="coach.reports.eval.notes_placeholder" placeholder="Notes...">
         </div>
         <div class="eval-rating-row">
-          <div class="eval-rating-label" style="color:var(--error)">Leaving Risk</div>
+          <div class="eval-rating-label" style="color:var(--error)" data-i18n="reports.eval.category.leaving_risk">Leaving Risk</div>
           <input type="range" min="1" max="10" value="1" class="eval-slider" id="evalLeaveRating" oninput="this.nextElementSibling.textContent=this.value">
           <span class="eval-rating-value">1</span>
-          <input type="text" class="input eval-note" id="evalLeaveNotes" placeholder="Notes...">
+          <input type="text" class="input eval-note" id="evalLeaveNotes" data-i18n-placeholder="coach.reports.eval.notes_placeholder" placeholder="Notes...">
+        </div>
+
+        <!-- Required: Personal improvement + Team contribution -->
+        <div class="eval-rating-row" style="border-top:2px solid var(--primary);padding-top:var(--sp-3);margin-top:var(--sp-2);">
+          <div class="eval-rating-label" style="color:var(--primary);font-weight:700;">שיפור אישי *</div>
+          <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalPersonalRating" oninput="this.nextElementSibling.textContent=this.value">
+          <span class="eval-rating-value">5</span>
+          <textarea class="input eval-note" id="evalPersonalNotes" rows="2" placeholder="תאר את השיפור האישי של השחקן..." style="resize:vertical;min-height:40px;"></textarea>
+        </div>
+        <div class="eval-rating-row">
+          <div class="eval-rating-label" style="color:var(--primary);font-weight:700;">תרומה לקבוצה *</div>
+          <input type="range" min="1" max="10" value="5" class="eval-slider" id="evalTeamContribRating" oninput="this.nextElementSibling.textContent=this.value">
+          <span class="eval-rating-value">5</span>
+          <textarea class="input eval-note" id="evalTeamContribNotes" rows="2" placeholder="תאר את תרומתו לקבוצה..." style="resize:vertical;min-height:40px;"></textarea>
         </div>
       </div>
 
       <div class="input-group" style="margin-top:var(--sp-4);">
-        <label>Overall Notes</label>
-        <textarea class="textarea" id="evalOverall" rows="3" placeholder="General assessment of the player..."></textarea>
+        <label data-i18n="coach.reports.eval.overall_notes">Overall Notes</label>
+        <textarea class="textarea" id="evalOverall" rows="3" data-i18n-placeholder="coach.reports.eval.overall_placeholder" placeholder="General assessment of the player..."></textarea>
       </div>
       <div class="input-group">
-        <label>Potential & Development</label>
-        <textarea class="textarea" id="evalPotential" rows="3" placeholder="Player potential, development trajectory..."></textarea>
+        <label data-i18n="coach.reports.eval.potential">Potential &amp; Development</label>
+        <textarea class="textarea" id="evalPotential" rows="3" data-i18n-placeholder="coach.reports.eval.potential_placeholder" placeholder="Player potential, development trajectory..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-error" id="evalDeleteBtn" style="margin-right:auto;display:none;" onclick="deleteEvaluation(document.getElementById('evalId').value)">Delete</button>
-      <button class="btn btn-secondary" onclick="closeModal('evaluationModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveEvaluation()">Save Evaluation</button>
+      <button class="btn btn-error" id="evalDeleteBtn" style="margin-right:auto;display:none;" onclick="deleteEvaluation(document.getElementById('evalId').value)" data-i18n="btn.delete">Delete</button>
+      <button class="btn btn-secondary" onclick="closeModal('evaluationModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEvaluation()" data-i18n="coach.reports.btn.save_evaluation">Save Evaluation</button>
     </div>
   </div>
 </div>
@@ -174,49 +203,136 @@
 <div class="modal-overlay" id="gameReportModal">
   <div class="modal">
     <div class="modal-header">
-      <h2 class="modal-title" id="gameReportModalTitle">New Game Report</h2>
+      <h2 class="modal-title" id="gameReportModalTitle" data-i18n="reports.games.modal.new">New Game Report</h2>
       <button class="modal-close" onclick="closeModal('gameReportModal')"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="grId">
       <input type="hidden" id="grTeamEventId">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
-        <div class="input-group"><label>Date</label><input type="date" class="input" id="grDate"></div>
-        <div class="input-group"><label>Opponent</label><input type="text" class="input" id="grOpponent" placeholder="Opponent team"></div>
+        <div class="input-group"><label data-i18n="coach.reports.game.field.date">Date</label><input type="date" class="input" id="grDate"></div>
+        <div class="input-group"><label data-i18n="coach.reports.game.field.opponent">Opponent</label><input type="text" class="input" id="grOpponent" data-i18n-placeholder="coach.reports.game.field.opponent_placeholder" placeholder="Opponent team"></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-3);">
-        <div class="input-group"><label>Result</label>
+        <div class="input-group"><label data-i18n="coach.reports.game.field.result">Result</label>
           <select class="select" id="grResult">
-            <option value="win">Win</option><option value="loss">Loss</option><option value="draw">Draw</option>
+            <option value="win" data-i18n="result.win">Win</option>
+            <option value="loss" data-i18n="result.loss">Loss</option>
+            <option value="draw" data-i18n="result.draw">Draw</option>
           </select>
         </div>
-        <div class="input-group"><label>Our Score</label><input type="number" class="input" id="grScoreUs" placeholder="0" min="0"></div>
-        <div class="input-group"><label>Their Score</label><input type="number" class="input" id="grScoreThem" placeholder="0" min="0"></div>
+        <div class="input-group"><label data-i18n="coach.reports.game.field.our_score">Our Score</label><input type="number" class="input" id="grScoreUs" placeholder="0" min="0"></div>
+        <div class="input-group"><label data-i18n="coach.reports.game.field.their_score">Their Score</label><input type="number" class="input" id="grScoreThem" placeholder="0" min="0"></div>
       </div>
-      <div class="input-group"><label>Location</label><input type="text" class="input" id="grLocation" placeholder="Game location"></div>
+      <div class="input-group"><label data-i18n="coach.reports.game.field.location">Location</label><input type="text" class="input" id="grLocation" data-i18n-placeholder="coach.reports.game.field.location_placeholder" placeholder="Game location"></div>
       <div class="input-group">
-        <label>Standout Players</label>
+        <label data-i18n="reports.games.standouts">Standout Players</label>
         <div class="multi-select-container" id="grStandoutsContainer">
           <div class="multi-select-chips" id="grStandoutsChips"></div>
           <button type="button" class="btn btn-sm btn-secondary" onclick="toggleStandoutDropdown()" style="margin-top:var(--sp-1)">
-            <span class="material-symbols-outlined" style="font-size:16px">person_add</span> Select Players
+            <span class="material-symbols-outlined" style="font-size:16px">person_add</span> <span data-i18n="coach.reports.game.btn.select_players">Select Players</span>
           </button>
           <div class="multi-select-dropdown" id="grStandoutsDropdown"></div>
         </div>
       </div>
-      <div class="input-group"><label>Areas to Improve (comma-separated)</label><input type="text" class="input" id="grImprove" placeholder="Area 1, Area 2"></div>
-      <div class="input-group"><label>Notable Events</label><textarea class="textarea" id="grNotable" rows="2" placeholder="Key moments from the game"></textarea></div>
-      <div class="input-group"><label>Notes</label><textarea class="textarea" id="grNotes" rows="2" placeholder="Additional notes"></textarea></div>
+      <div class="input-group"><label data-i18n="coach.reports.game.field.areas_to_improve">Areas to Improve (comma-separated)</label><input type="text" class="input" id="grImprove" data-i18n-placeholder="coach.reports.game.field.areas_placeholder" placeholder="Area 1, Area 2"></div>
+      <div class="input-group"><label data-i18n="coach.reports.game.field.notable">Notable Events</label><textarea class="textarea" id="grNotable" rows="2" data-i18n-placeholder="coach.reports.game.field.notable_placeholder" placeholder="Key moments from the game"></textarea></div>
+      <div class="input-group"><label data-i18n="coach.reports.game.field.notes">Notes</label><textarea class="textarea" id="grNotes" rows="2" data-i18n-placeholder="coach.schedule.field.notes_placeholder" placeholder="Additional notes"></textarea></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-error" id="grDeleteBtn" style="margin-right:auto;display:none;" onclick="deleteGameReport(document.getElementById('grId').value)">Delete</button>
-      <button class="btn btn-secondary" onclick="closeModal('gameReportModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveGameReport()">Save Report</button>
+      <button class="btn btn-error" id="grDeleteBtn" style="margin-right:auto;display:none;" onclick="deleteGameReport(document.getElementById('grId').value)" data-i18n="btn.delete">Delete</button>
+      <button class="btn btn-secondary" onclick="closeModal('gameReportModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGameReport()" data-i18n="coach.reports.btn.save_report">Save Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- Manual Player Report Modal -->
+<div class="modal-overlay" id="playerReportModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h2 class="modal-title" id="prModalTitle">דוח שחקן תקופתי</h2>
+      <button class="modal-close" onclick="closeModal('playerReportModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+      <input type="hidden" id="prId">
+      <div id="prTopGrid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-4);">
+        <div class="input-group">
+          <label>שחקן</label>
+          <select class="select" id="prModalPlayer"></select>
+        </div>
+        <div class="input-group">
+          <label>סוג דוח</label>
+          <select class="select" id="prModalReportType" onchange="onReportTypeChange()">
+            <option value="season_start">תחילת עונה</option>
+            <option value="monthly" selected>חודשי</option>
+            <option value="semi_annual">חצי שנתי</option>
+            <option value="season_end">סוף עונה</option>
+          </select>
+        </div>
+        <div class="input-group" id="prMonthGroup">
+          <label>חודש</label>
+          <select class="select" id="prModalMonth">
+            <option value="1">ינואר</option>
+            <option value="2">פברואר</option>
+            <option value="3">מרץ</option>
+            <option value="4">אפריל</option>
+            <option value="5">מאי</option>
+            <option value="6">יוני</option>
+            <option value="7">יולי</option>
+            <option value="8">אוגוסט</option>
+            <option value="9">ספטמבר</option>
+            <option value="10">אוקטובר</option>
+            <option value="11">נובמבר</option>
+            <option value="12">דצמבר</option>
+          </select>
+        </div>
+      </div>
+      <div style="background:var(--bg-card);border-radius:var(--radius);padding:var(--sp-4);border:1px solid var(--border);margin-bottom:var(--sp-4);">
+        <h4 style="font-size:var(--text-sm);font-weight:700;margin-bottom:var(--sp-3);color:var(--primary);">דירוגים תקופתיים</h4>
+        <div class="eval-rating-row" style="margin-bottom:var(--sp-3);">
+          <div class="eval-rating-label">דירוג כללי לתקופה</div>
+          <input type="range" min="1" max="10" value="5" class="eval-slider" id="prOverallRating" oninput="document.getElementById('prOverallRatingVal').textContent=this.value">
+          <span id="prOverallRatingVal" class="eval-rating-value">5</span>
+        </div>
+        <div class="eval-rating-row" style="border-top:2px solid var(--primary);padding-top:var(--sp-3);margin-bottom:var(--sp-3);">
+          <div class="eval-rating-label" style="color:var(--primary);font-weight:700;">שיפור אישי *</div>
+          <input type="range" min="1" max="10" value="5" class="eval-slider" id="prPersonalRating" oninput="document.getElementById('prPersonalRatingVal').textContent=this.value">
+          <span id="prPersonalRatingVal" class="eval-rating-value">5</span>
+          <textarea class="input eval-note" id="prPersonalNotes" rows="2" placeholder="תאר את השיפור האישי..." style="resize:vertical;min-height:40px;"></textarea>
+        </div>
+        <div class="eval-rating-row">
+          <div class="eval-rating-label" style="color:var(--primary);font-weight:700;">תרומה לקבוצה *</div>
+          <input type="range" min="1" max="10" value="5" class="eval-slider" id="prTeamContribRating" oninput="document.getElementById('prTeamContribRatingVal').textContent=this.value">
+          <span id="prTeamContribRatingVal" class="eval-rating-value">5</span>
+          <textarea class="input eval-note" id="prTeamContribNotes" rows="2" placeholder="תאר את תרומתו לקבוצה..." style="resize:vertical;min-height:40px;"></textarea>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>הערות התקדמות</label>
+        <textarea class="textarea" id="prProgressNotes" rows="2" placeholder="תיאור כללי של התקדמות השחקן..."></textarea>
+      </div>
+      <div class="input-group">
+        <label>המלצות</label>
+        <textarea class="textarea" id="prRecommendations" rows="2" placeholder="המלצות לתקופה הבאה..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-error" id="prDeleteBtn" style="margin-right:auto;display:none;" onclick="deletePlayerReportFromModal()"><span class="material-symbols-outlined" style="font-size:16px;">delete</span> מחק</button>
+      <button class="btn btn-secondary" onclick="closeModal('playerReportModal')">ביטול</button>
+      <button class="btn btn-primary" id="prSaveBtn" onclick="saveManualPlayerReport()">
+        <span class="material-symbols-outlined" style="font-size:16px;">save</span> שמור דוח
+      </button>
     </div>
   </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="/static/js/reports-core.js"></script>
+<script src="/static/js/reports-attendance.js"></script>
+<script src="/static/js/reports-games.js"></script>
+<script src="/static/js/reports-evaluations.js"></script>
 <script src="/static/js/reports.js"></script>
 {% endblock %}

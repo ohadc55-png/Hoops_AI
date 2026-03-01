@@ -1,19 +1,19 @@
 {% extends "player_base.html" %}
 {% block title %}HOOPS AI — Messages{% endblock %}
 {% block nav_messages %}active{% endblock %}
-{% block header_title %}Messages{% endblock %}
+{% block header_title %}<span data-i18n="player.nav.messages">Messages</span>{% endblock %}
 {% block content %}
 <div class="player-messages-page">
 
   <div class="msg-tabs">
-    <div class="msg-tab active" onclick="switchPlayerMsgTab('inbox')">Inbox</div>
-    <div class="msg-tab" onclick="switchPlayerMsgTab('compose')">Compose</div>
+    <div class="msg-tab active" onclick="switchPlayerMsgTab('inbox')" data-i18n="player.messages.tab_inbox">Inbox</div>
+    <div class="msg-tab" onclick="switchPlayerMsgTab('compose')" data-i18n="player.messages.tab_compose">Compose</div>
   </div>
 
   <!-- Player Inbox -->
   <div class="msg-tab-content" id="playerMsgInbox">
     <div class="msg-list" id="playerInboxList">
-      <div class="loading-state">Loading messages...</div>
+      <div class="loading-state" data-i18n="player.messages.loading">Loading messages...</div>
     </div>
   </div>
 
@@ -21,22 +21,22 @@
   <div class="msg-tab-content" id="playerMsgCompose" style="display:none;">
     <div class="compose-form">
       <div class="form-group">
-        <label>Send to</label>
+        <label data-i18n="player.messages.send_to">Send to</label>
         <select class="input" id="playerComposeTarget">
-          <option value="my_coach">My Coach</option>
-          <option value="my_team">My Team</option>
+          <option value="my_coach" data-i18n="player.messages.target_my_coach">My Coach</option>
+          <option value="my_team" data-i18n="player.messages.target_my_team">My Team</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Subject (optional)</label>
-        <input type="text" class="input" id="playerComposeSubject" placeholder="Subject...">
+        <label data-i18n="player.messages.subject_label">Subject (optional)</label>
+        <input type="text" class="input" id="playerComposeSubject" data-i18n-placeholder="player.messages.subject_placeholder" placeholder="Subject...">
       </div>
       <div class="form-group">
-        <label>Message</label>
-        <textarea class="input" id="playerComposeBody" rows="4" placeholder="Write your message..."></textarea>
+        <label data-i18n="player.messages.message_label">Message</label>
+        <textarea class="input" id="playerComposeBody" rows="4" data-i18n-placeholder="player.messages.message_placeholder" placeholder="Write your message..."></textarea>
       </div>
       <button class="btn btn-primary" onclick="sendPlayerMsg()">
-        <span class="material-symbols-outlined">send</span> Send
+        <span class="material-symbols-outlined">send</span> <span data-i18n="btn.send">Send</span>
       </button>
     </div>
   </div>

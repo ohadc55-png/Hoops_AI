@@ -44,7 +44,7 @@ async function loadCategories() {
       const opts = Object.entries(categories)
         .map(([key, label]) => `<option value="${esc(key)}">${esc(label)}</option>`)
         .join('');
-      filterSelect.innerHTML = '<option value="">All Categories</option>' + opts;
+      filterSelect.innerHTML = `<option value="">${esc(t('knowledge.upload.all_categories'))}</option>` + opts;
     }
 
     // Upload modal dropdown
@@ -53,7 +53,7 @@ async function loadCategories() {
       const opts = Object.entries(categories)
         .map(([key, label]) => `<option value="${esc(key)}">${esc(label)}</option>`)
         .join('');
-      uploadSelect.innerHTML = '<option value="">Select...</option>' + opts;
+      uploadSelect.innerHTML = `<option value="">${esc(t('knowledge.upload.select_prompt'))}</option>` + opts;
     }
   } catch {
     // non-critical
@@ -70,7 +70,7 @@ async function loadDocuments() {
   const myGrid = document.getElementById('myDocsGrid');
   const sharedGrid = document.getElementById('sharedDocsGrid');
 
-  if (myGrid) myGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><span class="material-symbols-outlined">hourglass_empty</span><h3>Loading...</h3></div>';
+  if (myGrid) myGrid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><span class="material-symbols-outlined">hourglass_empty</span><h3>${esc(t('knowledge.loading'))}</h3></div>`;
 
   const category = document.getElementById('myFilterCategory')?.value || '';
   const status = document.getElementById('myFilterStatus')?.value || '';
@@ -92,7 +92,7 @@ async function loadDocuments() {
     renderMyDocs(myDocs);
     renderSharedDocs(sharedDocs);
   } catch {
-    if (myGrid) myGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><span class="material-symbols-outlined">error</span><h3>Failed to load documents</h3></div>';
+    if (myGrid) myGrid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><span class="material-symbols-outlined">error</span><h3>${esc(t('knowledge.load_failed'))}</h3></div>`;
   }
 }
 
@@ -101,14 +101,14 @@ function renderMyDocs(docs) {
   const countEl = document.getElementById('myDocCount');
   if (!grid) return;
 
-  if (countEl) countEl.textContent = `${docs.length} document${docs.length !== 1 ? 's' : ''}`;
+  if (countEl) countEl.textContent = docs.length === 1 ? t('knowledge.doc_count_singular') : t('knowledge.doc_count', { count: docs.length });
 
   if (!docs.length) {
     grid.innerHTML = `
       <div class="empty-state" style="grid-column:1/-1;">
         <span class="material-symbols-outlined">folder_open</span>
-        <h3>No documents yet</h3>
-        <p>Upload your first coaching document</p>
+        <h3>${esc(t('knowledge.my_docs.empty.title'))}</h3>
+        <p>${esc(t('knowledge.my_docs.empty.subtitle'))}</p>
       </div>`;
     return;
   }
@@ -121,14 +121,14 @@ function renderSharedDocs(docs) {
   const countEl = document.getElementById('sharedDocCount');
   if (!grid) return;
 
-  if (countEl) countEl.textContent = `${docs.length} document${docs.length !== 1 ? 's' : ''}`;
+  if (countEl) countEl.textContent = docs.length === 1 ? t('knowledge.doc_count_singular') : t('knowledge.doc_count', { count: docs.length });
 
   if (!docs.length) {
     grid.innerHTML = `
       <div class="empty-state" style="grid-column:1/-1;">
         <span class="material-symbols-outlined">library_books</span>
-        <h3>No shared documents</h3>
-        <p>Documents uploaded by your club admin will appear here</p>
+        <h3>${esc(t('knowledge.shared_docs.empty.title'))}</h3>
+        <p>${esc(t('knowledge.shared_docs.empty.subtitle'))}</p>
       </div>`;
     return;
   }
@@ -143,13 +143,13 @@ function renderDocCard(doc, editable) {
   const scopeBadge = _scopeBadge(doc.scope);
   const fileSize = _formatSize(doc.file_size);
   const dateStr = _formatDate(doc.created_at);
-  const chunks = doc.chunk_count != null ? `${doc.chunk_count} chunks` : '--';
+  const chunks = doc.chunk_count != null ? `${doc.chunk_count} ${t('knowledge.stat.chunks').toLowerCase()}` : '--';
   const fileIcon = _fileIcon(doc.file_type);
   const fileExt = (doc.file_type || '').toUpperCase();
 
   const actionBtns = [];
-  if (editable && doc.status === 'error') actionBtns.push(`<button class="btn btn-secondary" style="font-size:var(--text-xs);padding:var(--sp-1) var(--sp-2);border-color:var(--warning);color:var(--warning);" onclick="event.stopPropagation();retryDocument(${doc.id})" title="Retry"><span class="material-symbols-outlined" style="font-size:16px;">refresh</span></button>`);
-  if (editable) actionBtns.push(`<button class="btn btn-secondary" style="font-size:var(--text-xs);padding:var(--sp-1) var(--sp-2);" onclick="event.stopPropagation();deleteDocument(${doc.id})" title="Delete"><span class="material-symbols-outlined" style="font-size:16px;">delete</span></button>`);
+  if (editable && doc.status === 'error') actionBtns.push(`<button class="btn btn-secondary" style="font-size:var(--text-xs);padding:var(--sp-1) var(--sp-2);border-color:var(--warning);color:var(--warning);" onclick="event.stopPropagation();retryDocument(${doc.id})" title="${esc(t('knowledge.btn.retry'))}"><span class="material-symbols-outlined" style="font-size:16px;">refresh</span></button>`);
+  if (editable) actionBtns.push(`<button class="btn btn-secondary" style="font-size:var(--text-xs);padding:var(--sp-1) var(--sp-2);" onclick="event.stopPropagation();deleteDocument(${doc.id})" title="${esc(t('knowledge.btn.delete'))}"><span class="material-symbols-outlined" style="font-size:16px;">delete</span></button>`);
 
   const errorMsg = doc.status === 'error' && doc.error_message
     ? `<div style="font-size:var(--text-xs);color:var(--error);margin-top:var(--sp-2);padding:var(--sp-2);background:rgba(239,68,68,0.06);border-radius:var(--r-sm);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${esc(doc.error_message)}</div>`
@@ -163,7 +163,7 @@ function renderDocCard(doc, editable) {
           <span class="material-symbols-outlined" style="font-size:24px;color:var(--primary);">${fileIcon}</span>
         </div>
         <div style="flex:1;min-width:0;">
-          <h3 style="font-size:var(--text-base);font-weight:700;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(doc.title || doc.original_name || 'Untitled')}</h3>
+          <h3 style="font-size:var(--text-base);font-weight:700;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(doc.title || doc.original_name || t('knowledge.untitled'))}</h3>
           <div style="font-size:var(--text-xs);color:var(--text-muted);display:flex;align-items:center;gap:var(--sp-2);">
             <span>${fileExt}</span>
             <span style="opacity:0.4;">·</span>
@@ -197,7 +197,7 @@ function viewDocument(id) {
   const doc = _allDocs.find(d => d.id === id);
   if (!doc) return;
 
-  document.getElementById('detailDocTitle').textContent = doc.title || doc.original_name || 'Untitled';
+  document.getElementById('detailDocTitle').textContent = doc.title || doc.original_name || t('knowledge.untitled');
 
   const isEditable = doc.scope === 'coach';
 
@@ -206,38 +206,38 @@ function viewDocument(id) {
       ${doc.category ? `<span class="badge badge-neutral" style="display:inline-flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:13px;">category</span>${esc(_categoryLabel(doc.category))}</span>` : ''}
       ${_scopeBadge(doc.scope)}
       ${_statusBadge(doc.status)}
-      ${doc.language ? `<span class="badge badge-neutral">${doc.language === 'he' ? 'עברית' : 'English'}</span>` : ''}
+      ${doc.language ? `<span class="badge badge-neutral">${doc.language === 'he' ? t('knowledge.lang.hebrew') : t('knowledge.lang.english')}</span>` : ''}
     </div>
     ${doc.description ? `<p style="margin-bottom:var(--sp-4);color:var(--text-secondary);font-size:var(--text-sm);">${esc(doc.description)}</p>` : ''}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);font-size:var(--text-sm);">
       <div>
-        <span style="color:var(--text-muted);">File:</span>
+        <span style="color:var(--text-muted);">${esc(t('knowledge.detail.file'))}</span>
         <span style="color:var(--text-primary);margin-left:var(--sp-1);">${esc(doc.original_name)}</span>
       </div>
       <div>
-        <span style="color:var(--text-muted);">Size:</span>
+        <span style="color:var(--text-muted);">${esc(t('knowledge.detail.size'))}</span>
         <span style="color:var(--text-primary);margin-left:var(--sp-1);">${_formatSize(doc.file_size)}</span>
       </div>
       <div>
-        <span style="color:var(--text-muted);">Chunks:</span>
+        <span style="color:var(--text-muted);">${esc(t('knowledge.detail.chunks'))}</span>
         <span style="color:var(--text-primary);margin-left:var(--sp-1);">${doc.chunk_count ?? '--'}</span>
       </div>
       <div>
-        <span style="color:var(--text-muted);">Uploaded:</span>
+        <span style="color:var(--text-muted);">${esc(t('knowledge.detail.uploaded'))}</span>
         <span style="color:var(--text-primary);margin-left:var(--sp-1);">${_formatDate(doc.created_at)}</span>
       </div>
     </div>
     <!-- Text preview area -->
     <div id="docPreviewArea" style="margin-top:var(--sp-4);display:none;">
       <div style="font-weight:600;font-size:var(--text-sm);margin-bottom:var(--sp-2);display:flex;align-items:center;gap:var(--sp-2);">
-        <span class="material-symbols-outlined" style="font-size:16px;">preview</span> Content Preview
+        <span class="material-symbols-outlined" style="font-size:16px;">preview</span> ${esc(t('knowledge.detail.content_preview'))}
       </div>
       <div id="docPreviewContent" style="max-height:300px;overflow-y:auto;padding:var(--sp-3);background:rgba(0,0,0,0.2);border-radius:var(--r-md);font-size:var(--text-sm);color:var(--text-secondary);white-space:pre-wrap;word-break:break-word;line-height:1.6;border:1px solid rgba(255,255,255,0.06);"></div>
     </div>
     ${doc.status === 'error' && doc.error_message ? `
       <div style="margin-top:var(--sp-4);padding:var(--sp-3);background:rgba(239,68,68,0.08);border-radius:var(--r-md);border:1px solid rgba(239,68,68,0.2);">
         <div style="font-weight:600;color:var(--error);font-size:var(--text-sm);margin-bottom:var(--sp-1);display:flex;align-items:center;gap:var(--sp-1);">
-          <span class="material-symbols-outlined" style="font-size:16px;">error</span> Processing Error
+          <span class="material-symbols-outlined" style="font-size:16px;">error</span> ${esc(t('knowledge.detail.processing_error'))}
         </div>
         <p style="font-size:var(--text-xs);color:var(--text-secondary);">${esc(doc.error_message)}</p>
       </div>` : ''}
@@ -249,16 +249,16 @@ function viewDocument(id) {
   }
 
   const footerEl = document.getElementById('docDetailFooter');
-  const downloadBtn = `<button class="btn btn-ghost" onclick="downloadDocument(${doc.id})" title="Download file"><span class="material-symbols-outlined" style="font-size:18px;">download</span> Download</button>`;
+  const downloadBtn = `<button class="btn btn-ghost" onclick="downloadDocument(${doc.id})" title="${esc(t('knowledge.btn.download'))}"><span class="material-symbols-outlined" style="font-size:18px;">download</span> ${esc(t('knowledge.btn.download'))}</button>`;
   if (isEditable) {
     footerEl.innerHTML = `
       ${downloadBtn}
-      ${doc.status === 'error' ? `<button class="btn btn-secondary" onclick="retryDocument(${doc.id});closeModal('docDetailModal')"><span class="material-symbols-outlined" style="font-size:18px;">refresh</span> Retry</button>` : ''}
-      <button class="btn btn-secondary" onclick="deleteDocument(${doc.id})" style="color:var(--error);border-color:var(--error);"><span class="material-symbols-outlined" style="font-size:18px;">delete</span> Delete</button>
-      <button class="btn btn-primary" onclick="closeModal('docDetailModal')">Close</button>
+      ${doc.status === 'error' ? `<button class="btn btn-secondary" onclick="retryDocument(${doc.id});closeModal('docDetailModal')"><span class="material-symbols-outlined" style="font-size:18px;">refresh</span> ${esc(t('knowledge.btn.retry'))}</button>` : ''}
+      <button class="btn btn-secondary" onclick="deleteDocument(${doc.id})" style="color:var(--error);border-color:var(--error);"><span class="material-symbols-outlined" style="font-size:18px;">delete</span> ${esc(t('knowledge.btn.delete'))}</button>
+      <button class="btn btn-primary" onclick="closeModal('docDetailModal')">${esc(t('knowledge.btn.close'))}</button>
     `;
   } else {
-    footerEl.innerHTML = `${downloadBtn}<button class="btn btn-primary" onclick="closeModal('docDetailModal')">Close</button>`;
+    footerEl.innerHTML = `${downloadBtn}<button class="btn btn-primary" onclick="closeModal('docDetailModal')">${esc(t('knowledge.btn.close'))}</button>`;
   }
 
   openModal('docDetailModal');
@@ -294,7 +294,7 @@ async function downloadDocument(docId) {
       headers: { Authorization: 'Bearer ' + token },
     });
     if (!res.ok) {
-      Toast.error('Download failed');
+      Toast.error(t('knowledge.download.failed'));
       return;
     }
     const blob = await res.blob();
@@ -311,7 +311,7 @@ async function downloadDocument(docId) {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   } catch {
-    Toast.error('Download failed');
+    Toast.error(t('knowledge.download.failed'));
   }
 }
 
@@ -353,7 +353,7 @@ function handleFileSelect(input) {
       titleInput.value = f.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
     }
   } else {
-    textEl.textContent = 'Click to select or drag & drop';
+    textEl.textContent = t('knowledge.upload.select_or_drag');
   }
 }
 
@@ -362,7 +362,7 @@ async function handleUpload(event) {
 
   const fileInput = document.getElementById('docFile');
   if (!fileInput?.files?.length) {
-    Toast.error('Please select a file');
+    Toast.error(t('knowledge.upload.select_file'));
     return false;
   }
 
@@ -371,12 +371,12 @@ async function handleUpload(event) {
   const language = document.getElementById('docLanguage').value;
   const description = document.getElementById('docDescription').value.trim();
 
-  if (!title) { Toast.error('Please enter a title'); return false; }
-  if (!category) { Toast.error('Please select a category'); return false; }
+  if (!title) { Toast.error(t('knowledge.upload.enter_title')); return false; }
+  if (!category) { Toast.error(t('knowledge.upload.select_category')); return false; }
 
   const btn = document.getElementById('uploadBtn');
   btn.disabled = true;
-  btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">hourglass_empty</span> Uploading...';
+  btn.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px;">hourglass_empty</span> ${esc(t('knowledge.upload.uploading'))}`;
 
   try {
     const formData = new FormData();
@@ -402,23 +402,23 @@ async function handleUpload(event) {
     }
 
     if (!res.ok) {
-      throw new Error(data.detail || 'Upload failed');
+      throw new Error(data.detail || t('knowledge.upload.failed'));
     }
 
-    Toast.success('Document uploaded! Processing in background...');
+    Toast.success(t('knowledge.upload.success'));
     closeModal('uploadDocModal');
 
     // Reset form
     document.getElementById('uploadDocForm').reset();
-    document.getElementById('dropZoneText').textContent = 'Click to select or drag & drop';
+    document.getElementById('dropZoneText').textContent = t('knowledge.upload.select_or_drag');
 
     loadDocuments();
     loadStats();
   } catch (err) {
-    Toast.error(err.message || 'Upload failed');
+    Toast.error(err.message || t('knowledge.upload.failed'));
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">upload</span> Upload';
+    btn.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px;">upload</span> ${esc(t('knowledge.btn.upload'))}`;
   }
 
   return false;
@@ -427,10 +427,10 @@ async function handleUpload(event) {
 // ── Delete ────────────────────────────────────────────────────────────────
 
 async function deleteDocument(id) {
-  if (!confirm('Delete this document? This cannot be undone.')) return;
+  if (!confirm(t('knowledge.delete.confirm'))) return;
   try {
     await API.del(`/api/knowledge/${id}`);
-    Toast.success('Document deleted');
+    Toast.success(t('knowledge.deleted'));
     closeModal('docDetailModal');
     loadDocuments();
     loadStats();
@@ -444,7 +444,7 @@ async function deleteDocument(id) {
 async function retryDocument(id) {
   try {
     await API.post(`/api/knowledge/${id}/retry`, {});
-    Toast.success('Reprocessing started');
+    Toast.success(t('knowledge.retry.started'));
     loadDocuments();
     loadStats();
   } catch {
@@ -456,23 +456,27 @@ async function retryDocument(id) {
 
 function _statusBadge(status) {
   const map = {
-    ready:      { label: 'Ready',      cls: 'badge-success' },
-    processing: { label: 'Processing', cls: 'badge-warning' },
-    error:      { label: 'Error',      cls: 'badge-error' },
-    pending:    { label: 'Pending',    cls: 'badge-neutral' },
+    ready:      { key: 'knowledge.status.ready',      cls: 'badge-success' },
+    processing: { key: 'knowledge.status.processing', cls: 'badge-warning' },
+    error:      { key: 'knowledge.status.error',      cls: 'badge-error' },
+    pending:    { key: 'knowledge.status.pending',    cls: 'badge-neutral' },
   };
-  const info = map[status] || { label: status || '--', cls: 'badge-neutral' };
-  return `<span class="badge ${info.cls}">${esc(info.label)}</span>`;
+  const info = map[status];
+  const label = info ? t(info.key) : (status || '--');
+  const cls = info ? info.cls : 'badge-neutral';
+  return `<span class="badge ${cls}">${esc(label)}</span>`;
 }
 
 function _scopeBadge(scope) {
   const map = {
-    system: { label: 'System', color: '#60A5FA' },
-    club:   { label: 'Club',   color: '#A78BFA' },
-    coach:  { label: 'Coach',  color: 'var(--primary)' },
+    system: { key: 'knowledge.scope.system', color: '#60A5FA' },
+    club:   { key: 'knowledge.scope.club',   color: '#A78BFA' },
+    coach:  { key: 'knowledge.scope.coach',  color: 'var(--primary)' },
   };
-  const info = map[scope] || { label: scope || '--', color: 'var(--text-muted)' };
-  return `<span class="badge" style="background:${info.color}20;color:${info.color};border:1px solid ${info.color}40;">${esc(info.label)}</span>`;
+  const info = map[scope];
+  const label = info ? t(info.key) : (scope || '--');
+  const color = info ? info.color : 'var(--text-muted)';
+  return `<span class="badge" style="background:${color}20;color:${color};border:1px solid ${color}40;">${esc(label)}</span>`;
 }
 
 function _fileIcon(fileType) {
@@ -496,5 +500,6 @@ function _formatSize(bytes) {
 function _formatDate(dateStr) {
   if (!dateStr) return '--';
   const d = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z');
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const locale = I18N.getLang() === 'he' ? 'he-IL' : 'en-US';
+  return d.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
 }

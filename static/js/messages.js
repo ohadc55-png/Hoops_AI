@@ -18,7 +18,8 @@ async function msgFetch(url, options = {}) {
 document.addEventListener('DOMContentLoaded', () => {
   if (!API.token) return;
   loadCoachMsgInbox();
-  updateCoachMsgBadge();
+  loadCoachMsgSent();
+  // Sidebar badge initially set by loadNotifications() in main.js; interval keeps it fresh
   setInterval(updateCoachMsgBadge, 30000);
 });
 
@@ -27,8 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function switchCoachMsgTab(tab) {
   currentCoachMsgTab = tab;
-  document.querySelectorAll('.msg-tab').forEach((t, i) => {
-    t.classList.toggle('active', ['inbox','sent','compose'][i] === tab);
+  document.querySelectorAll('.msg-tab').forEach((tabEl, i) => {
+    tabEl.classList.toggle('active', ['inbox','sent','compose'][i] === tab);
   });
   document.querySelectorAll('.msg-tab-content').forEach(c => c.style.display = 'none');
   const el = { inbox: 'coachMsgInbox', sent: 'coachMsgSent', compose: 'coachMsgCompose' }[tab];
@@ -47,7 +48,7 @@ async function loadCoachMsgInbox(retryCount = 0) {
     const res = await msgFetch('/api/messages/inbox');
     const msgs = res.data || [];
     if (msgs.length === 0) {
-      list.innerHTML = '<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">inbox</span>No messages</div>';
+      list.innerHTML = `<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">inbox</span>${t('messages.inbox.empty')}</div>`;
       return;
     }
     list.innerHTML = msgs.map(m => `
@@ -58,7 +59,7 @@ async function loadCoachMsgInbox(retryCount = 0) {
             <span class="msg-role-badge ${m.sender_role}">${m.sender_role}</span>
             ${m.message_type !== 'general' ? `<span class="msg-type-badge ${m.message_type}">${m.message_type}</span>` : ''}
           </div>
-          <span class="msg-time">${msgTimeAgo(m.created_at)}</span>
+          <span class="msg-time">${msgTimeAgo(m.created_at)} · ${formatMsgDate(m.created_at)}</span>
         </div>
         ${m.subject ? `<div class="msg-subject">${esc(m.subject)}</div>` : ''}
         <div class="msg-preview">${esc((m.body || '').substring(0, 80))}${m.body && m.body.length > 80 ? '...' : ''}</div>
@@ -71,25 +72,28 @@ async function loadCoachMsgInbox(retryCount = 0) {
       return;
     }
     list.innerHTML = `<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">
-      Could not load messages<br>
-      <button class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="loadCoachMsgInbox()">Retry</button>
+      ${t('messages.inbox.load_failed')}<br>
+      <button class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="loadCoachMsgInbox()">${t('messages.inbox.retry')}</button>
     </div>`;
   }
 }
 
 
 function openCoachMsgDetail(msg) {
-  document.getElementById('coachMsgDetailSubject').textContent = msg.subject || 'Message';
+  document.getElementById('coachMsgDetailSubject').textContent = msg.subject || t('messages.detail.default_subject');
   document.getElementById('coachMsgDetailMeta').innerHTML = `
     <span class="msg-sender">${esc(msg.sender_name)}</span>
     <span class="msg-role-badge ${msg.sender_role}">${msg.sender_role}</span>
     ${msg.message_type !== 'general' ? `<span class="msg-type-badge ${msg.message_type}">${msg.message_type}</span>` : ''}
-    <span class="msg-time">${msgTimeAgo(msg.created_at)}</span>
+    <span class="msg-time">${msgTimeAgo(msg.created_at)} · ${formatMsgDate(msg.created_at)}</span>
   `;
   document.getElementById('coachMsgDetailBody').textContent = msg.body;
   openModal('coachMsgDetailModal');
   if (!msg.is_read) {
-    msgFetch(`/api/messages/${msg.id}/read`, { method: 'PUT' }).then(() => updateCoachMsgBadge()).catch(() => {});
+    msgFetch(`/api/messages/${msg.id}/read`, { method: 'PUT' }).then(() => {
+      updateCoachMsgBadge();
+      if (typeof loadNotifications === 'function') loadNotifications();
+    }).catch(() => {});
   }
 }
 
@@ -97,9 +101,10 @@ function openCoachMsgDetail(msg) {
 async function coachMarkAllRead() {
   try {
     await msgFetch('/api/messages/read-all', { method: 'PUT' });
-    Toast.success('All messages marked as read');
+    Toast.success(t('messages.inbox.all_read'));
     loadCoachMsgInbox();
     updateCoachMsgBadge();
+    if (typeof loadNotifications === 'function') loadNotifications();
   } catch { /* ignore */ }
 }
 
@@ -112,19 +117,20 @@ async function loadCoachMsgSent(retryCount = 0) {
     const res = await msgFetch('/api/messages/sent');
     const msgs = res.data || [];
     if (msgs.length === 0) {
-      list.innerHTML = '<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">outbox</span>No sent messages</div>';
+      list.innerHTML = `<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">outbox</span>${t('messages.sent.empty')}</div>`;
       return;
     }
     list.innerHTML = msgs.map(m => {
       const targetLabels = {
-        admin: 'Management', my_team_players: 'Team Players',
-        my_team_parents: 'Team Parents', my_team: 'Entire Team',
+        admin: t('messages.target.admin'), my_team_players: t('messages.target.my_team_players'),
+        my_team_parents: t('messages.target.my_team_parents'), my_team: t('messages.target.my_team'),
+        individual: t('messages.target.individual'),
       };
       return `
         <div class="msg-item">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span class="msg-sender">To: ${targetLabels[m.target_type] || m.target_type}</span>
-            <span class="msg-time">${msgTimeAgo(m.created_at)}</span>
+            <span class="msg-time">${msgTimeAgo(m.created_at)} · ${formatMsgDate(m.created_at)}</span>
           </div>
           ${m.subject ? `<div class="msg-subject">${esc(m.subject)}</div>` : ''}
           <div class="msg-preview">${esc((m.body || '').substring(0, 80))}</div>
@@ -138,8 +144,8 @@ async function loadCoachMsgSent(retryCount = 0) {
       return;
     }
     list.innerHTML = `<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">
-      Could not load messages<br>
-      <button class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="loadCoachMsgSent()">Retry</button>
+      ${t('messages.sent.load_failed')}<br>
+      <button class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="loadCoachMsgSent()">${t('messages.inbox.retry')}</button>
     </div>`;
   }
 }
@@ -149,7 +155,7 @@ async function loadCoachMsgSent(retryCount = 0) {
 
 async function sendCoachMessage() {
   const body = document.getElementById('coachComposeBody').value.trim();
-  if (!body) { Toast.error('Message body is required'); return; }
+  if (!body) { Toast.error(t('messages.compose.body_required')); return; }
 
   try {
     await msgFetch('/api/messages/send', {
@@ -161,12 +167,12 @@ async function sendCoachMessage() {
         target_type: document.getElementById('coachComposeTarget').value,
       }),
     });
-    Toast.success('Message sent');
+    Toast.success(t('messages.compose.sent'));
     document.getElementById('coachComposeSubject').value = '';
     document.getElementById('coachComposeBody').value = '';
     switchCoachMsgTab('sent');
   } catch (err) {
-    Toast.error(err.message || 'Failed to send');
+    Toast.error(err.message || t('messages.compose.failed'));
   }
 }
 
@@ -193,9 +199,11 @@ function msgTimeAgo(dateStr) {
   let d = dateStr;
   if (!d.endsWith('Z') && !d.includes('+')) d += 'Z';
   const diff = (Date.now() - new Date(d).getTime()) / 1000;
-  if (diff < 60) return 'just now';
+  if (diff < 60) return t('messages.time.just_now');
   if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
   if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
   if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
   return new Date(d).toLocaleDateString();
 }
+
+/* formatMsgDate → shared-utils.js */

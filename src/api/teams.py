@@ -86,45 +86,33 @@ async def get_team(team_id: int, admin: User = Depends(get_current_admin), db: A
 # --- Admin regenerates coach invite ---
 @router.post("/{team_id}/regenerate-coach-code")
 async def regenerate_coach_code(team_id: int, admin: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-    try:
-        service = TeamService(db)
-        team = await service.regenerate_coach_invite(team_id, admin.id)
-        return {"success": True, "data": _team_to_dict(team)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = TeamService(db)
+    team = await service.regenerate_coach_invite(team_id, admin.id)
+    return {"success": True, "data": _team_to_dict(team)}
 
 
 # --- Admin regenerates player invite ---
 @router.post("/{team_id}/regenerate-player-code")
 async def regenerate_player_code(team_id: int, admin: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-    try:
-        service = TeamService(db)
-        team = await service.regenerate_player_invite(team_id, admin.id)
-        return {"success": True, "data": _team_to_dict(team)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = TeamService(db)
+    team = await service.regenerate_player_invite(team_id, admin.id)
+    return {"success": True, "data": _team_to_dict(team)}
 
 
 # --- Admin regenerates parent invite ---
 @router.post("/{team_id}/regenerate-parent-code")
 async def regenerate_parent_code(team_id: int, admin: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-    try:
-        service = TeamService(db)
-        team = await service.regenerate_parent_invite(team_id, admin.id)
-        return {"success": True, "data": _team_to_dict(team)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = TeamService(db)
+    team = await service.regenerate_parent_invite(team_id, admin.id)
+    return {"success": True, "data": _team_to_dict(team)}
 
 
 # --- Admin removes member ---
 @router.delete("/{team_id}/members/{member_id}")
 async def remove_member(team_id: int, member_id: int, admin: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-    try:
-        service = TeamService(db)
-        await service.remove_member(team_id, member_id, admin.id)
-        return {"success": True}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = TeamService(db)
+    await service.remove_member(team_id, member_id, admin.id)
+    return {"success": True}
 
 
 # --- Public: validate invite link ---

@@ -43,39 +43,56 @@ async def register_admin(req: AdminRegisterRequest, db: AsyncSession = Depends(g
         raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
     if not req.name.strip():
         raise HTTPException(status_code=400, detail="Name is required")
-    try:
-        service = AdminAuthService(db)
-        result = await service.register_admin(name=req.name, email=req.email, password=req.password, phone=req.phone)
-        return {
-            "success": True,
-            "data": {
-                "token": result["token"],
-                "user": {"id": result["user"].id, "name": result["user"].name, "email": result["user"].email, "role": "admin"},
-            },
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = AdminAuthService(db)
+    result = await service.register_admin(name=req.name, email=req.email, password=req.password, phone=req.phone)
+    return {
+        "success": True,
+        "data": {
+            "token": result["token"],
+            "user": {"id": result["user"].id, "name": result["user"].name, "email": result["user"].email, "role": "admin"},
+        },
+    }
 
 
 @router.post("/login")
 async def login_admin(req: AdminLoginRequest, db: AsyncSession = Depends(get_db)):
-    try:
-        service = AdminAuthService(db)
-        result = await service.login_admin(req.email, req.password)
-        return {
-            "success": True,
-            "data": {
-                "token": result["token"],
-                "user": {"id": result["user"].id, "name": result["user"].name, "email": result["user"].email, "role": "admin"},
+    service = AdminAuthService(db)
+    result = await service.login_admin(req.email, req.password)
+    user = result["user"]
+    role_perms = user.admin_role.permissions if user.admin_role else None
+    return {
+        "success": True,
+        "data": {
+            "token": result["token"],
+            "user": {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "role": "admin",
+                "admin_role": user.admin_role.name if user.admin_role else None,
+                "permissions": role_perms,
             },
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
+            "language": user.preferred_language,
+        },
+    }
 
 
 @router.get("/me")
 async def admin_me(user: User = Depends(get_current_admin)):
     return {
         "success": True,
-        "data": {"id": user.id, "name": user.name, "email": user.email, "role": user.role},
+        "data": {"id": user.id, "name": user.name, "email": user.email, "role": user.role, "language": user.preferred_language},
     }
+
+
+class LanguageRequest(BaseModel):
+    language: str
+
+
+@router.put("/language")
+async def update_admin_language(req: LanguageRequest, user: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    if req.language not in ("he", "en"):
+        raise HTTPException(status_code=400, detail="Language must be 'he' or 'en'")
+    from src.repositories.user_repository import UserRepository
+    await UserRepository(db).update(user.id, preferred_language=req.language)
+    return {"success": True, "data": {"language": req.language}}

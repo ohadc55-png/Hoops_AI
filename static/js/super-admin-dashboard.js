@@ -60,7 +60,7 @@ function renderUsersByRole(roles) {
         <span class="material-symbols-outlined" style="color:var(--primary);font-size:20px;">${icons[role] || 'person'}</span>
         <div style="flex:1;">
           <div style="display:flex;justify-content:space-between;">
-            <span style="text-transform:capitalize;font-weight:500;">${role}s</span>
+            <span style="text-transform:capitalize;font-weight:500;">${role === 'coach' ? 'Coaches' : role + 's'}</span>
             <span class="text-muted">${count}</span>
           </div>
           <div style="height:4px;background:var(--bg-card);border-radius:2px;margin-top:4px;">
@@ -73,13 +73,4 @@ function renderUsersByRole(roles) {
 }
 
 
-function timeAgo(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z');
-  const now = new Date();
-  const diff = Math.floor((now - d) / 1000);
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-}
+/* timeAgo → shared-utils.js */

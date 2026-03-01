@@ -44,6 +44,13 @@ class PlayerEvaluation(Base, TimestampMixin):
     improvement_rating: Mapped[int | None] = mapped_column(Integer, nullable=True)
     improvement_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
+    # Explicit personal + team improvement (required in UI)
+    personal_improvement_rating: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    personal_improvement_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    team_contribution_rating: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    team_contribution_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     # General text fields
     overall_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     potential_notes: Mapped[str | None] = mapped_column(Text, nullable=True)

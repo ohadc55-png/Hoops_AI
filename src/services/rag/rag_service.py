@@ -6,6 +6,7 @@ from src.services.rag.vector_store import (
     query_similar, add_chunks, delete_document_chunks, delete_all_system_chunks,
 )
 from src.services.rag.document_processor import extract_text, chunk_text
+from src.utils.exceptions import ValidationError
 
 
 class RAGService:
@@ -24,12 +25,12 @@ class RAGService:
         # Step 1: Extract text
         pages = await asyncio.to_thread(extract_text, file_path)
         if not pages:
-            raise ValueError("No text could be extracted from the document")
+            raise ValidationError("No text could be extracted from the document")
 
         # Step 2: Chunk
         chunks = chunk_text(pages)
         if not chunks:
-            raise ValueError("Document produced no chunks after processing")
+            raise ValidationError("Document produced no chunks after processing")
 
         # Step 3: Embed all chunks
         texts = [c["text"] for c in chunks]

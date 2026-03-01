@@ -384,43 +384,40 @@ async def review_drill_video(
     """Coach approves or rejects a drill video submission."""
     from src.services.drill_video_service import DrillVideoService
     service = DrillVideoService(db)
-    try:
-        result = await service.review_video(assignment_id, coach.id, req.action, req.feedback)
+    result = await service.review_video(assignment_id, coach.id, req.action, req.feedback)
 
-        # Send notification to player
-        if coach.user_id:
-            try:
-                from src.services.messaging_service import MessagingService
-                from src.models.drill import Drill
-                assignment = await db.get(DrillAssignment, assignment_id)
-                if assignment:
-                    tm_stmt = select(TeamMember.user_id).where(
-                        TeamMember.player_id == assignment.player_id,
-                        TeamMember.role_in_team == "player",
-                        TeamMember.is_active == True,
-                    )
-                    tm_result = await db.execute(tm_stmt)
-                    for row in tm_result.all():
-                        if row[0]:
-                            msg_service = MessagingService(db)
-                            status_text = "\u05d0\u05d5\u05e9\u05e8" if req.action == "approve" else "\u05e0\u05d3\u05d7\u05d4"
-                            drill = await db.get(Drill, assignment.drill_id)
-                            drill_title = drill.title if drill else "\u05ea\u05e8\u05d2\u05d9\u05dc"
-                            body = f"\u05d4\u05e1\u05e8\u05d8\u05d5\u05df \u05e9\u05dc\u05da \u05dc\u05ea\u05e8\u05d2\u05d9\u05dc '{drill_title}' {status_text}."
-                            if req.feedback:
-                                body += f"\n\u05de\u05e9\u05d5\u05d1: {req.feedback}"
-                            await msg_service.send_message(
-                                sender_id=coach.user_id,
-                                sender_role="coach",
-                                subject=f"\u05ea\u05e8\u05d2\u05d9\u05dc {status_text}: {drill_title}",
-                                body=body,
-                                message_type="update",
-                                target_type="individual",
-                                target_user_id=row[0],
-                            )
-            except Exception:
-                pass  # Don't fail review if notification fails
+    # Send notification to player
+    if coach.user_id:
+        try:
+            from src.services.messaging_service import MessagingService
+            from src.models.drill import Drill
+            assignment = await db.get(DrillAssignment, assignment_id)
+            if assignment:
+                tm_stmt = select(TeamMember.user_id).where(
+                    TeamMember.player_id == assignment.player_id,
+                    TeamMember.role_in_team == "player",
+                    TeamMember.is_active == True,
+                )
+                tm_result = await db.execute(tm_stmt)
+                for row in tm_result.all():
+                    if row[0]:
+                        msg_service = MessagingService(db)
+                        status_text = "\u05d0\u05d5\u05e9\u05e8" if req.action == "approve" else "\u05e0\u05d3\u05d7\u05d4"
+                        drill = await db.get(Drill, assignment.drill_id)
+                        drill_title = drill.title if drill else "\u05ea\u05e8\u05d2\u05d9\u05dc"
+                        body = f"\u05d4\u05e1\u05e8\u05d8\u05d5\u05df \u05e9\u05dc\u05da \u05dc\u05ea\u05e8\u05d2\u05d9\u05dc '{drill_title}' {status_text}."
+                        if req.feedback:
+                            body += f"\n\u05de\u05e9\u05d5\u05d1: {req.feedback}"
+                        await msg_service.send_message(
+                            sender_id=coach.user_id,
+                            sender_role="coach",
+                            subject=f"\u05ea\u05e8\u05d2\u05d9\u05dc {status_text}: {drill_title}",
+                            body=body,
+                            message_type="update",
+                            target_type="individual",
+                            target_user_id=row[0],
+                        )
+        except Exception:
+            pass  # Don't fail review if notification fails
 
-        return {"success": True, "data": result}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return {"success": True, "data": result}

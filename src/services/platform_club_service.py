@@ -2,6 +2,7 @@
 from datetime import datetime
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.utils.exceptions import NotFoundError
 from src.repositories.platform_club_repository import PlatformClubRepository, ClubRegistrationLinkRepository
 from src.models.platform_club import PlatformClub, ClubRegistrationLink
 from src.models.club_billing_config import ClubBillingConfig
@@ -34,6 +35,9 @@ class PlatformClubService:
         max_players: int = 150,
         region_id: int | None = None,
         billing_email: str | None = None,
+        billing_tax_id: str | None = None,
+        billing_address: str | None = None,
+        billing_phone: str | None = None,
         notes: str | None = None,
     ) -> PlatformClub:
         club = await self.club_repo.create(
@@ -44,6 +48,9 @@ class PlatformClubService:
             max_players=max_players,
             region_id=region_id,
             billing_email=billing_email,
+            billing_tax_id=billing_tax_id,
+            billing_address=billing_address,
+            billing_phone=billing_phone,
             notes=notes,
         )
         # Create billing config
@@ -134,6 +141,9 @@ class PlatformClubService:
                 "admin_name": club.admin.name if club.admin else None,
                 "admin_email": club.admin.email if club.admin else None,
                 "billing_email": club.billing_email,
+                "billing_tax_id": club.billing_tax_id,
+                "billing_address": club.billing_address,
+                "billing_phone": club.billing_phone,
                 "notes": club.notes,
                 "created_at": club.created_at.isoformat() if club.created_at else None,
             },
@@ -261,7 +271,7 @@ class PlatformClubService:
         """Generate a new registration link for a club."""
         club = await self.club_repo.get_by_id(club_id)
         if not club:
-            raise ValueError("Club not found")
+            raise NotFoundError("Club", club_id)
         link = await self.link_repo.create(club_id=club_id)
         return {
             "id": link.id,

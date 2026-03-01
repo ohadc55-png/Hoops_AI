@@ -19,5 +19,12 @@ class PlayerReport(Base, TimestampMixin):
     recommendations: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_ai_generated: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
+    # Structured ratings (added for progress tracking)
+    overall_rating: Mapped[int | None] = mapped_column(Integer, nullable=True)  # 1-10
+    personal_improvement_rating: Mapped[int | None] = mapped_column(Integer, nullable=True)  # 1-10
+    personal_improvement_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    team_contribution_rating: Mapped[int | None] = mapped_column(Integer, nullable=True)  # 1-10
+    team_contribution_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     coach = relationship("Coach", back_populates="player_reports")
     player = relationship("Player")

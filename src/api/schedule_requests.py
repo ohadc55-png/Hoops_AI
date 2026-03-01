@@ -61,23 +61,20 @@ async def create_request(req: CreateScheduleRequestBody, coach: Coach = Depends(
     if not req.title.strip():
         raise HTTPException(status_code=400, detail="Title is required")
     service = ScheduleService(db)
-    try:
-        result = await service.create_schedule_request(
-            coach_id=coach.id,
-            team_id=req.team_id,
-            title=req.title.strip(),
-            event_type=req.event_type,
-            date=req.date,
-            time_start=req.time_start,
-            time_end=req.time_end,
-            location=req.location,
-            opponent=req.opponent,
-            notes=req.notes,
-            repeat_weeks=req.repeat_weeks,
-        )
-        return {"success": True, "data": _request_to_dict(result)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = await service.create_schedule_request(
+        coach_id=coach.id,
+        team_id=req.team_id,
+        title=req.title.strip(),
+        event_type=req.event_type,
+        date=req.date,
+        time_start=req.time_start,
+        time_end=req.time_end,
+        location=req.location,
+        opponent=req.opponent,
+        notes=req.notes,
+        repeat_weeks=req.repeat_weeks,
+    )
+    return {"success": True, "data": _request_to_dict(result)}
 
 
 @router.get("/my")
@@ -101,18 +98,12 @@ async def pending_requests(admin: User = Depends(get_current_admin), db: AsyncSe
 @router.put("/{request_id}/approve")
 async def approve_request(request_id: int, body: ReviewRequestBody, admin: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     service = ScheduleService(db)
-    try:
-        result = await service.approve_request(request_id, admin.id, body.response)
-        return {"success": True, "data": _request_to_dict(result)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = await service.approve_request(request_id, admin.id, body.response)
+    return {"success": True, "data": _request_to_dict(result)}
 
 
 @router.put("/{request_id}/reject")
 async def reject_request(request_id: int, body: ReviewRequestBody, admin: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     service = ScheduleService(db)
-    try:
-        result = await service.reject_request(request_id, admin.id, body.response)
-        return {"success": True, "data": _request_to_dict(result)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = await service.reject_request(request_id, admin.id, body.response)
+    return {"success": True, "data": _request_to_dict(result)}

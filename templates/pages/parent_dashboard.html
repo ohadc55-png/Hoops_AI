@@ -1,13 +1,13 @@
 {% extends "parent_base.html" %}
 {% block title %}HOOPS AI — Parent Dashboard{% endblock %}
 {% block nav_dashboard %}active{% endblock %}
-{% block header_title %}Dashboard{% endblock %}
+{% block header_title %}<span data-i18n="parent.nav.dashboard">Dashboard</span>{% endblock %}
 {% block content %}
 <div class="parent-dashboard">
   <!-- Welcome Card -->
   <div class="welcome-card" id="welcomeCard">
     <div class="welcome-content">
-      <h1 id="welcomeName">Welcome!</h1>
+      <h1 id="welcomeName" data-i18n="parent.dashboard.welcome_default">Welcome!</h1>
       <p class="welcome-team" id="welcomeTeam"></p>
       <div class="welcome-next" id="welcomeNext"></div>
     </div>
@@ -19,21 +19,21 @@
   <!-- Schedule Section -->
   <section class="dashboard-section" id="schedule">
     <div class="section-header">
-      <h2><span class="material-symbols-outlined">calendar_month</span> Upcoming Schedule</h2>
-      <a href="/parent/schedule" class="btn btn-secondary btn-sm">View Full Calendar</a>
+      <h2><span class="material-symbols-outlined">calendar_month</span> <span data-i18n="parent.dashboard.upcoming_schedule">Upcoming Schedule</span></h2>
+      <a href="/parent/schedule" class="btn btn-secondary btn-sm" data-i18n="parent.dashboard.view_full_calendar">View Full Calendar</a>
     </div>
     <div class="section-content" id="scheduleContent">
-      <div class="loading-state">Loading schedule...</div>
+      <div class="loading-state" data-i18n="parent.dashboard.loading_schedule">Loading schedule...</div>
     </div>
   </section>
 
   <!-- Club Management Contacts -->
   <section class="dashboard-section" id="clubContactsSection" style="margin-top:var(--sp-6);">
     <div class="section-header">
-      <h2><span class="material-symbols-outlined">contact_phone</span> Club Management</h2>
+      <h2><span class="material-symbols-outlined">contact_phone</span> <span data-i18n="parent.dashboard.club_management">Club Management</span></h2>
     </div>
     <div id="clubContactsList">
-      <div class="loading-state" style="text-align:center;padding:24px;color:rgba(255,255,255,0.4);">Loading contacts...</div>
+      <div class="loading-state" style="text-align:center;padding:24px;color:rgba(255,255,255,0.4);" data-i18n="parent.dashboard.loading_contacts">Loading contacts...</div>
     </div>
   </section>
 
@@ -41,14 +41,14 @@
   <div class="coming-soon-grid" style="margin-top:var(--sp-6);">
     <a href="/parent/payments" class="coming-soon-card" style="text-decoration:none;opacity:1;cursor:pointer;">
       <span class="material-symbols-outlined">payments</span>
-      <h3>Payments</h3>
-      <p>View and manage your payments</p>
+      <h3 data-i18n="parent.nav.payments">Payments</h3>
+      <p data-i18n="parent.dashboard.payments_desc">View and manage your payments</p>
     </a>
     <div class="coming-soon-card">
       <span class="material-symbols-outlined">trending_up</span>
-      <h3>Child Progress</h3>
-      <p>Track your child's development</p>
-      <span class="soon-badge">Coming Soon</span>
+      <h3 data-i18n="parent.nav.progress">Child Progress</h3>
+      <p data-i18n="parent.dashboard.progress_desc">Track your child's development</p>
+      <span class="soon-badge" data-i18n="badge.soon">Coming Soon</span>
     </div>
   </div>
 </div>

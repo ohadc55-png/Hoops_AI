@@ -1,7 +1,7 @@
 {% extends "admin_base.html" %}
-{% block title %}HOOPS AI — Player Development{% endblock %}
+{% block title %}HOOPS AI — פיתוח שחקנים{% endblock %}
 {% block nav_player_dev %}active{% endblock %}
-{% block header_title %}Player Development{% endblock %}
+{% block header_title %}<span data-i18n="admin.player_dev.page_title">פיתוח שחקנים</span>{% endblock %}
 {% block styles %}<link rel="stylesheet" href="/static/css/pages/player-profile.css">{% endblock %}
 {% block content %}
 <div class="admin-contacts">
@@ -9,10 +9,10 @@
   <div class="contacts-filter-bar">
     <div class="contacts-filter-left">
       <select class="select" id="filterTeam" onchange="applyFilters()" style="min-width:160px;">
-        <option value="">All Teams</option>
+        <option value="" data-i18n="admin.player_dev.filter_all_teams">All Teams</option>
       </select>
       <select class="select" id="filterPosition" onchange="applyFilters()" style="min-width:120px;">
-        <option value="">All Positions</option>
+        <option value="" data-i18n="admin.player_dev.filter_all_positions">All Positions</option>
         <option value="PG">PG</option>
         <option value="SG">SG</option>
         <option value="SF">SF</option>
@@ -23,11 +23,11 @@
     <div class="contacts-filter-right">
       <button class="btn btn-primary btn-xs" onclick="openReportRequestModal()" style="white-space:nowrap;">
         <span class="material-symbols-outlined" style="font-size:16px;">assignment</span>
-        Request Reports
+        <span data-i18n="admin.player_dev.btn_request_reports">Request Reports</span>
       </button>
       <div class="contacts-search-wrap">
         <span class="material-symbols-outlined">search</span>
-        <input type="text" class="input" id="searchInput" placeholder="Search player name..." oninput="debounceSearch()">
+        <input type="text" class="input" id="searchInput" data-i18n-placeholder="admin.player_dev.search_placeholder" placeholder="Search player name..." oninput="debounceSearch()">
       </div>
       <span class="contacts-count" id="playersCount">0 players</span>
     </div>
@@ -37,7 +37,7 @@
   <div class="contacts-table-wrap" id="playersContent">
     <div class="empty-state-admin">
       <span class="material-symbols-outlined">hourglass_empty</span>
-      <h3>Loading...</h3>
+      <h3 data-i18n="admin.player_dev.empty.loading">Loading...</h3>
     </div>
   </div>
 </div>
@@ -46,7 +46,7 @@
 <div class="modal-overlay" id="playerDetailModal">
   <div class="modal" style="max-width:700px;">
     <div class="modal-header">
-      <h2 class="modal-title" id="detailModalTitle">Player</h2>
+      <h2 class="modal-title" id="detailModalTitle" data-i18n="admin.player_dev.modal_player_title">Player</h2>
       <button class="modal-close" onclick="closeModal('playerDetailModal')">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -55,16 +55,16 @@
     <div class="pd-tabs">
       <button class="role-tab active" id="tabProfile" onclick="switchTab('profile')">
         <span class="material-symbols-outlined" style="font-size:18px;">person</span>
-        Profile
+        <span data-i18n="admin.player_dev.tab.profile">Profile</span>
       </button>
       <button class="role-tab" id="tabReports" onclick="switchTab('reports')">
         <span class="material-symbols-outlined" style="font-size:18px;">assessment</span>
-        Reports
+        <span data-i18n="admin.player_dev.tab.reports">Reports</span>
         <span class="pd-report-count" id="reportCount" style="display:none;"></span>
       </button>
       <button class="role-tab" id="tabEvaluations" onclick="switchTab('evaluations')">
         <span class="material-symbols-outlined" style="font-size:18px;">analytics</span>
-        Evaluations
+        <span data-i18n="admin.player_dev.tab.evaluations">Evaluations</span>
         <span class="pd-report-count" id="evalCount" style="display:none;"></span>
       </button>
     </div>
@@ -79,45 +79,45 @@
 <div class="modal-overlay" id="reportRequestModal">
   <div class="modal" style="max-width:500px;">
     <div class="modal-header">
-      <h2 class="modal-title">Request Evaluations from Coaches</h2>
+      <h2 class="modal-title" data-i18n="admin.player_dev.modal_request_title">Request Evaluations from Coaches</h2>
       <button class="modal-close" onclick="closeModal('reportRequestModal')"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body">
       <div class="input-group">
-        <label>Team</label>
+        <label data-i18n="admin.player_dev.form.team">Team</label>
         <select class="select" id="rrTeam">
-          <option value="">Select team...</option>
+          <option value="" data-i18n="admin.player_dev.rr.select_team">Select team...</option>
         </select>
       </div>
       <div class="input-group">
-        <label>Coach (optional — leave empty for all coaches in team)</label>
+        <label data-i18n="admin.player_dev.form.coach_optional">Coach (optional — leave empty for all coaches in team)</label>
         <select class="select" id="rrCoach">
-          <option value="">All coaches in team</option>
+          <option value="" data-i18n="admin.player_dev.rr.all_coaches">All coaches in team</option>
         </select>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
         <div class="input-group">
-          <label>Period Type</label>
+          <label data-i18n="admin.player_dev.form.period_type">Period Type</label>
           <select class="select" id="rrPeriodType">
-            <option value="weekly">Weekly</option>
-            <option value="monthly" selected>Monthly</option>
-            <option value="semi_annual">Semi-Annual</option>
-            <option value="annual">Annual</option>
+            <option value="weekly" data-i18n="admin.player_dev.eval.period.weekly">Weekly</option>
+            <option value="monthly" selected data-i18n="admin.player_dev.eval.period.monthly">Monthly</option>
+            <option value="semi_annual" data-i18n="admin.player_dev.eval.period.semi_annual">Semi-Annual</option>
+            <option value="annual" data-i18n="admin.player_dev.eval.period.annual">Annual</option>
           </select>
         </div>
         <div class="input-group">
-          <label>Due Date</label>
+          <label data-i18n="admin.player_dev.form.due_date">Due Date</label>
           <input type="date" class="input" id="rrDueDate">
         </div>
       </div>
       <div class="input-group">
-        <label>Instructions (optional)</label>
-        <textarea class="textarea" id="rrInstructions" rows="2" placeholder="Special instructions for coaches..."></textarea>
+        <label data-i18n="admin.player_dev.form.instructions_optional">Instructions (optional)</label>
+        <textarea class="textarea" id="rrInstructions" rows="2" data-i18n-placeholder="admin.player_dev.form.instructions_placeholder" placeholder="Special instructions for coaches..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('reportRequestModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="sendReportRequest()">Send Request</button>
+      <button class="btn btn-secondary" onclick="closeModal('reportRequestModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="sendReportRequest()" data-i18n="admin.player_dev.btn_send_request">Send Request</button>
     </div>
   </div>
 </div>

@@ -10,6 +10,7 @@ from config import get_settings
 from src.models.drill_assignment import DrillAssignment
 from src.models.drill import Drill
 from src.models.player import Player
+from src.utils.exceptions import NotFoundError, ValidationError, ConflictError
 
 settings = get_settings()
 
@@ -31,21 +32,21 @@ class DrillVideoService:
         result = await self.session.execute(stmt)
         assignment = result.scalar_one_or_none()
         if not assignment:
-            raise ValueError("Assignment not found")
+            raise NotFoundError("Assignment")
 
         if assignment.status == "approved":
-            raise ValueError("Assignment already approved")
+            raise ConflictError("Assignment already approved")
 
         # Validate file
         ext = Path(file.filename).suffix.lower() if file.filename else ""
         if ext not in settings.VIDEO_ALLOWED_EXTENSIONS:
-            raise ValueError(
+            raise ValidationError(
                 f"File type {ext} not allowed. Allowed: {', '.join(settings.VIDEO_ALLOWED_EXTENSIONS)}"
             )
 
         content = await file.read()
         if len(content) > settings.VIDEO_MAX_UPLOAD_SIZE:
-            raise ValueError("File too large (max 15MB)")
+            raise ValidationError("File too large (max 15MB)")
 
         # Save file
         filename = f"{uuid.uuid4().hex}{ext}"
@@ -83,10 +84,10 @@ class DrillVideoService:
         result = await self.session.execute(stmt)
         assignment = result.scalar_one_or_none()
         if not assignment:
-            raise ValueError("Assignment not found")
+            raise NotFoundError("Assignment")
 
         if assignment.status != "video_uploaded":
-            raise ValueError(f"Cannot review assignment in '{assignment.status}' status")
+            raise ValidationError(f"Cannot review assignment in '{assignment.status}' status")
 
         if action == "approve":
             assignment.status = "approved"
@@ -97,7 +98,7 @@ class DrillVideoService:
             assignment.is_completed = False
             assignment.completed_at = None
         else:
-            raise ValueError("Action must be 'approve' or 'reject'")
+            raise ValidationError("Action must be 'approve' or 'reject'")
 
         assignment.coach_feedback = feedback
         await self.session.flush()

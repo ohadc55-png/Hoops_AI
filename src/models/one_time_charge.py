@@ -1,5 +1,5 @@
 """HOOPS AI - OneTimeCharge (event/equipment/tournament fee per player)"""
-from sqlalchemy import String, Integer, ForeignKey, Numeric, Text, Date
+from sqlalchemy import String, Integer, Boolean, ForeignKey, Numeric, Text, Date, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.utils.database import Base
 from src.models.base import TimestampMixin
@@ -28,6 +28,7 @@ class OneTimeCharge(Base, TimestampMixin):
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     marked_by_admin_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)
+    admin_acknowledged: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, server_default=text("true"))
 
     # Relationships
     player = relationship("Player", foreign_keys=[player_id])

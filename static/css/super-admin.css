@@ -2,46 +2,9 @@
 
 /* ═══════════════════════════════════════════════════
    Super Admin Theme: Dark Gray + Cyan/Turquoise
+   Theme variables are in themes.css
    ═══════════════════════════════════════════════════ */
 .super-admin-app {
-  /* Primary — Cyan/Turquoise */
-  --primary: #0891B2;
-  --primary-light: #06B6D4;
-  --primary-dark: #0E7490;
-  --primary-glow: rgba(8, 145, 178, 0.2);
-  --primary-ghost: rgba(8, 145, 178, 0.08);
-
-  /* Backgrounds — Dark Gray */
-  --bg: #1F2937;
-  --bg-raised: #374151;
-  --bg-surface: #4B5563;
-  --bg-card: rgba(255, 255, 255, 0.04);
-  --bg-card-hover: rgba(255, 255, 255, 0.07);
-  --bg-input: rgba(255, 255, 255, 0.06);
-  --bg-input-focus: rgba(255, 255, 255, 0.1);
-
-  /* Borders */
-  --border: rgba(156, 163, 175, 0.15);
-  --border-strong: rgba(156, 163, 175, 0.25);
-  --border-active: var(--primary);
-
-  /* Text */
-  --text: #FFFFFF;
-  --text-secondary: #9CA3AF;
-  --text-muted: #6B7280;
-  --text-inverse: #FFFFFF;
-
-  /* Semantic */
-  --success: #059669;
-  --success-bg: rgba(5, 150, 105, 0.15);
-  --error: #DC2626;
-  --error-bg: rgba(220, 38, 38, 0.15);
-  --warning: #D97706;
-  --warning-bg: rgba(217, 119, 6, 0.15);
-
-  /* Shadows */
-  --shadow-glow: 0 0 20px var(--primary-glow);
-
   /* Layout */
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;

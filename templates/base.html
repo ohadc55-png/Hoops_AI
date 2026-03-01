@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,14 +7,23 @@
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
   <!-- Styles -->
   <link rel="stylesheet" href="/static/css/variables.css">
+  <link rel="stylesheet" href="/static/css/themes.css">
   <link rel="stylesheet" href="/static/css/reset.css">
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/layout.css">
   {% block styles %}{% endblock %}
+
+  <!-- i18n (must load before other JS) -->
+  <script src="/static/js/i18n.js"></script>
+  <script src="/static/js/translations/common.js"></script>
+  <script src="/static/js/translations/coach.js"></script>
+  <script src="/static/js/shared-utils.js"></script>
+  <script src="/static/js/api-core.js"></script>
 </head>
 <body>
   <div class="app" id="app">
@@ -24,71 +33,71 @@
         <img src="/static/images/logo.png" alt="HOOPS AI" class="sidebar-logo-img" width="36" height="36">
         <div>
           <h1>HOOPS AI</h1>
-          <span>Coaching Assistant</span>
+          <span data-i18n="coach.subtitle">Coaching Assistant</span>
         </div>
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Main</div>
+        <div class="sidebar-section-title" data-i18n="coach.section.main">Main</div>
         <nav class="sidebar-nav">
           <a href="/analytics" class="nav-item {% block nav_analytics %}{% endblock %}" data-page="analytics">
             <span class="material-symbols-outlined">dashboard</span>
-            Dashboard
+            <span data-i18n="coach.nav.dashboard">Dashboard</span>
           </a>
           <a href="/schedule" class="nav-item {% block nav_schedule %}{% endblock %}" data-page="schedule">
             <span class="material-symbols-outlined">calendar_month</span>
-            Schedule
+            <span data-i18n="coach.nav.schedule">Schedule</span>
           </a>
           <a href="/messages" class="nav-item {% block nav_messages %}{% endblock %}" data-page="messages">
             <span class="material-symbols-outlined">mail</span>
-            Messages
+            <span data-i18n="coach.nav.messages">Messages</span>
             <span class="msg-badge" id="coachMsgBadge" style="display:none;"></span>
           </a>
         </nav>
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Coaching Tools</div>
+        <div class="sidebar-section-title" data-i18n="coach.section.tools">Coaching Tools</div>
         <nav class="sidebar-nav">
-          <a href="/" class="nav-item {% block nav_chat %}{% endblock %}" data-page="chat">
+          <a href="/chat" class="nav-item {% block nav_chat %}{% endblock %}" data-page="chat">
             <span class="material-symbols-outlined">chat</span>
-            AI Chat
+            <span data-i18n="coach.nav.chat">AI Chat</span>
           </a>
           <a href="/practice" class="nav-item {% block nav_practice %}{% endblock %}" data-page="practice">
             <span class="material-symbols-outlined">view_agenda</span>
-            Practice Planner
+            <span data-i18n="coach.nav.practice">Practice Planner</span>
           </a>
           <a href="/drills" class="nav-item {% block nav_drills %}{% endblock %}" data-page="drills">
             <span class="material-symbols-outlined">fitness_center</span>
-            Drill Library
+            <span data-i18n="coach.nav.drills">Drill Library</span>
           </a>
           <a href="/plays" class="nav-item {% block nav_plays %}{% endblock %}" data-page="plays">
             <span class="material-symbols-outlined">schema</span>
-            Play Creator
+            <span data-i18n="coach.nav.plays">Play Creator</span>
           </a>
         </nav>
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Analysis</div>
+        <div class="sidebar-section-title" data-i18n="coach.section.analysis">Analysis</div>
         <nav class="sidebar-nav">
           <a href="/scouting" class="nav-item {% block nav_scouting %}{% endblock %}" data-page="scouting">
             <span class="material-symbols-outlined">videocam</span>
-            Video Room
+            <span data-i18n="coach.nav.scouting">Video Room</span>
           </a>
           <a href="/reports" class="nav-item {% block nav_reports %}{% endblock %}" data-page="reports">
             <span class="material-symbols-outlined">assessment</span>
-            Reports
+            <span data-i18n="coach.nav.reports">Reports</span>
           </a>
         </nav>
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Team</div>
+        <div class="sidebar-section-title" data-i18n="coach.section.team">Team</div>
         <nav class="sidebar-nav">
           <a href="/logistics" class="nav-item {% block nav_logistics %}{% endblock %}" data-page="logistics">
             <span class="material-symbols-outlined">groups</span>
-            Team Management
+            <span data-i18n="coach.nav.logistics">Team Management</span>
           </a>
         </nav>
       </div>
@@ -96,11 +105,11 @@
       <div class="sidebar-footer">
         <a href="/knowledge" class="nav-item {% block nav_knowledge %}{% endblock %}" data-page="knowledge">
           <span class="material-symbols-outlined">library_books</span>
-          Knowledge Base
+          <span data-i18n="coach.nav.knowledge">Knowledge Base</span>
         </a>
         <a href="/settings" class="nav-item {% block nav_settings %}{% endblock %}" data-page="settings">
           <span class="material-symbols-outlined">settings</span>
-          Settings
+          <span data-i18n="coach.nav.settings">Settings</span>
         </a>
       </div>
     </aside>
@@ -113,18 +122,21 @@
         </button>
         <div class="header-search">
           <span class="material-symbols-outlined">search</span>
-          <input type="text" class="input" placeholder="Search..." id="globalSearch">
+          <input type="text" class="input" data-i18n-placeholder="header.search" placeholder="Search..." id="globalSearch">
         </div>
       </div>
       <div class="header-right">
+        <button class="btn-icon lang-toggle" id="langToggle" onclick="I18N.setLanguage(I18N.getLang()==='he'?'en':'he'); if(typeof _saveLangPref==='function') _saveLangPref(I18N.getLang());">
+          <span id="lang-toggle-label" style="font-size:13px;font-weight:700;">EN</span>
+        </button>
         <button class="btn-icon header-notification" id="notifBtn">
           <span class="material-symbols-outlined">notifications</span>
         </button>
         <div class="notif-dropdown" id="notifDropdown">
-          <div class="notif-dropdown-header">Notifications</div>
+          <div class="notif-dropdown-header" data-i18n="header.notifications">Notifications</div>
           <div class="notif-dropdown-empty">
             <span class="material-symbols-outlined" style="font-size:32px;color:var(--text-muted);">notifications_off</span>
-            <p>No notifications yet</p>
+            <p data-i18n="header.no_notifications">No notifications yet</p>
           </div>
         </div>
         <button class="btn-icon" id="settingsBtn" onclick="location.href='/settings'">
@@ -143,10 +155,10 @@
     <main class="main" id="mainContent">
       {% block content %}{% endblock %}
     </main>
-  </div>
 
-  <!-- Toast Container -->
-  <div class="toast-container" id="toastContainer"></div>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
 
   <!-- Core JS -->
   <script src="/static/js/main.js"></script>

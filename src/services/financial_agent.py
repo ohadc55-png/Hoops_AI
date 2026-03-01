@@ -97,20 +97,39 @@ class FinancialAgent:
         )
 
     async def chat(self, admin_id: int, user_message: str, history: list | None = None) -> str:
-        """Free chat with financial agent."""
-        data = await self.collector.get_financial_snapshot(admin_id)
+        """Free chat with financial agent — uses full per-player billing data."""
+        data = await self.collector.get_rich_financial_context(admin_id)
 
-        context = f"""נתוני המועדון הנוכחיים:
-{json.dumps(data, ensure_ascii=False, indent=2, default=str)}
+        summary_data = json.dumps(data["summary"], ensure_ascii=False, default=str)
+        teams_data = json.dumps(data["teams"], ensure_ascii=False, default=str)
+        overdue_data = json.dumps(data["overdue_details"][:20], ensure_ascii=False, default=str)
+        player_billing_data = json.dumps(data["player_billing"][:40], ensure_ascii=False, default=str)
+
+        context = f"""=== נתוני חיוב מלאים של המועדון ===
+
+סיכום כללי:
+{summary_data}
+
+פירוט לפי קבוצות:
+{teams_data}
+
+פירוט חיוב לפי שחקן ({len(data['player_billing'])} שחקנים):
+{player_billing_data}
+
+פירוט חובות פגי תוקף (overdue):
+{overdue_data}
 """
+        if len(context) > 10000:
+            context = context[:10000] + "\n[נתונים נחתכו]"
+
         messages = [
-            {"role": "system", "content": FINANCIAL_SYSTEM_PROMPT + "\n\nהקשר:\n" + context},
+            {"role": "system", "content": FINANCIAL_SYSTEM_PROMPT + "\n\n" + context},
         ]
         if history:
             messages.extend(history)
         messages.append({"role": "user", "content": user_message})
 
-        return await chat_completion(messages=messages, max_tokens=1500)
+        return await chat_completion(messages=messages, max_tokens=2000)
 
     async def send_payment_reminders(self, admin_id: int) -> int:
         """Send reminders to parents with overdue/upcoming charges via messaging system."""

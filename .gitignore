@@ -40,3 +40,6 @@ Thumbs.db
 # Misc
 HOOPS_AI_Summary.txt
 *.log
+
+# Sensitive
+users_pass/

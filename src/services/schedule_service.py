@@ -7,6 +7,7 @@ from src.models.schedule_request import ScheduleRequest
 from src.repositories.team_event_repository import TeamEventRepository
 from src.repositories.team_repository import TeamRepository
 from src.repositories.schedule_request_repository import ScheduleRequestRepository
+from src.utils.exceptions import NotFoundError, ForbiddenError
 
 
 class ScheduleService:
@@ -20,7 +21,7 @@ class ScheduleService:
         """Create a single team event."""
         team = await self.team_repo.get_by_id(team_id)
         if not team or team.created_by_admin_id != admin_id:
-            raise ValueError("Team not found or not authorized")
+            raise ForbiddenError("Team not found or not authorized")
         return await self.event_repo.create(
             team_id=team_id, created_by_admin_id=admin_id, **kwargs
         )
@@ -30,7 +31,7 @@ class ScheduleService:
         """Create a series of recurring weekly events."""
         team = await self.team_repo.get_by_id(team_id)
         if not team or team.created_by_admin_id != admin_id:
-            raise ValueError("Team not found or not authorized")
+            raise ForbiddenError("Team not found or not authorized")
 
         group = str(uuid.uuid4())
         base_date = kwargs.pop("date")
@@ -48,10 +49,10 @@ class ScheduleService:
     async def update_event(self, event_id: int, admin_id: int, **kwargs):
         event = await self.event_repo.get_by_id(event_id)
         if not event:
-            raise ValueError("Event not found")
+            raise NotFoundError("Event")
         team = await self.team_repo.get_by_id(event.team_id)
         if not team or team.created_by_admin_id != admin_id:
-            raise ValueError("Not authorized")
+            raise ForbiddenError("Not authorized")
 
         # Detect transport info changes before applying update
         old_departure = event.departure_time
@@ -96,19 +97,19 @@ class ScheduleService:
     async def delete_event(self, event_id: int, admin_id: int):
         event = await self.event_repo.get_by_id(event_id)
         if not event:
-            raise ValueError("Event not found")
+            raise NotFoundError("Event")
         team = await self.team_repo.get_by_id(event.team_id)
         if not team or team.created_by_admin_id != admin_id:
-            raise ValueError("Not authorized")
+            raise ForbiddenError("Not authorized")
         return await self.event_repo.update(event_id, is_active=False)
 
     async def delete_series(self, recurrence_group: str, admin_id: int):
         events = await self.event_repo.get_by_recurrence_group(recurrence_group)
         if not events:
-            raise ValueError("Series not found")
+            raise NotFoundError("Series")
         team = await self.team_repo.get_by_id(events[0].team_id)
         if not team or team.created_by_admin_id != admin_id:
-            raise ValueError("Not authorized")
+            raise ForbiddenError("Not authorized")
         count = 0
         for e in events:
             await self.event_repo.update(e.id, is_active=False)
@@ -151,11 +152,11 @@ class ScheduleService:
         """Admin approves a request — creates TeamEvent from request data."""
         req = await self.request_repo.get_by_id(request_id)
         if not req or req.status != "pending":
-            raise ValueError("Request not found or already processed")
+            raise NotFoundError("Request")
 
         team = await self.team_repo.get_by_id(req.team_id)
         if not team or team.created_by_admin_id != admin_id:
-            raise ValueError("Not authorized")
+            raise ForbiddenError("Not authorized")
 
         # Create TeamEvent(s) from request
         event_kwargs = dict(
@@ -190,11 +191,11 @@ class ScheduleService:
         """Admin rejects a request."""
         req = await self.request_repo.get_by_id(request_id)
         if not req or req.status != "pending":
-            raise ValueError("Request not found or already processed")
+            raise NotFoundError("Request")
 
         team = await self.team_repo.get_by_id(req.team_id)
         if not team or team.created_by_admin_id != admin_id:
-            raise ValueError("Not authorized")
+            raise ForbiddenError("Not authorized")
 
         req.status = "rejected"
         req.reviewed_at = datetime.utcnow()

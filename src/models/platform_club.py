@@ -29,6 +29,9 @@ class PlatformClub(Base, TimestampMixin):
     storage_quota_media_gb: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     admin_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)  # primary admin
     billing_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    billing_tax_id: Mapped[str | None] = mapped_column(String(50), nullable=True)   # ח.פ / ע.מ
+    billing_address: Mapped[str | None] = mapped_column(Text, nullable=True)
+    billing_phone: Mapped[str | None] = mapped_column(String(30), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Relationships

@@ -1,7 +1,7 @@
 {% extends "admin_base.html" %}
 {% block title %}HOOPS AI — AI Insights{% endblock %}
 {% block nav_insights %}active{% endblock %}
-{% block header_title %}AI Insights{% endblock %}
+{% block header_title %}<span data-i18n="admin.header.insights">תובנות AI</span>{% endblock %}
 {% block content %}
 <div class="insights-page">
 
@@ -22,7 +22,7 @@
 
     <!-- Sub-tabs -->
     <div class="sub-tabs">
-      <button class="sub-tab active" data-sub="fin-dashboard" onclick="switchSubTab('financial','fin-dashboard')">Dashboard</button>
+      <button class="sub-tab active" data-sub="fin-dashboard" onclick="switchSubTab('financial','fin-dashboard')" data-i18n="admin.insights.subtab_dashboard">Dashboard</button>
       <button class="sub-tab" data-sub="fin-reports" onclick="switchSubTab('financial','fin-reports')">דוחות</button>
       <button class="sub-tab" data-sub="fin-chat" onclick="switchSubTab('financial','fin-chat')">צ'אט</button>
     </div>
@@ -80,7 +80,7 @@
 
     <!-- Sub-tabs -->
     <div class="sub-tabs">
-      <button class="sub-tab active" data-sub="pro-dashboard" onclick="switchSubTab('professional','pro-dashboard')">Dashboard</button>
+      <button class="sub-tab active" data-sub="pro-dashboard" onclick="switchSubTab('professional','pro-dashboard')" data-i18n="admin.insights.subtab_dashboard">Dashboard</button>
       <button class="sub-tab" data-sub="pro-reports" onclick="switchSubTab('professional','pro-reports')">דוחות</button>
       <button class="sub-tab" data-sub="pro-playercard" onclick="switchSubTab('professional','pro-playercard')">כרטיס שחקן</button>
       <button class="sub-tab" data-sub="pro-chat" onclick="switchSubTab('professional','pro-chat')">צ'אט</button>

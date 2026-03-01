@@ -202,11 +202,8 @@ async def upload_drill_proof(
 
     from src.services.drill_video_service import DrillVideoService
     service = DrillVideoService(db)
-    try:
-        result = await service.upload_video_proof(assignment_id, player_ids, file)
-        return {"success": True, "data": result}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = await service.upload_video_proof(assignment_id, player_ids, file)
+    return {"success": True, "data": result}
 
 
 @router.get("/streak")
@@ -323,7 +320,7 @@ async def player_team(user: User = Depends(get_current_player), db: AsyncSession
         "data": {
             "teams": [
                 {"id": t.id, "name": t.name, "club_name": t.club_name, "age_group": t.age_group,
-                 "member_count": len(t.members) if t.members else 0}
+                 "member_count": sum(1 for m in (t.members or []) if m.role_in_team == "player")}
                 for t in teams
             ],
             "roster": [

@@ -14,13 +14,15 @@ let _selectedTeam = '';
 let _canvas = null;
 let _ctx = null;
 
-const ACTION_TYPES = {
-  pick_and_roll: 'Pick & Roll', isolation: 'Isolation', fast_break: 'Fast Break',
-  defense: 'Defense', transition: 'Transition', three_pointer: '3-Pointer',
-  post_up: 'Post Up', screen: 'Screen', turnover: 'Turnover',
-  rebound: 'Rebound', free_throw: 'Free Throw', out_of_bounds: 'Out of Bounds',
-  other: 'Other',
-};
+function ACTION_TYPES_MAP() {
+  return {
+    pick_and_roll: t('admin.scouting.action.pick_and_roll'), isolation: t('admin.scouting.action.isolation'), fast_break: t('admin.scouting.action.fast_break'),
+    defense: t('admin.scouting.action.defense'), transition: t('admin.scouting.action.transition'), three_pointer: t('admin.scouting.action.three_pointer'),
+    post_up: t('admin.scouting.action.post_up'), screen: t('admin.scouting.action.screen'), turnover: t('admin.scouting.action.turnover'),
+    rebound: t('admin.scouting.action.rebound'), free_throw: t('admin.scouting.action.free_throw'), out_of_bounds: t('admin.scouting.action.out_of_bounds'),
+    other: t('admin.scouting.action.other'),
+  };
+}
 
 /* ═══ Init ════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', async () => {
@@ -35,10 +37,10 @@ async function loadTeams() {
   try {
     const res = await AdminAPI.get('/api/scouting/admin/teams');
     const sel = document.getElementById('teamPicker');
-    (res.data || []).forEach(t => {
+    (res.data || []).forEach(tm => {
       const opt = document.createElement('option');
-      opt.value = t.id;
-      opt.textContent = t.name;
+      opt.value = tm.id;
+      opt.textContent = tm.name;
       sel.appendChild(opt);
     });
   } catch (e) { console.error('Load teams error:', e); }
@@ -58,7 +60,7 @@ async function loadVideos() {
   } catch (e) {
     console.error('Load videos error:', e);
     document.getElementById('videoGrid').innerHTML =
-      '<p style="color:var(--text-muted);grid-column:1/-1;text-align:center;padding:var(--sp-8);">Failed to load videos</p>';
+      `<p style="color:var(--text-muted);grid-column:1/-1;text-align:center;padding:var(--sp-8);">${t('admin.scouting.empty.load_error')}</p>`;
   }
 }
 
@@ -68,15 +70,15 @@ function renderVideoGrid() {
   if (!_videos.length) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:var(--sp-8);color:var(--text-muted);">
       <span class="material-symbols-outlined" style="font-size:3rem;display:block;margin-bottom:var(--sp-2);">videocam_off</span>
-      No videos found for selected team.</div>`;
+      ${t('admin.scouting.empty.no_videos')}</div>`;
     return;
   }
   grid.innerHTML = _videos.map(v => {
     const thumb = v.thumbnail_url
       ? `<img class="video-card-thumb" src="${v.thumbnail_url}" alt="${esc(v.title)}" loading="lazy">`
       : `<div class="video-card-thumb-placeholder"><span class="material-symbols-outlined">videocam</span></div>`;
-    const shared = v.shared_with_team ? `<span class="video-card-badge video-card-shared">Shared</span>` : '';
-    const parentShared = v.shared_with_parents ? `<span class="video-card-badge video-card-parent-shared">Parents</span>` : '';
+    const shared = v.shared_with_team ? `<span class="video-card-badge video-card-shared">${t('admin.scouting.shared')}</span>` : '';
+    const parentShared = v.shared_with_parents ? `<span class="video-card-badge video-card-parent-shared">${t('admin.scouting.parents')}</span>` : '';
     const type = v.video_type.replace('_', ' ');
     return `<div class="video-card" onclick="openVideo(${v.id})">
       ${thumb}
@@ -85,7 +87,7 @@ function renderVideoGrid() {
         <div class="video-card-meta">
           <span class="video-card-badge">${type}</span>
           ${v.opponent ? `<span>vs ${esc(v.opponent)}</span>` : ''}
-          <span>${v.clip_count} clips</span>
+          <span>${v.clip_count} ${t('admin.scouting.clips')}</span>
           ${shared}${parentShared}
         </div>
         <div class="video-card-coach">
@@ -140,7 +142,7 @@ async function openVideo(videoId) {
     renderClipsSidebar();
     renderTimelineMarkers();
   } catch (e) {
-    AdminToast.error('Failed to load video');
+    AdminToast.error(t('admin.scouting.load_video_error'));
   }
 }
 
@@ -331,7 +333,7 @@ function renderTimelineMarkers() {
     marker.className = `timeline-marker ${cls}`;
     marker.style.left = pct + '%';
     marker.style.width = widthPct + '%';
-    marker.title = `${ACTION_TYPES[c.action_type] || c.action_type} (${fmtTime(c.start_time)})`;
+    marker.title = `${ACTION_TYPES_MAP()[c.action_type] || c.action_type} (${fmtTime(c.start_time)})`;
     marker.onclick = (e) => { e.stopPropagation(); jumpToClip(c.id); };
     bar.appendChild(marker);
   });
@@ -340,17 +342,17 @@ function renderTimelineMarkers() {
 /* ═══ Clips Sidebar (Read-Only) ══════════════════════════ */
 function renderClipsSidebar() {
   const el = document.getElementById('clipsList');
-  document.getElementById('clipCount').textContent = `(${_clips.length})`;
+  document.getElementById('clipCount').textContent = t('admin.scouting.clip_count', { count: _clips.length });
 
   if (!_clips.length) {
-    el.innerHTML = '<p style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:var(--sp-4);">No clips yet</p>';
+    el.innerHTML = `<p style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:var(--sp-4);">${t('admin.scouting.empty.no_clips')}</p>`;
     return;
   }
 
   el.innerHTML = _clips.map(c => {
-    const action = ACTION_TYPES[c.action_type] || c.action_type;
+    const action = ACTION_TYPES_MAP()[c.action_type] || c.action_type;
     const rating = c.rating === 'positive' ? '👍' : c.rating === 'negative' ? '👎' : '';
-    const players = (c.player_tags || []).map(t => `<span class="clip-player-chip">${esc(t.name)}</span>`).join('');
+    const players = (c.player_tags || []).map(tag => `<span class="clip-player-chip">${esc(tag.name)}</span>`).join('');
     return `<div class="clip-card" data-clip-id="${c.id}" onclick="jumpToClip(${c.id})">
       <div class="clip-card-header">
         <span class="clip-card-action">${action} ${rating}</span>
@@ -358,7 +360,7 @@ function renderClipsSidebar() {
       </div>
       ${c.notes ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">${esc(c.notes)}</div>` : ''}
       ${players ? `<div class="clip-card-players">${players}</div>` : ''}
-      ${c.watch_count ? `<div class="clip-watch-count"><span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">visibility</span> ${c.watch_count} views</div>` : ''}
+      ${c.watch_count ? `<div class="clip-watch-count"><span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">visibility</span> ${c.watch_count} ${t('admin.scouting.views')}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -381,9 +383,4 @@ function fmtTime(s) {
   return `${m}:${String(sec).padStart(2, '0')}`;
 }
 
-function esc(str) {
-  if (!str) return '';
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
-}
+/* esc → shared-utils.js */

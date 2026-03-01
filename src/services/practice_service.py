@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.repositories.practice_repository import PracticeRepository
 from src.models.practice_session import SessionSegment
 from src.utils.openai_client import chat_completion_json
+from src.utils.exceptions import ValidationError
 
 
 class PracticeService:
@@ -44,7 +45,7 @@ class PracticeService:
     async def get_by_date_range(self, coach_id: int, start: date, end: date):
         return await self.repo.get_by_date_range(coach_id, start, end)
 
-    async def ai_generate_session(self, coach_id: int, focus: str, duration: int = 90, session_date: date = None):
+    async def ai_generate_session(self, coach_id: int, focus: str, duration: int = 90, session_date: date = None, language: str = "he"):
         # Enrich with RAG knowledge
         rag_context = ""
         try:
@@ -60,7 +61,11 @@ class PracticeService:
         except Exception:
             pass
 
-        prompt = f"""Generate a basketball practice session as JSON:
+        lang_instruction = "Write ALL text values (title, focus, segment titles, notes) in Hebrew (עברית)." if language == "he" else "Write ALL text values (title, focus, segment titles, notes) in English."
+
+        prompt = f"""{lang_instruction}
+
+Generate a basketball practice session as JSON:
 {{
   "title": "session title",
   "focus": "{focus}",
@@ -69,15 +74,16 @@ class PracticeService:
     {{"segment_type": "warmup|drill|scrimmage|cooldown|break|film_study", "title": "name", "duration_minutes": N, "notes": "details", "order_index": 0}}
   ]
 }}
-Create a well-structured {duration}-minute practice focused on {focus}.{rag_context}"""
+Create a well-structured {duration}-minute practice focused on {focus}.
+IMPORTANT: segment_type values must remain in English (warmup, drill, scrimmage, cooldown, break, film_study). Only the title, notes, and focus text should be in the requested language.{rag_context}"""
 
         response = await chat_completion_json([{"role": "user", "content": prompt}])
         try:
             data = json.loads(response)
         except (json.JSONDecodeError, TypeError):
-            raise ValueError("AI returned invalid practice plan data. Please try again.")
+            raise ValidationError("AI returned invalid practice plan data. Please try again.")
         if not isinstance(data, dict):
-            raise ValueError("AI returned unexpected format. Please try again.")
+            raise ValidationError("AI returned unexpected format. Please try again.")
 
         session = await self.repo.create(
             coach_id=coach_id,

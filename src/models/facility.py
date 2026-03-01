@@ -16,6 +16,8 @@ class Facility(Base, TimestampMixin):
     facility_type: Mapped[str] = mapped_column(String(50), nullable=False)  # gym, court, field, pool
     address: Mapped[str | None] = mapped_column(String(300), nullable=True)
     capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    manager_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    manager_phone: Mapped[str | None] = mapped_column(String(30), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     admin = relationship("User", foreign_keys=[admin_id])

@@ -19,11 +19,13 @@ router = APIRouter(prefix="/api/admin/roles", tags=["admin-roles"])
 class CreateRoleRequest(BaseModel):
     name: str
     description: str | None = None
+    permissions: dict | None = None  # {"allowed_pages": [...]} or None = unrestricted
 
 
 class UpdateRoleRequest(BaseModel):
     name: str | None = None
     description: str | None = None
+    permissions: dict | None = None  # set to {} to clear, None = leave unchanged
 
 
 class AssignRoleRequest(BaseModel):
@@ -37,6 +39,7 @@ def _role_to_dict(role):
         "description": role.description,
         "is_default": role.is_default,
         "is_active": role.is_active,
+        "permissions": role.permissions,
     }
 
 
@@ -55,7 +58,7 @@ async def create_role(req: CreateRoleRequest, admin: User = Depends(get_current_
     existing = await repo.get_by_name(req.name.strip())
     if existing:
         raise HTTPException(status_code=400, detail="Role name already exists")
-    role = await repo.create(name=req.name.strip(), description=req.description, is_default=False, is_active=True)
+    role = await repo.create(name=req.name.strip(), description=req.description, is_default=False, is_active=True, permissions=req.permissions)
     return {"success": True, "data": _role_to_dict(role)}
 
 
@@ -72,6 +75,8 @@ async def update_role(role_id: int, req: UpdateRoleRequest, admin: User = Depend
         updates["name"] = req.name.strip()
     if req.description is not None:
         updates["description"] = req.description
+    if req.permissions is not None:
+        updates["permissions"] = req.permissions if req.permissions else None
     if updates:
         role = await repo.update(role_id, **updates)
     return {"success": True, "data": _role_to_dict(role)}

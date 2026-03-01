@@ -1,7 +1,7 @@
 {% extends "admin_base.html" %}
 {% block title %}HOOPS AI — Knowledge Base{% endblock %}
 {% block nav_knowledge %}active{% endblock %}
-{% block header_title %}Knowledge Base{% endblock %}
+{% block header_title %}<span data-i18n="admin.header.knowledge">בסיס ידע</span>{% endblock %}
 {% block content %}
 <div class="admin-dashboard">
 
@@ -11,21 +11,21 @@
       <div class="stat-icon"><span class="material-symbols-outlined">description</span></div>
       <div class="stat-info">
         <div class="stat-value" id="statDocuments">0</div>
-        <div class="stat-label">Documents</div>
+        <div class="stat-label" data-i18n="admin.knowledge.stat_documents">Documents</div>
       </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon"><span class="material-symbols-outlined">dataset</span></div>
       <div class="stat-info">
         <div class="stat-value" id="statChunks">0</div>
-        <div class="stat-label">Chunks</div>
+        <div class="stat-label" data-i18n="admin.knowledge.stat_chunks">Chunks</div>
       </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon"><span class="material-symbols-outlined">cloud_upload</span></div>
       <div class="stat-info">
-        <div class="stat-value" id="statTotalSize">0 KB</div>
-        <div class="stat-label">Total Size</div>
+        <div class="stat-value" id="statTotalSize" dir="ltr">0 KB</div>
+        <div class="stat-label" data-i18n="admin.knowledge.stat_total_size">Total Size</div>
       </div>
     </div>
   </div>
@@ -33,35 +33,35 @@
   <!-- Filter Row + Upload Button -->
   <section class="dashboard-section">
     <div class="section-header">
-      <h2><span class="material-symbols-outlined">menu_book</span> Documents</h2>
+      <h2><span class="material-symbols-outlined">menu_book</span> <span data-i18n="admin.knowledge.section_documents">Documents</span></h2>
       <button class="btn btn-primary btn-sm" onclick="openModal('uploadDocModal')">
-        <span class="material-symbols-outlined">upload_file</span> Upload Document
+        <span class="material-symbols-outlined">upload_file</span> <span data-i18n="admin.knowledge.btn_upload_document">Upload Document</span>
       </button>
     </div>
 
     <!-- Filters -->
     <div style="display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;margin-bottom:var(--sp-4);">
       <select class="input" id="filterCategory" onchange="applyFilters()" style="min-width:160px;">
-        <option value="">All Categories</option>
+        <option value="" data-i18n="admin.knowledge.all_categories">All Categories</option>
       </select>
       <select class="input" id="filterStatus" onchange="applyFilters()" style="min-width:140px;">
-        <option value="">All Statuses</option>
-        <option value="ready">Ready</option>
-        <option value="processing">Processing</option>
-        <option value="error">Error</option>
+        <option value="" data-i18n="admin.knowledge.filter_all_statuses">All Statuses</option>
+        <option value="ready" data-i18n="admin.knowledge.status.ready">Ready</option>
+        <option value="processing" data-i18n="admin.knowledge.status.processing">Processing</option>
+        <option value="error" data-i18n="admin.knowledge.status.error">Error</option>
       </select>
       <select class="input" id="filterScope" onchange="applyFilters()" style="min-width:140px;">
-        <option value="">All Scopes</option>
-        <option value="system">System</option>
-        <option value="club">Club</option>
-        <option value="coach">Coach</option>
+        <option value="" data-i18n="admin.knowledge.filter_all_scopes">All Scopes</option>
+        <option value="system" data-i18n="admin.knowledge.scope.system">System</option>
+        <option value="club" data-i18n="admin.knowledge.scope.club">Club</option>
+        <option value="coach" data-i18n="admin.knowledge.scope.coach">Coach</option>
       </select>
       <span style="font-size:var(--text-sm);color:var(--text-muted);margin-left:auto;" id="docCount">0 documents</span>
     </div>
 
     <!-- Document Cards Grid -->
     <div class="section-content" id="documentsGrid">
-      <div class="loading-state">Loading documents...</div>
+      <div class="loading-state" data-i18n="admin.knowledge.loading">Loading documents...</div>
     </div>
   </section>
 
@@ -71,7 +71,7 @@
 <div class="modal-overlay" id="uploadDocModal">
   <div class="modal" style="max-width:520px;">
     <div class="modal-header">
-      <h3>Upload Document</h3>
+      <h3 data-i18n="admin.knowledge.modal_upload_title">Upload Document</h3>
       <button class="btn-icon" onclick="closeModal('uploadDocModal')">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -80,52 +80,52 @@
       <form id="uploadDocForm" onsubmit="return handleUploadDocument(event)">
         <!-- File Input -->
         <div class="input-group" style="margin-bottom:var(--sp-4);">
-          <label>File *</label>
+          <label data-i18n="admin.knowledge.form.file">File *</label>
           <div id="dropZone" style="border:2px dashed var(--border);border-radius:var(--r-lg);padding:var(--sp-6);text-align:center;cursor:pointer;transition:border-color 0.2s;"
                onclick="document.getElementById('docFile').click()">
             <span class="material-symbols-outlined" style="font-size:36px;color:var(--text-muted);display:block;margin-bottom:var(--sp-2);">cloud_upload</span>
-            <p style="color:var(--text-secondary);font-size:var(--text-sm);margin-bottom:var(--sp-1);" id="dropZoneText">
+            <p style="color:var(--text-secondary);font-size:var(--text-sm);margin-bottom:var(--sp-1);" id="dropZoneText" data-i18n="admin.knowledge.drop_zone_text">
               Click to select or drag & drop
             </p>
-            <p style="color:var(--text-muted);font-size:var(--text-xs);">PDF, DOCX, or TXT — Max 20MB</p>
+            <p style="color:var(--text-muted);font-size:var(--text-xs);" data-i18n="admin.knowledge.file_types_hint">PDF, DOCX, or TXT — Max 20MB</p>
           </div>
           <input type="file" id="docFile" accept=".pdf,.docx,.txt" style="display:none;" onchange="handleFileSelect(this)" required>
         </div>
 
         <!-- Title -->
         <div class="input-group" style="margin-bottom:var(--sp-4);">
-          <label>Title *</label>
-          <input type="text" class="input" id="docTitle" placeholder="Document title" required>
+          <label data-i18n="admin.knowledge.form.title">Title *</label>
+          <input type="text" class="input" id="docTitle" data-i18n-placeholder="admin.knowledge.form.title_placeholder" placeholder="Document title" required>
         </div>
 
         <!-- Category + Language Row -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-4);">
           <div class="input-group">
-            <label>Category *</label>
+            <label data-i18n="admin.knowledge.form.category">Category *</label>
             <select class="input" id="docCategory" required>
-              <option value="">Select...</option>
+              <option value="" data-i18n="admin.knowledge.select_category">Select...</option>
             </select>
           </div>
           <div class="input-group">
-            <label>Language *</label>
+            <label data-i18n="admin.knowledge.form.language">Language *</label>
             <select class="input" id="docLanguage" required>
-              <option value="en">English</option>
-              <option value="he">Hebrew</option>
+              <option value="en" data-i18n="admin.knowledge.detail.language_en">English</option>
+              <option value="he" data-i18n="admin.knowledge.detail.language_he">Hebrew</option>
             </select>
           </div>
         </div>
 
         <!-- Description -->
         <div class="input-group">
-          <label>Description</label>
-          <textarea class="input" id="docDescription" rows="3" placeholder="Brief description of the document content (optional)"></textarea>
+          <label data-i18n="admin.knowledge.form.description">Description</label>
+          <textarea class="input" id="docDescription" rows="3" data-i18n-placeholder="admin.knowledge.form.description_placeholder" placeholder="Brief description of the document content (optional)"></textarea>
         </div>
       </form>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('uploadDocModal')">Cancel</button>
+      <button class="btn btn-ghost" onclick="closeModal('uploadDocModal')" data-i18n="btn.cancel">Cancel</button>
       <button class="btn btn-primary" id="uploadBtn" onclick="document.getElementById('uploadDocForm').requestSubmit()">
-        <span class="material-symbols-outlined" style="font-size:16px;">upload</span> Upload
+        <span class="material-symbols-outlined" style="font-size:16px;">upload</span> <span data-i18n="admin.knowledge.upload_btn">Upload</span>
       </button>
     </div>
   </div>
@@ -135,7 +135,7 @@
 <div class="modal-overlay" id="docDetailModal">
   <div class="modal" style="max-width:520px;">
     <div class="modal-header">
-      <h3 id="detailDocTitle">Document Details</h3>
+      <h3 id="detailDocTitle" data-i18n="admin.knowledge.modal_detail_title">Document Details</h3>
       <button class="btn-icon" onclick="closeModal('docDetailModal')">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -143,7 +143,7 @@
     <div class="modal-body" id="docDetailBody">
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('docDetailModal')">Close</button>
+      <button class="btn btn-ghost" onclick="closeModal('docDetailModal')" data-i18n="btn.close">Close</button>
     </div>
   </div>
 </div>

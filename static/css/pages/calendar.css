@@ -132,6 +132,10 @@
   text-overflow: ellipsis;
   color: #fff;
   font-weight: 500;
+  cursor: pointer;
+}
+.calendar-event-pill:hover {
+  filter: brightness(1.15);
 }
 
 .calendar-event-pill.type-practice { background: var(--success); }
@@ -354,3 +358,11 @@
 }
 .transport-info a { text-decoration: none; }
 .transport-info a:hover { text-decoration: underline; }
+
+
+/* === RTL OVERRIDES === */
+[dir="rtl"] .calendar-day { border-right: none; border-left: 1px solid var(--border); }
+[dir="rtl"] .calendar-day:nth-child(7n) { border-left: none; }
+[dir="rtl"] .admin-event-badge { margin-left: 0; margin-right: 4px; }
+[dir="rtl"] .calendar-detail-event.admin-event { border-left: none; border-right: 3px solid #60A5FA; }
+[dir="rtl"] .transport-info { border-left: none; border-right: 3px solid #F87171; border-radius: var(--r-sm) 0 0 var(--r-sm); }

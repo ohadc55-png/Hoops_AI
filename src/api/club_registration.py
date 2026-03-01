@@ -20,11 +20,8 @@ class ClubAdminRegisterRequest(BaseModel):
 async def validate_registration_link(token: str, db: AsyncSession = Depends(get_db)):
     """Public: validate a club registration link and return club info."""
     service = ClubRegistrationService(db)
-    try:
-        data = await service.validate_link(token)
-        return {"success": True, "data": data}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    data = await service.validate_link(token)
+    return {"success": True, "data": data}
 
 
 @router.post("/{token}")
@@ -40,16 +37,13 @@ async def register_club_admin(
         raise HTTPException(status_code=400, detail="Name is required")
 
     service = ClubRegistrationService(db)
-    try:
-        result = await service.register_admin(
-            token=token,
-            name=req.name.strip(),
-            email=req.email.strip().lower(),
-            password=req.password,
-            phone=req.phone,
-            role_title=req.role_title,
-        )
-        await db.commit()
-        return {"success": True, "data": result}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = await service.register_admin(
+        token=token,
+        name=req.name.strip(),
+        email=req.email.strip().lower(),
+        password=req.password,
+        phone=req.phone,
+        role_title=req.role_title,
+    )
+    await db.commit()
+    return {"success": True, "data": result}

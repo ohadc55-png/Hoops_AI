@@ -13,9 +13,11 @@ router = APIRouter(prefix="/api", tags=["logistics"])
 class EventRequest(BaseModel):
     date: str
     time: str | None = None
+    end_time: str | None = None
     event_type: str
     title: str
     opponent: str | None = None
+    location: str | None = None
     facility_id: int | None = None
     notes: str | None = None
     repeat_weeks: int | None = None
@@ -73,8 +75,9 @@ async def list_events(
     else:
         events = await svc.get_events(coach.id)
     all_events = [
-        {"id": e.id, "date": str(e.date), "time": e.time, "event_type": e.event_type,
-         "title": e.title, "opponent": e.opponent, "facility_id": e.facility_id,
+        {"id": e.id, "date": str(e.date), "time": e.time, "end_time": e.end_time,
+         "event_type": e.event_type, "title": e.title, "opponent": e.opponent,
+         "location": e.location, "facility_id": e.facility_id,
          "notes": e.notes, "recurrence_group": e.recurrence_group, "created_at": str(e.created_at),
          "source": "coach"}
         for e in events

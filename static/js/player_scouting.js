@@ -24,7 +24,7 @@ async function loadFeed() {
     renderFeed();
   } catch (e) {
     console.error('Feed load error:', e);
-    document.getElementById('feedList').innerHTML = '<p class="feed-empty">Failed to load video feed</p>';
+    document.getElementById('feedList').innerHTML = '<p class="feed-empty">' + t('player.scouting.feed_error') + '</p>';
   }
 }
 
@@ -40,7 +40,7 @@ function renderFeed() {
   if (!clips.length) {
     el.innerHTML = `<div class="feed-empty">
       <span class="material-symbols-outlined">videocam_off</span>
-      ${_feedFilter === 'new' ? 'No new clips!' : 'No clips yet. Your coach will tag you in game footage.'}
+      ${_feedFilter === 'new' ? t('player.scouting.no_new_clips') : t('player.scouting.no_clips')}
     </div>`;
     return;
   }
@@ -52,7 +52,7 @@ function renderFeed() {
       ? `<div style="position:relative;"><img class="feed-card-thumb" src="${c.thumbnail_url}" alt="${c.video_title}" loading="lazy"><div class="feed-card-play-icon"><span class="material-symbols-outlined" style="font-size:2rem;">play_arrow</span></div></div>`
       : `<div class="feed-card-thumb-placeholder"><span class="material-symbols-outlined">play_circle</span></div>`;
     const watchedClass = c.is_watched ? 'is-watched' : '';
-    const watchedLabel = c.is_watched ? '<span class="material-symbols-outlined" style="font-size:1rem;">check_circle</span> Watched' : '<span class="material-symbols-outlined" style="font-size:1rem;">play_arrow</span> Watch';
+    const watchedLabel = c.is_watched ? '<span class="material-symbols-outlined" style="font-size:1rem;">check_circle</span> ' + t('player.scouting.watched') : '<span class="material-symbols-outlined" style="font-size:1rem;">play_arrow</span> ' + t('player.scouting.watch');
     const dur = Math.round((c.end_time || 0) - (c.start_time || 0));
     const durLabel = dur >= 60 ? `${Math.floor(dur/60)}:${String(dur%60).padStart(2,'0')}` : `0:${String(dur).padStart(2,'0')}`;
 
@@ -177,9 +177,9 @@ async function openClipViewer(clipId) {
   } catch (e) {
     console.error('Clip viewer error:', e);
     if (typeof PlayerToast !== 'undefined' && PlayerToast.error) {
-      PlayerToast.error('Failed to load clip');
+      PlayerToast.error(t('player.scouting.clip_error'));
     } else if (typeof Toast !== 'undefined' && Toast.error) {
-      Toast.error('Failed to load clip');
+      Toast.error(t('player.scouting.clip_error'));
     }
   }
 }
@@ -260,29 +260,13 @@ async function markWatched(clipId, btn) {
     if (clip) clip.is_watched = true;
     if (btn) {
       btn.classList.add('is-watched');
-      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">check_circle</span> Watched';
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">check_circle</span> ' + t('player.scouting.watched');
     }
   } catch (e) { console.error('Mark watched error:', e); }
 }
 
 /* ═══ Utilities ═══════════════════════════════════════════ */
-function timeAgo(ts) {
-  if (!ts) return '';
-  const d = new Date(ts.endsWith('Z') ? ts : ts + 'Z');
-  const diff = (Date.now() - d.getTime()) / 1000;
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-  if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
-  return d.toLocaleDateString();
-}
-
-function esc(str) {
-  if (!str) return '';
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
-}
-
-function openModal(id) { document.getElementById(id)?.classList.add('active'); }
-function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+/* timeAgo → shared-utils.js */
+/* esc → shared-utils.js */
+/* openModal → shared-utils.js */
+/* closeModal → shared-utils.js */

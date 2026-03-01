@@ -15,7 +15,8 @@ router = APIRouter(prefix="/api/billing", tags=["billing"])
 # ── Request Models ────────────────────────────────────────────────────────
 
 class CreatePlanRequest(BaseModel):
-    team_id: int
+    team_id: int | None = None
+    all_teams: bool = False
     season: str                         # e.g. "2025-2026"
     total_amount: float
     num_installments: int = 10
@@ -36,7 +37,8 @@ class MarkInstallmentPaidRequest(BaseModel):
 
 
 class CreateOneTimeChargeRequest(BaseModel):
-    team_id: int
+    team_id: int | None = None
+    all_teams: bool = False
     title: str
     amount: float
     due_date: str | None = None
@@ -61,7 +63,20 @@ async def create_plan(
     from src.utils.feature_gate import require_feature
     await require_feature("billing_payments", db, admin_id=admin.id)
     service = BillingService(db)
-    try:
+    if req.all_teams:
+        result = await service.create_plan_for_all_teams(
+            admin_id=admin.id,
+            season=req.season,
+            total_amount=req.total_amount,
+            num_installments=req.num_installments,
+            billing_day=req.billing_day,
+            start_month=req.start_month,
+            payment_method=req.payment_method,
+            description=req.description,
+        )
+    else:
+        if not req.team_id:
+            raise HTTPException(status_code=400, detail="team_id is required")
         result = await service.create_plan_for_team(
             admin_id=admin.id,
             team_id=req.team_id,
@@ -73,9 +88,7 @@ async def create_plan(
             payment_method=req.payment_method,
             description=req.description,
         )
-        return {"success": True, "data": result}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return {"success": True, "data": result}
 
 
 @router.get("/plans")
@@ -118,11 +131,8 @@ async def adjust_plan(
     db: AsyncSession = Depends(get_db),
 ):
     service = BillingService(db)
-    try:
-        result = await service.adjust_player_plan(admin.id, plan_id, req.new_total_amount)
-        return {"success": True, "data": result}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = await service.adjust_player_plan(admin.id, plan_id, req.new_total_amount)
+    return {"success": True, "data": result}
 
 
 @router.delete("/plans/{plan_id}")
@@ -132,11 +142,8 @@ async def cancel_plan(
     db: AsyncSession = Depends(get_db),
 ):
     service = BillingService(db)
-    try:
-        await service.cancel_plan(admin.id, plan_id)
-        return {"success": True}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    await service.cancel_plan(admin.id, plan_id)
+    return {"success": True}
 
 
 # ── Admin: Installments ────────────────────────────────────────────────────
@@ -149,13 +156,10 @@ async def mark_installment_paid(
     db: AsyncSession = Depends(get_db),
 ):
     service = BillingService(db)
-    try:
-        result = await service.mark_installment_paid(
-            admin.id, installment_id, req.paid_date, req.payment_method, req.notes
-        )
-        return {"success": True, "data": result}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = await service.mark_installment_paid(
+        admin.id, installment_id, req.paid_date, req.payment_method, req.notes
+    )
+    return {"success": True, "data": result}
 
 
 # ── Admin: One-Time Charges ───────────────────────────────────────────────
@@ -167,7 +171,17 @@ async def create_one_time_charge(
     db: AsyncSession = Depends(get_db),
 ):
     service = BillingService(db)
-    try:
+    if req.all_teams:
+        count = await service.create_charge_for_all_teams(
+            admin_id=admin.id,
+            title=req.title,
+            amount=req.amount,
+            due_date=req.due_date,
+            description=req.description,
+        )
+    else:
+        if not req.team_id:
+            raise HTTPException(status_code=400, detail="team_id is required")
         count = await service.create_one_time_charge(
             admin_id=admin.id,
             team_id=req.team_id,
@@ -177,9 +191,7 @@ async def create_one_time_charge(
             player_ids=req.player_ids,
             description=req.description,
         )
-        return {"success": True, "data": {"created": count}}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return {"success": True, "data": {"created": count}}
 
 
 @router.get("/one-time")
@@ -218,13 +230,10 @@ async def mark_one_time_paid(
     db: AsyncSession = Depends(get_db),
 ):
     service = BillingService(db)
-    try:
-        result = await service.mark_charge_paid(
-            admin.id, charge_id, req.paid_date, req.payment_method, req.notes
-        )
-        return {"success": True, "data": result}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = await service.mark_charge_paid(
+        admin.id, charge_id, req.paid_date, req.payment_method, req.notes
+    )
+    return {"success": True, "data": result}
 
 
 @router.put("/one-time/{charge_id}/cancel")
@@ -234,11 +243,8 @@ async def cancel_one_time_charge(
     db: AsyncSession = Depends(get_db),
 ):
     service = BillingService(db)
-    try:
-        await service.cancel_charge(admin.id, charge_id)
-        return {"success": True}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    await service.cancel_charge(admin.id, charge_id)
+    return {"success": True}
 
 
 @router.delete("/one-time/{charge_id}")
@@ -248,11 +254,8 @@ async def delete_one_time_charge(
     db: AsyncSession = Depends(get_db),
 ):
     service = BillingService(db)
-    try:
-        await service.delete_charge(admin.id, charge_id)
-        return {"success": True}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    await service.delete_charge(admin.id, charge_id)
+    return {"success": True}
 
 
 # ── Admin: Overview & Team Detail ─────────────────────────────────────────
@@ -276,11 +279,8 @@ async def get_team_billing(
     db: AsyncSession = Depends(get_db),
 ):
     service = BillingService(db)
-    try:
-        rows = await service.get_team_billing_detail(admin.id, team_id, season=season)
-        return {"success": True, "data": rows}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    rows = await service.get_team_billing_detail(admin.id, team_id, season=season)
+    return {"success": True, "data": rows}
 
 
 @router.get("/unpaid")
@@ -290,11 +290,8 @@ async def get_unpaid_players(
     db: AsyncSession = Depends(get_db),
 ):
     service = BillingService(db)
-    try:
-        rows = await service.get_unpaid_players(admin.id, team_id)
-        return {"success": True, "data": rows}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    rows = await service.get_unpaid_players(admin.id, team_id)
+    return {"success": True, "data": rows}
 
 
 @router.post("/remind")
@@ -304,11 +301,8 @@ async def send_reminders(
     db: AsyncSession = Depends(get_db),
 ):
     service = BillingService(db)
-    try:
-        count = await service.send_reminders(admin.id, team_id)
-        return {"success": True, "data": {"sent": count}}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    count = await service.send_reminders(admin.id, team_id)
+    return {"success": True, "data": {"sent": count}}
 
 
 @router.post("/check-overdue")
@@ -321,6 +315,44 @@ async def check_overdue(
     return {"success": True, "data": result}
 
 
+# ── Admin: New Payments (acknowledgement) ─────────────────────────────────
+
+@router.get("/new-payments")
+async def get_new_payments(
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    service = BillingService(db)
+    items = await service.get_new_payments(admin.id)
+    return {"success": True, "data": items}
+
+
+class AcknowledgeRequest(BaseModel):
+    type: str  # "installment" or "charge"
+    id: int
+
+
+@router.put("/acknowledge")
+async def acknowledge_payment(
+    req: AcknowledgeRequest,
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    service = BillingService(db)
+    await service.acknowledge_payment(admin.id, req.type, req.id)
+    return {"success": True}
+
+
+@router.put("/acknowledge-all")
+async def acknowledge_all_payments(
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    service = BillingService(db)
+    count = await service.acknowledge_all_payments(admin.id)
+    return {"success": True, "data": {"count": count}}
+
+
 # ── Parent ────────────────────────────────────────────────────────────────
 
 @router.get("/my")
@@ -330,6 +362,63 @@ async def get_my_billing(
 ):
     service = BillingService(db)
     data = await service.get_parent_billing(parent.id)
+    return {"success": True, "data": data}
+
+
+class ParentPayRequest(BaseModel):
+    cardholder_name: str
+    id_number: str
+    card_number: str
+    expiry: str
+    cvv: str
+    num_payments: int = 1
+
+
+@router.put("/my/installments/{installment_id}/pay")
+async def parent_pay_installment(
+    installment_id: int,
+    req: ParentPayRequest,
+    parent: User = Depends(get_current_parent),
+    db: AsyncSession = Depends(get_db),
+):
+    service = BillingService(db)
+    result = await service.parent_pay_installment(parent.id, installment_id, req.model_dump())
+    return {"success": True, "data": result}
+
+
+@router.put("/my/plans/{plan_id}/pay")
+async def parent_pay_plan(
+    plan_id: int,
+    req: ParentPayRequest,
+    parent: User = Depends(get_current_parent),
+    db: AsyncSession = Depends(get_db),
+):
+    service = BillingService(db)
+    result = await service.parent_pay_plan(parent.id, plan_id, req.model_dump())
+    return {"success": True, "data": result}
+
+
+@router.put("/my/charges/{charge_id}/pay")
+async def parent_pay_charge(
+    charge_id: int,
+    req: ParentPayRequest,
+    parent: User = Depends(get_current_parent),
+    db: AsyncSession = Depends(get_db),
+):
+    service = BillingService(db)
+    result = await service.parent_pay_charge(parent.id, charge_id, req.model_dump())
+    return {"success": True, "data": result}
+
+
+@router.get("/my/receipt/{receipt_type}/{item_id}")
+async def get_receipt_data(
+    receipt_type: str,
+    item_id: int,
+    parent: User = Depends(get_current_parent),
+    db: AsyncSession = Depends(get_db),
+):
+    service = BillingService(db)
+    data = await service.get_receipt_data(parent.id, receipt_type, item_id)
     return {"success": True, "data": data}
 
 

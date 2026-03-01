@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,15 +7,24 @@
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
   <!-- Styles -->
   <link rel="stylesheet" href="/static/css/variables.css">
+  <link rel="stylesheet" href="/static/css/themes.css">
   <link rel="stylesheet" href="/static/css/reset.css">
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/layout.css">
   <link rel="stylesheet" href="/static/css/player.css">
   {% block styles %}{% endblock %}
+
+  <!-- i18n -->
+  <script src="/static/js/i18n.js"></script>
+  <script src="/static/js/translations/common.js"></script>
+  <script src="/static/js/translations/player.js"></script>
+  <script src="/static/js/shared-utils.js"></script>
+  <script src="/static/js/api-core.js"></script>
 </head>
 <body>
   <div class="app player-app" id="app">
@@ -25,67 +34,67 @@
         <img src="/static/images/logo.png" alt="HOOPS AI" class="sidebar-logo-img" width="36" height="36">
         <div>
           <h1>HOOPS AI</h1>
-          <span>Player Portal</span>
+          <span data-i18n="player.subtitle">Player Portal</span>
         </div>
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Main</div>
+        <div class="sidebar-section-title" data-i18n="player.section.main">Main</div>
         <nav class="sidebar-nav">
           <a href="/player/dashboard" class="nav-item {% block nav_dashboard %}{% endblock %}" data-page="dashboard">
             <span class="material-symbols-outlined">dashboard</span>
-            Dashboard
+            <span data-i18n="player.nav.dashboard">Dashboard</span>
           </a>
           <a href="/player/schedule" class="nav-item {% block nav_schedule %}{% endblock %}" data-page="schedule">
             <span class="material-symbols-outlined">calendar_month</span>
-            Schedule
+            <span data-i18n="player.nav.schedule">Schedule</span>
           </a>
         </nav>
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Training</div>
+        <div class="sidebar-section-title" data-i18n="player.section.training">Training</div>
         <nav class="sidebar-nav">
           <a href="/player" class="nav-item {% block nav_chat %}{% endblock %}" data-page="chat">
             <span class="material-symbols-outlined">smart_toy</span>
-            AI Chat
+            <span data-i18n="player.nav.chat">AI Chat</span>
           </a>
           <a href="/player/drills" class="nav-item {% block nav_drills %}{% endblock %}" data-page="drills">
             <span class="material-symbols-outlined">fitness_center</span>
-            Drills
+            <span data-i18n="player.nav.drills">Drills</span>
             <span class="msg-badge" id="playerDrillsBadge" style="display:none;"></span>
           </a>
           <a href="/player/plays" class="nav-item {% block nav_plays %}{% endblock %}" data-page="plays">
             <span class="material-symbols-outlined">sports_basketball</span>
-            Plays
+            <span data-i18n="player.nav.plays">Plays</span>
             <span class="msg-badge" id="playerPlaysBadge" style="display:none;"></span>
           </a>
           <a href="/player/scouting" class="nav-item {% block nav_scouting %}{% endblock %}" data-page="scouting">
             <span class="material-symbols-outlined">videocam</span>
-            Video Feed
+            <span data-i18n="player.nav.scouting">Video Feed</span>
             <span class="msg-badge" id="playerVideosBadge" style="display:none;"></span>
           </a>
         </nav>
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-section-title">My Info</div>
+        <div class="sidebar-section-title" data-i18n="player.section.info">My Info</div>
         <nav class="sidebar-nav">
           <a href="/player/reports" class="nav-item {% block nav_reports %}{% endblock %}" data-page="reports">
             <span class="material-symbols-outlined">assessment</span>
-            My Reports
+            <span data-i18n="player.nav.reports">My Reports</span>
           </a>
           <a href="/player/team" class="nav-item {% block nav_team %}{% endblock %}" data-page="team">
             <span class="material-symbols-outlined">groups</span>
-            Team
+            <span data-i18n="player.nav.team">Team</span>
           </a>
           <a href="/player/leaderboard" class="nav-item {% block nav_leaderboard %}{% endblock %}" data-page="leaderboard">
             <span class="material-symbols-outlined">leaderboard</span>
-            Leaderboard
+            <span data-i18n="player.nav.leaderboard">Leaderboard</span>
           </a>
           <a href="/player/messages" class="nav-item {% block nav_messages %}{% endblock %}" data-page="messages">
             <span class="material-symbols-outlined">mail</span>
-            Messages
+            <span data-i18n="player.nav.messages">Messages</span>
             <span class="msg-badge" id="playerMsgBadge" style="display:none;"></span>
           </a>
         </nav>
@@ -94,7 +103,7 @@
       <div class="sidebar-footer">
         <button class="nav-item" onclick="playerLogout()">
           <span class="material-symbols-outlined">logout</span>
-          Logout
+          <span data-i18n="player.nav.logout">Logout</span>
         </button>
       </div>
     </aside>
@@ -108,14 +117,17 @@
         <h2 class="player-header-title">{% block header_title %}Dashboard{% endblock %}</h2>
       </div>
       <div class="header-right">
+        <button class="btn-icon lang-toggle" id="langToggle" onclick="I18N.setLanguage(I18N.getLang()==='he'?'en':'he'); if(typeof _saveLangPref==='function') _saveLangPref(I18N.getLang());">
+          <span id="lang-toggle-label" style="font-size:13px;font-weight:700;">EN</span>
+        </button>
         <button class="btn-icon header-notification" id="playerNotifBtn">
           <span class="material-symbols-outlined">notifications</span>
         </button>
         <div class="notif-dropdown" id="playerNotifDropdown">
-          <div class="notif-dropdown-header">התראות</div>
+          <div class="notif-dropdown-header" data-i18n="header.notifications">Notifications</div>
           <div class="notif-dropdown-empty">
             <span class="material-symbols-outlined" style="font-size:32px;color:var(--text-muted);">notifications_off</span>
-            <p>אין התראות חדשות</p>
+            <p data-i18n="header.no_notifications">No notifications yet</p>
           </div>
         </div>
         <div class="header-avatar" id="userAvatar">
@@ -131,10 +143,10 @@
     <main class="main" id="mainContent">
       {% block content %}{% endblock %}
     </main>
-  </div>
 
-  <!-- Toast Container -->
-  <div class="toast-container" id="toastContainer"></div>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
 
   <!-- Core JS -->
   <script src="/static/js/player_main.js"></script>

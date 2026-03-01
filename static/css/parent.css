@@ -2,48 +2,8 @@
 
 /* ═══════════════════════════════════════════════════
    Parent Theme: Clean & Friendly — White + Blue
+   Theme variables are in themes.css
    ═══════════════════════════════════════════════════ */
-.parent-app {
-  /* Primary — Pleasant Blue */
-  --primary: #3b82f6;
-  --primary-light: #60a5fa;
-  --primary-dark: #2563eb;
-  --primary-glow: rgba(59, 130, 246, 0.15);
-  --primary-ghost: rgba(59, 130, 246, 0.08);
-
-  /* Backgrounds — White / Light */
-  --bg: #f1f5f9;
-  --bg-raised: #ffffff;
-  --bg-surface: #f8fafc;
-  --bg-card: rgba(59, 130, 246, 0.04);
-  --bg-card-hover: rgba(59, 130, 246, 0.08);
-  --bg-input: #f8fafc;
-  --bg-input-focus: #ffffff;
-
-  /* Borders — Soft gray */
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --border-active: var(--primary);
-
-  /* Text — Dark for contrast on white */
-  --text: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --text-inverse: #ffffff;
-
-  /* Status colors for light bg */
-  --error: #dc2626;
-  --error-bg: rgba(220, 38, 38, 0.08);
-  --warning: #d97706;
-  --warning-bg: rgba(217, 119, 6, 0.08);
-  --success: #16a34a;
-  --success-bg: rgba(22, 163, 74, 0.08);
-  --info: #2563eb;
-  --info-bg: rgba(37, 99, 235, 0.08);
-
-  /* Shadows — Soft, no glow */
-  --shadow-glow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
 
 /* Parent app layout — reuse the same grid as other portals */
 .parent-app {
@@ -589,42 +549,156 @@
   .charge-right { flex-direction: row; flex-wrap: wrap; align-items: center; }
 }
 
-/* Payment Plan Sections */
-.payment-section { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); padding: 20px; }
-.payment-section-title {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 15px; font-weight: 600; margin-bottom: var(--sp-2);
-}
-.payment-section-title .material-symbols-outlined { font-size: 18px; color: var(--primary); }
-.payment-plan-header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--sp-4); flex-wrap: wrap; }
-
-/* Progress bar */
-.payment-progress-bar {
-  height: 6px; border-radius: 3px;
-  background: var(--bg-input);
-  overflow: hidden;
-}
-.payment-progress-fill {
-  height: 100%; border-radius: 3px;
-  background: linear-gradient(90deg, var(--primary), #22c55e);
-  transition: width 0.4s ease;
+/* Payments list */
+.payments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: var(--sp-3);
 }
 
-/* Installment timeline (parent version) */
-.parent-app .installment-timeline { display: flex; flex-direction: column; gap: 6px; }
-.parent-app .installment-row {
-  display: grid;
-  grid-template-columns: 28px 1fr auto auto;
+.payment-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  transition: box-shadow 0.15s;
+}
+.payment-row:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.payment-row.overdue { border-inline-start: 3px solid #dc2626; }
+.payment-row.paid { opacity: 0.7; }
+
+.payment-row-right {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.payment-desc {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.payment-meta {
+  display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.pay-split-label {
+  background: rgba(59,130,246,0.1);
+  color: #3b82f6;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.payment-row-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.payment-amounts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.payment-amount {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.payment-amount-detail {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.payment-team {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Status badge */
+.pay-status-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+.pay-status-badge.paid { background: rgba(22,163,74,0.12); color: #16a34a; }
+.pay-status-badge.overdue { background: rgba(220,38,38,0.12); color: #dc2626; }
+.pay-status-badge.pending { background: rgba(217,119,6,0.12); color: #d97706; }
+
+/* Pay button */
+.parent-app .pay-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.parent-app .pay-btn:hover { opacity: 0.85; }
+.parent-app .not-due-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  white-space: nowrap;
+}
+.pay-receipt-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #16a34a;
+  white-space: nowrap;
+}
+.pay-receipt-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #eff6ff;
+  transition: background 0.15s;
+}
+.pay-receipt-link:hover {
+  background: #dbeafe;
+}
+
+/* Payment modal form */
+.pay-summary-card {
   background: var(--bg-input);
   border: 1px solid var(--border);
-  font-size: 13px;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: var(--sp-4);
+  font-size: 14px;
 }
-.parent-app .installment-row.paid { opacity: 0.75; }
-.parent-app .installment-row.overdue { border-left: 3px solid #dc2626; }
+.pay-form .input-group { margin-bottom: var(--sp-3); }
+.pay-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+}
 
 /* Parent messaging tabs */
 .parent-app .msg-tab { background: rgba(59,130,246,0.12); color: #1e40af; }
@@ -1109,12 +1183,15 @@
     flex-shrink: 0;
   }
 
-  /* Installment rows — tighter */
-  .parent-app .installment-row {
-    grid-template-columns: 24px 1fr auto auto;
-    gap: 6px;
-    padding: 6px 8px;
-    font-size: 12px;
+  /* Payment rows — stack on mobile */
+  .payment-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .payment-row-left {
+    justify-content: space-between;
   }
 
   /* Schedule items — tighter gap */
@@ -1180,5 +1257,422 @@
   .parent-app .msg-tabs {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ========================================
+   RTL OVERRIDES (Hebrew mode)
+   ======================================== */
+
+/* Grid direction: keep grid LTR so sidebar stays on left,
+   but content areas flow RTL for Hebrew text */
+/* Parent sidebar: grid-column:1 already set in base rules — in RTL that = right side */
+[dir="rtl"] .parent-app .sidebar {
+  border-right: none;
+  border-left: 1px solid var(--border);
+}
+[dir="rtl"] .parent-app .sidebar,
+[dir="rtl"] .parent-app .header,
+[dir="rtl"] .parent-app .main {
+  direction: rtl;
+}
+
+/* Nav active indicator — flip border and padding */
+[dir="rtl"] .parent-app .nav-item.active {
+  border-left: none;
+  border-right: 3px solid var(--primary);
+  padding-left: var(--sp-3);
+  padding-right: calc(var(--sp-3) - 3px);
+}
+
+/* Soon badge — flip auto margin */
+[dir="rtl"] .parent-app .soon-badge {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Overdue charge card — flip accent border */
+[dir="rtl"] .charge-card.overdue {
+  border-left: 1px solid var(--border);
+  border-right: 3px solid #dc2626;
+}
+
+/* Payment row overdue indicator — handled by border-inline-start */
+
+/* Unread message indicator — flip border color */
+[dir="rtl"] .parent-app .msg-item.unread {
+  border-left-color: transparent;
+  border-right-color: #3b82f6;
+}
+
+/* Mobile RTL: parent sidebar slides in from right */
+@media (max-width: 1024px) {
+  [dir="rtl"] .parent-app .sidebar {
+    left: auto;
+    right: calc(-1 * var(--sidebar-width));
+    transition: right var(--transition-base);
+  }
+  [dir="rtl"] .parent-app .sidebar.open {
+    right: 0;
+    left: auto;
+  }
+}
+
+
+/* =============================================
+   Parent Progress Page
+   ============================================= */
+
+.parent-progress {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Player Header Card */
+.progress-player-card {
+  background: var(--bg-raised, #fff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 12px;
+  padding: var(--sp-5, 24px);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4, 16px);
+  margin-bottom: var(--sp-5, 24px);
+}
+
+.progress-player-card .player-avatar {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  background: rgba(59, 130, 246, 0.12);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary, #3b82f6);
+}
+
+.progress-player-card .player-info h2 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--text, #1e293b);
+}
+
+.progress-player-card .player-meta {
+  color: var(--text-secondary, #64748b);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* Stats Row */
+.progress-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4, 16px);
+  margin-bottom: var(--sp-5, 24px);
+}
+
+.progress-stat-card {
+  background: var(--bg-raised, #fff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 12px;
+  padding: var(--sp-4, 16px) var(--sp-5, 24px);
+  text-align: center;
+}
+
+.progress-stat-card .stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary, #3b82f6);
+}
+
+.progress-stat-card .stat-label {
+  font-size: 13px;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 4px;
+}
+
+.progress-stat-card .stat-sub {
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+  margin-top: 6px;
+}
+
+/* Section Cards */
+.progress-section {
+  background: var(--bg-raised, #fff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 12px;
+  padding: var(--sp-5, 24px);
+  margin-bottom: var(--sp-5, 24px);
+}
+
+.progress-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 var(--sp-4, 16px);
+  color: var(--text, #1e293b);
+}
+
+.progress-section h2 .material-symbols-outlined {
+  font-size: 20px;
+  color: var(--primary, #3b82f6);
+}
+
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-4, 16px);
+}
+
+.section-header-row h2 {
+  margin-bottom: 0;
+}
+
+/* Proud Moments */
+.proud-moment-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3, 12px);
+  padding: var(--sp-3, 12px) 0;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+
+.proud-moment-item:last-child {
+  border-bottom: none;
+}
+
+.proud-moment-item .moment-icon {
+  color: #d97706;
+  font-size: 24px;
+}
+
+.proud-moment-item .moment-info {
+  flex: 1;
+}
+
+.proud-moment-item .moment-info strong {
+  color: var(--text, #1e293b);
+}
+
+.proud-moment-item .moment-date {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 2px;
+}
+
+/* Drill Items */
+.drill-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3, 12px);
+  padding: var(--sp-3, 12px) 0;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+
+.drill-item:last-child {
+  border-bottom: none;
+}
+
+.drill-item .drill-status-icon {
+  font-size: 20px;
+  margin-top: 2px;
+}
+
+.drill-item .drill-status-icon.approved { color: #16a34a; }
+.drill-item .drill-status-icon.pending { color: #d97706; }
+.drill-item .drill-status-icon.video_uploaded { color: #3b82f6; }
+.drill-item .drill-status-icon.rejected { color: #dc2626; }
+
+.drill-item .drill-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.drill-item .drill-name {
+  font-weight: 500;
+  color: var(--text, #1e293b);
+  margin-bottom: 4px;
+}
+
+.drill-item .drill-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.drill-item .drill-status-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.drill-item .drill-status-badge.approved { background: #dcfce7; color: #16a34a; }
+.drill-item .drill-status-badge.pending { background: #fef3c7; color: #d97706; }
+.drill-item .drill-status-badge.video_uploaded { background: #dbeafe; color: #3b82f6; }
+.drill-item .drill-status-badge.rejected { background: #fee2e2; color: #dc2626; }
+
+.drill-item .drill-date {
+  color: var(--text-muted, #94a3b8);
+}
+
+.drill-item .drill-feedback {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* Charts Grid */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4, 16px);
+}
+
+.chart-container {
+  position: relative;
+}
+
+.chart-container h3 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary, #64748b);
+  margin: 0 0 var(--sp-3, 12px);
+}
+
+/* Evaluation Bars */
+.eval-period {
+  font-size: 13px;
+  color: var(--text-secondary, #64748b);
+  margin-bottom: var(--sp-3, 12px);
+}
+
+.eval-bar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3, 12px);
+  margin-bottom: 8px;
+}
+
+.eval-bar-label {
+  width: 100px;
+  font-size: 13px;
+  color: var(--text-secondary, #64748b);
+  text-align: end;
+  flex-shrink: 0;
+}
+
+.eval-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-surface, #f1f5f9);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.eval-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--primary, #3b82f6);
+  transition: width 0.5s ease;
+}
+
+.eval-bar-value {
+  width: 36px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text, #1e293b);
+  flex-shrink: 0;
+}
+
+/* AI Report Cards */
+.ai-report-card {
+  background: var(--bg-surface, #f8fafc);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  padding: var(--sp-4, 16px);
+  margin-bottom: var(--sp-3, 12px);
+}
+
+.ai-report-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: var(--sp-3, 12px);
+}
+
+.ai-report-header .material-symbols-outlined {
+  font-size: 18px;
+  color: var(--primary, #3b82f6);
+}
+
+.ai-report-date {
+  margin-inline-start: auto;
+}
+
+.ai-report-body {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text, #1e293b);
+  white-space: pre-wrap;
+}
+
+.report-limits-info {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: var(--sp-3, 12px);
+}
+
+/* Empty State */
+.empty-state-parent {
+  text-align: center;
+  padding: var(--sp-6, 32px);
+  color: var(--text-muted, #94a3b8);
+  font-size: 14px;
+}
+
+.empty-state-parent .material-symbols-outlined {
+  display: block;
+  font-size: 32px;
+  margin: 0 auto 8px;
+}
+
+/* Spin animation */
+.spin-icon {
+  animation: pp-spin 1s linear infinite;
+}
+
+@keyframes pp-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .progress-stats-row {
+    grid-template-columns: 1fr;
+  }
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .progress-player-card {
+    padding: var(--sp-4, 16px);
+  }
+  .eval-bar-label {
+    width: 80px;
+    font-size: 12px;
   }
 }

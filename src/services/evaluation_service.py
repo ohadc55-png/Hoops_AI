@@ -4,12 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.repositories.player_evaluation_repository import PlayerEvaluationRepository
 from src.repositories.report_request_repository import ReportRequestRepository
 from src.repositories.player_repository import PlayerRepository
+from src.utils.exceptions import ValidationError
 
 
 RATING_FIELDS = [
     "offensive_rating", "defensive_rating", "iq_rating", "social_rating",
     "leaving_risk", "leadership_rating", "work_ethic_rating",
     "fitness_rating", "improvement_rating",
+    "personal_improvement_rating", "team_contribution_rating",
 ]
 
 
@@ -45,9 +47,9 @@ class EvaluationService:
                 try:
                     val = int(val)
                 except (ValueError, TypeError):
-                    raise ValueError(f"{field} must be a number between 1 and 10")
+                    raise ValidationError(f"{field} must be a number between 1 and 10")
                 if val < 1 or val > 10:
-                    raise ValueError(f"{field} must be between 1 and 10")
+                    raise ValidationError(f"{field} must be between 1 and 10")
                 kwargs[field] = val
 
         # Auto-calculate period_label if not provided
@@ -75,9 +77,9 @@ class EvaluationService:
                 try:
                     val = int(val)
                 except (ValueError, TypeError):
-                    raise ValueError(f"{field} must be a number between 1 and 10")
+                    raise ValidationError(f"{field} must be a number between 1 and 10")
                 if val < 1 or val > 10:
-                    raise ValueError(f"{field} must be between 1 and 10")
+                    raise ValidationError(f"{field} must be between 1 and 10")
                 kwargs[field] = val
         return await self.evaluations.update(evaluation_id, **kwargs)
 

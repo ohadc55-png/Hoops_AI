@@ -3,6 +3,7 @@ import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.repositories.play_repository import PlayRepository
 from src.utils.openai_client import chat_completion_json
+from src.utils.exceptions import ValidationError
 
 
 class PlayService:
@@ -76,9 +77,9 @@ Time (t) is in seconds from start. Actions at the same t happen simultaneously.{
         try:
             data = json.loads(response)
         except (json.JSONDecodeError, TypeError):
-            raise ValueError("AI returned invalid play data. Please try again.")
+            raise ValidationError("AI returned invalid play data. Please try again.")
         if not isinstance(data, dict):
-            raise ValueError("AI returned unexpected format. Please try again.")
+            raise ValidationError("AI returned unexpected format. Please try again.")
         return await self.repo.create(
             coach_id=coach_id,
             name=data.get("name", "AI Play"),

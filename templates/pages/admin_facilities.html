@@ -1,18 +1,18 @@
 {% extends "admin_base.html" %}
 {% block title %}HOOPS AI — Facilities{% endblock %}
 {% block nav_facilities %}active{% endblock %}
-{% block header_title %}Facilities{% endblock %}
+{% block header_title %}<span data-i18n="admin.header.facilities">מתקנים</span>{% endblock %}
 {% block content %}
 <div class="admin-dashboard">
   <section class="dashboard-section">
     <div class="section-header">
-      <h2><span class="material-symbols-outlined">location_on</span> Facilities</h2>
+      <h2><span class="material-symbols-outlined">location_on</span> <span data-i18n="admin.facilities.section_title">Facilities</span></h2>
       <button class="btn btn-primary btn-sm" onclick="openFacilityModal()">
-        <span class="material-symbols-outlined">add</span> Add Facility
+        <span class="material-symbols-outlined">add</span> <span data-i18n="admin.facilities.btn_add">Add Facility</span>
       </button>
     </div>
     <div class="section-content" id="facilitiesContent">
-      <div class="loading-state">Loading facilities...</div>
+      <div class="loading-state" data-i18n="admin.facilities.loading">Loading facilities...</div>
     </div>
   </section>
 </div>
@@ -21,7 +21,7 @@
 <div class="modal-overlay" id="facilityModal">
   <div class="modal">
     <div class="modal-header">
-      <h3 id="facilityModalTitle">Add Facility</h3>
+      <h3 id="facilityModalTitle" data-i18n="admin.facilities.modal.add">Add Facility</h3>
       <button class="btn-icon" onclick="closeModal('facilityModal')">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -30,37 +30,47 @@
       <form id="facilityForm" onsubmit="return handleSaveFacility(event)">
         <input type="hidden" id="editFacilityId" value="">
         <div class="input-group">
-          <label>Name *</label>
-          <input type="text" class="input" id="facName" placeholder="e.g. Main Gym" required>
+          <label data-i18n="admin.facilities.form.name">Name *</label>
+          <input type="text" class="input" id="facName" data-i18n-placeholder="admin.facilities.form.name_placeholder" placeholder="e.g. Main Gym" required>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
           <div class="input-group">
-            <label>Type *</label>
+            <label data-i18n="admin.facilities.form.type">Type *</label>
             <select class="input" id="facType" required>
-              <option value="gym">Gym</option>
-              <option value="court">Court</option>
-              <option value="field">Field</option>
-              <option value="pool">Pool</option>
+              <option value="gym" data-i18n="admin.facilities.form.type_gym">Gym</option>
+              <option value="court" data-i18n="admin.facilities.form.type_court">Court</option>
+              <option value="field" data-i18n="admin.facilities.form.type_field">Field</option>
+              <option value="pool" data-i18n="admin.facilities.form.type_pool">Pool</option>
             </select>
           </div>
           <div class="input-group">
-            <label>Capacity</label>
+            <label data-i18n="admin.facilities.form.capacity">Capacity</label>
             <input type="number" class="input" id="facCapacity" placeholder="0" min="0">
           </div>
         </div>
         <div class="input-group">
-          <label>Address</label>
-          <input type="text" class="input" id="facAddress" placeholder="Facility address">
+          <label data-i18n="admin.facilities.form.address">Address</label>
+          <input type="text" class="input" id="facAddress" data-i18n-placeholder="admin.facilities.form.address_placeholder" placeholder="Facility address">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+          <div class="input-group">
+            <label data-i18n="admin.facilities.form.manager_name">מנהל אולם</label>
+            <input type="text" class="input" id="facManagerName" data-i18n-placeholder="admin.facilities.form.manager_name_placeholder" placeholder="שם מנהל האולם">
+          </div>
+          <div class="input-group">
+            <label data-i18n="admin.facilities.form.manager_phone">טלפון</label>
+            <input type="tel" class="input" id="facManagerPhone" data-i18n-placeholder="admin.facilities.form.manager_phone_placeholder" placeholder="050-0000000">
+          </div>
         </div>
         <div class="input-group">
-          <label>Notes</label>
-          <textarea class="input" id="facNotes" rows="2" placeholder="Optional notes"></textarea>
+          <label data-i18n="admin.facilities.form.notes">Notes</label>
+          <textarea class="input" id="facNotes" rows="2" data-i18n-placeholder="admin.facilities.form.notes_placeholder" placeholder="Optional notes"></textarea>
         </div>
       </form>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('facilityModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="document.getElementById('facilityForm').requestSubmit()">Save Facility</button>
+      <button class="btn btn-ghost" onclick="closeModal('facilityModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="document.getElementById('facilityForm').requestSubmit()" data-i18n="admin.facilities.btn_save">Save Facility</button>
     </div>
   </div>
 </div>

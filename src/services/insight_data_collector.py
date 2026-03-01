@@ -15,6 +15,7 @@ from src.models.game_report import GameReport
 from src.models.attendance import Attendance
 from src.models.event import Event
 from src.models.team_event import TeamEvent
+from src.models.player_evaluation import PlayerEvaluation
 from src.repositories.billing_repository import PaymentPlanRepository, InstallmentRepository, OneTimeChargeRepository
 from src.services.billing_service import BillingService
 
@@ -406,3 +407,132 @@ class InsightDataCollector:
             }
             for p in players
         ]
+
+    async def get_rich_professional_context(self, admin_id: int) -> dict:
+        """Full professional context for chat: all players, evaluations, game results, reports.
+        Capped at reasonable size for AI context window."""
+        # 1. All players with team names
+        players_list = await self.get_admin_players_list(admin_id)
+
+        # 2. Recent game reports (all coaches, last 30)
+        coach_ids = await self._get_coach_ids_for_admin(admin_id)
+        game_reports = []
+        if coach_ids:
+            stmt = (
+                select(GameReport)
+                .where(GameReport.coach_id.in_(coach_ids))
+                .order_by(GameReport.date.desc())
+                .limit(30)
+            )
+            result = await self.session.execute(stmt)
+            for g in result.scalars().all():
+                game_reports.append({
+                    "date": str(g.date),
+                    "opponent": g.opponent,
+                    "result": g.result,
+                    "score": f"{g.score_us}-{g.score_them}" if g.score_us is not None else None,
+                    "standout_players": g.standout_players if isinstance(g.standout_players, list) else [],
+                    "areas_to_improve": g.areas_to_improve if isinstance(g.areas_to_improve, list) else [],
+                })
+
+        # 3. Latest player evaluations (per player, last 1)
+        player_ids = [p["id"] for p in players_list[:50]]  # cap at 50 players
+        evaluations = {}
+        if player_ids:
+            stmt = (
+                select(PlayerEvaluation)
+                .where(PlayerEvaluation.player_id.in_(player_ids))
+                .order_by(PlayerEvaluation.created_at.desc())
+            )
+            result = await self.session.execute(stmt)
+            for ev in result.scalars().all():
+                if ev.player_id not in evaluations:
+                    evaluations[ev.player_id] = {
+                        "offensive": ev.offensive_rating,
+                        "defensive": ev.defensive_rating,
+                        "basketball_iq": ev.iq_rating,
+                        "social": ev.social_rating,
+                        "leadership": ev.leadership_rating,
+                        "work_ethic": ev.work_ethic_rating,
+                        "fitness": ev.fitness_rating,
+                        "improvement": ev.improvement_rating,
+                        "leaving_risk": ev.leaving_risk,
+                    }
+
+        # 4. Latest player reports (per player, last 1)
+        player_reports = {}
+        if player_ids:
+            stmt = (
+                select(PlayerReport)
+                .where(PlayerReport.player_id.in_(player_ids))
+                .order_by(PlayerReport.created_at.desc())
+            )
+            result = await self.session.execute(stmt)
+            for r in result.scalars().all():
+                if r.player_id not in player_reports:
+                    player_reports[r.player_id] = {
+                        "period": r.period,
+                        "strengths": r.strengths if isinstance(r.strengths, list) else [],
+                        "weaknesses": r.weaknesses if isinstance(r.weaknesses, list) else [],
+                    }
+
+        # 5. Attendance alerts
+        alerts = await self.get_attendance_alerts(admin_id)
+
+        # 6. Assemble enriched player list
+        enriched_players = []
+        for p in players_list[:50]:
+            ep = dict(p)
+            ev = evaluations.get(p["id"])
+            if ev:
+                ep["evaluation"] = ev
+            rep = player_reports.get(p["id"])
+            if rep:
+                ep["latest_report"] = rep
+            enriched_players.append(ep)
+
+        # High-level snapshot too
+        snapshot = await self.get_professional_snapshot(admin_id)
+
+        return {
+            "teams_overview": snapshot["teams"],
+            "total_teams": snapshot["total_teams"],
+            "players": enriched_players,
+            "recent_games": game_reports[:20],
+            "attendance_alerts": alerts[:20],
+        }
+
+    async def get_rich_financial_context(self, admin_id: int) -> dict:
+        """Full financial context: per-player billing status, overdue details."""
+        snapshot = await self.get_financial_snapshot(admin_id)
+        # Add per-player billing details
+        plan_repo = PaymentPlanRepository(self.session)
+        charge_repo = OneTimeChargeRepository(self.session)
+        teams = await self._get_admin_teams(admin_id)
+
+        player_billing = []
+        for t in teams:
+            plans = await plan_repo.get_by_team(t.id)
+            for p in plans:
+                player_obj = await self.session.get(Player, p.player_id)
+                player_name = player_obj.name if player_obj else f"Player {p.player_id}"
+                paid = sum(float(i.amount) for i in p.installments if i.status == "paid")
+                overdue = sum(float(i.amount) for i in p.installments if i.status == "overdue")
+                pending = sum(float(i.amount) for i in p.installments if i.status == "pending")
+                player_billing.append({
+                    "player_name": player_name,
+                    "team": t.name,
+                    "season": p.season,
+                    "total": float(p.total_amount),
+                    "paid": paid,
+                    "pending": pending,
+                    "overdue": overdue,
+                    "status": "overdue" if overdue > 0 else ("pending" if pending > 0 else "paid"),
+                })
+
+        return {
+            "summary": snapshot["summary"],
+            "teams": snapshot["teams"],
+            "overdue_details": snapshot["overdue_details"][:30],
+            "player_billing": player_billing[:60],
+        }

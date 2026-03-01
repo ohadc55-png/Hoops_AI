@@ -3,82 +3,15 @@
  * Auth, API helpers, Toast notifications, Utilities
  */
 
-const API = {
-  token: localStorage.getItem('hoops_token'),
-  coach: JSON.parse(localStorage.getItem('hoops_coach') || 'null'),
-
-  setAuth(token, coach) {
-    this.token = token;
-    this.coach = coach;
-    localStorage.setItem('hoops_token', token);
-    localStorage.setItem('hoops_coach', JSON.stringify(coach));
-  },
-
-  clearAuth() {
-    this.token = null;
-    this.coach = null;
-    localStorage.removeItem('hoops_token');
-    localStorage.removeItem('hoops_coach');
-  },
-
-  async request(url, options = {}) {
-    const silent = options.silent; delete options.silent;
-    const headers = { 'Content-Type': 'application/json', ...options.headers };
-    if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
-    try {
-      const res = await fetch(url, { ...options, headers });
-      const data = await res.json();
-      if (res.status === 401) {
-        this.clearAuth();
-        window.location.href = '/login';
-        return null;
-      }
-      if (!res.ok) throw new Error(data.detail || 'Request failed');
-      return data;
-    } catch (err) {
-      if (!silent) Toast.error(err.message);
-      throw err;
-    }
-  },
-
-  get(url, options) { return this.request(url, options || {}); },
-  post(url, body) { return this.request(url, { method: 'POST', body: JSON.stringify(body) }); },
-  put(url, body) { return this.request(url, { method: 'PUT', body: JSON.stringify(body) }); },
-  del(url) { return this.request(url, { method: 'DELETE' }); },
-
-  async upload(url, file) {
-    const form = new FormData();
-    form.append('file', file);
-    const headers = {};
-    if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
-    const res = await fetch(url, { method: 'POST', headers, body: form });
-    return res.json();
-  },
-};
-
-
-/* Toast Notifications */
-const Toast = {
-  container: null,
-
-  init() {
-    this.container = document.getElementById('toastContainer');
-  },
-
-  show(message, type = 'info') {
-    if (!this.container) this.init();
-    const icons = { success: 'check_circle', error: 'error', info: 'info' };
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.innerHTML = `<span class="material-symbols-outlined">${icons[type] || 'info'}</span>${esc(message)}`;
-    this.container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3500);
-  },
-
-  success(msg) { this.show(msg, 'success'); },
-  error(msg) { this.show(msg, 'error'); },
-  info(msg) { this.show(msg, 'info'); },
-};
+/* API & Toast — powered by api-core.js factory */
+const Toast = createHoopsToast();
+const API = createHoopsAPI({
+  tokenKey: 'hoops_token',
+  userKey: 'hoops_coach',
+  loginUrl: '/login',
+  toastRef: () => Toast,
+  langEndpoint: '/api/auth/language',
+});
 
 
 /* Auth Guard */
@@ -93,35 +26,7 @@ function requireAuth() {
 }
 
 
-/* Modal Helpers */
-function openModal(id) {
-  document.getElementById(id)?.classList.add('active');
-}
-function closeModal(id) {
-  document.getElementById(id)?.classList.remove('active');
-}
-
-
-/* HTML escape */
-function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-
-/* Format helpers */
-function timeAgo(dateStr) {
-  const d = dateStr && !dateStr.endsWith('Z') ? dateStr + 'Z' : dateStr;
-  const diff = Date.now() - new Date(d).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
-
-function capitalize(str) {
-  return str.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-}
+/* esc, escHtml, timeAgo, capitalize, openModal, closeModal, setBadge → shared-utils.js */
 
 
 /* Init */
@@ -152,20 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load notifications into bell
   loadNotifications();
 
-  // Sidebar toggle (mobile)
-  const sidebarToggle = document.getElementById('sidebarToggle');
-  const sidebar = document.getElementById('sidebar');
-  const sidebarOverlay = document.getElementById('sidebarOverlay');
-  if (sidebarToggle && sidebar) {
-    sidebarToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('open');
-      sidebarOverlay?.classList.toggle('open');
-    });
-    sidebarOverlay?.addEventListener('click', () => {
-      sidebar.classList.remove('open');
-      sidebarOverlay.classList.remove('open');
-    });
-  }
+  // Sidebar toggle → shared-utils.js
 
   // Global search
   const searchInput = document.getElementById('globalSearch');
@@ -189,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
       }
-      Toast.info('Try searching for: drills, plays, practice, team, analytics, settings');
+      Toast.info(t('main.search.hint'));
     });
   }
 });
@@ -207,6 +99,13 @@ async function loadNotifications() {
     const pending = pendingRes?.data || [];
     const unreadMsgs = msgCountRes?.data?.unread || 0;
     const totalBadge = pending.length + unreadMsgs;
+
+    // Also update sidebar message badge if on messages page (avoids duplicate API call)
+    const sidebarMsgBadge = document.getElementById('coachMsgBadge');
+    if (sidebarMsgBadge) {
+      sidebarMsgBadge.textContent = unreadMsgs;
+      sidebarMsgBadge.style.display = unreadMsgs > 0 ? 'inline-flex' : 'none';
+    }
 
     const notifBtn = document.getElementById('notifBtn');
     const notifDrop = document.getElementById('notifDropdown');
@@ -227,11 +126,11 @@ async function loadNotifications() {
     }
 
     // Dropdown content
-    let html = '<div class="notif-dropdown-header">Notifications</div>';
+    let html = `<div class="notif-dropdown-header">${t('header.notifications')}</div>`;
     if (pending.length === 0 && unreadMsgs === 0) {
       html += `<div class="notif-dropdown-empty">
         <span class="material-symbols-outlined" style="font-size:32px;color:var(--text-muted)">notifications_off</span>
-        <p>No notifications</p>
+        <p>${t('header.no_notifications')}</p>
       </div>`;
     } else {
       html += '<div class="notif-list">';

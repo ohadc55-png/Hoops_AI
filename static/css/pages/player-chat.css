@@ -152,3 +152,10 @@
   .player-app .chat-layout { grid-template-columns: 1fr; }
   .player-app .chat-panel { display: none; }
 }
+
+
+/* === RTL OVERRIDES === */
+[dir="rtl"] .player-app .message-user { flex-direction: row; }
+[dir="rtl"] .player-app .message-user .message-body { border-bottom-right-radius: var(--r-xl); border-bottom-left-radius: var(--r-sm); }
+[dir="rtl"] .player-app .message-assistant .message-body { border-bottom-left-radius: var(--r-xl); border-bottom-right-radius: var(--r-sm); }
+[dir="rtl"] .player-app .agent-strip { mask-image: linear-gradient(to left, black calc(100% - 40px), transparent); -webkit-mask-image: linear-gradient(to left, black calc(100% - 40px), transparent); }

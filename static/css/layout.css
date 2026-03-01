@@ -110,7 +110,7 @@
 }
 
 .sidebar-footer {
-  margin-top: auto;
+  margin-top: var(--sp-4);
   padding: var(--sp-4) var(--sp-5);
   border-top: 1px solid var(--border);
 }
@@ -330,4 +330,56 @@
     gap: var(--sp-2);
   }
   .notif-dropdown { width: 280px; right: var(--sp-2); }
+}
+
+
+/* ========================================
+   RTL OVERRIDES (Hebrew mode)
+   In CSS Grid with direction:rtl, column 1 = RIGHTMOST.
+   So sidebar (grid-column:1) naturally appears on the right.
+   ======================================== */
+
+/* Content direction stays RTL (grid container inherits rtl from <html>) */
+[dir="rtl"] .sidebar,
+[dir="rtl"] .header,
+[dir="rtl"] .main { direction: rtl; }
+
+/* Coach portal sidebar: explicit column 1 = right in RTL */
+[dir="rtl"] .sidebar {
+  grid-column: 1;
+  border-right: none;
+  border-left: 1px solid var(--border);
+}
+[dir="rtl"] .header { grid-column: 2; }
+[dir="rtl"] .main { grid-column: 2; }
+
+/* Sidebar nav: text align right in RTL */
+[dir="rtl"] .nav-item { text-align: right; }
+[dir="rtl"] .nav-item-badge { margin-left: 0; margin-right: auto; }
+
+/* Header search: icon on right side in RTL */
+[dir="rtl"] .header-search .material-symbols-outlined { left: auto; right: var(--sp-3); }
+[dir="rtl"] .header-search .input { padding-left: 0; padding-right: 40px; }
+
+/* Notification dropdown anchor */
+[dir="rtl"] .notif-dropdown { right: auto; left: 0; }
+[dir="rtl"] .notif-badge { right: auto; left: 2px; }
+
+/* Mobile RTL: sidebar slides in from right */
+@media (max-width: 1024px) {
+  [dir="rtl"] .sidebar {
+    left: auto;
+    right: calc(-1 * var(--sidebar-width));
+    transition: right var(--transition-base);
+  }
+  [dir="rtl"] .sidebar.open {
+    right: 0;
+    left: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  [dir="rtl"] .header-search .input { padding-left: 0; padding-right: 32px; }
+  [dir="rtl"] .header-search .material-symbols-outlined { left: auto; right: var(--sp-2); }
+  [dir="rtl"] .notif-dropdown { right: auto; left: 0; }
 }

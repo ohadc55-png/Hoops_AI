@@ -45,10 +45,7 @@ async def set_club_flag(
     db: AsyncSession = Depends(get_db),
 ):
     service = FeatureFlagService(db)
-    try:
-        result = await service.set_flag(club_id, req.feature_key, req.is_enabled)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = await service.set_flag(club_id, req.feature_key, req.is_enabled)
     await db.commit()
     return {"success": True, "data": result}
 
@@ -61,9 +58,6 @@ async def bulk_update_flags(
     db: AsyncSession = Depends(get_db),
 ):
     service = FeatureFlagService(db)
-    try:
-        flags = await service.bulk_update_flags(club_id, req.flags)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    flags = await service.bulk_update_flags(club_id, req.flags)
     await db.commit()
     return {"success": True, "data": flags}

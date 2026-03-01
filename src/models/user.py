@@ -18,6 +18,7 @@ class User(Base, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
     date_of_birth: Mapped[date | None] = mapped_column(Date, nullable=True)
+    preferred_language: Mapped[str] = mapped_column(String(2), nullable=False, default="he")  # 'he' or 'en'
 
     # Admin sub-role (label only, does not restrict access)
     admin_role_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("admin_roles.id"), nullable=True)

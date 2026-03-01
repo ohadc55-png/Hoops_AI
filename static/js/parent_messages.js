@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function switchParentMsgTab(tab) {
   currentParentMsgTab = tab;
-  document.querySelectorAll('.msg-tab').forEach((t, i) => {
-    t.classList.toggle('active', ['inbox','sent','compose'][i] === tab);
+  document.querySelectorAll('.msg-tab').forEach((tab_el, i) => {
+    tab_el.classList.toggle('active', ['inbox','sent','compose'][i] === tab);
   });
   document.querySelectorAll('.msg-tab-content').forEach(c => c.style.display = 'none');
   const el = { inbox: 'parentMsgInbox', sent: 'parentMsgSent', compose: 'parentMsgCompose' }[tab];
@@ -35,7 +35,7 @@ async function loadParentMsgInbox() {
     const res = await ParentAPI.get('/api/messages/inbox');
     const msgs = res.data || [];
     if (msgs.length === 0) {
-      list.innerHTML = '<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">inbox</span>No messages</div>';
+      list.innerHTML = `<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">inbox</span>${t('parent.messages.no_messages')}</div>`;
       return;
     }
     list.innerHTML = msgs.map(m => `
@@ -44,31 +44,38 @@ async function loadParentMsgInbox() {
           <div>
             <span class="msg-sender">${esc(m.sender_name)}</span>
             <span class="msg-role-badge ${m.sender_role}">${m.sender_role}</span>
-            ${m.message_type === 'progress_update' ? '<span class="msg-type-badge progress_update">Progress Update</span>' : ''}
-            ${m.message_type === 'urgent' ? '<span class="msg-type-badge urgent">Urgent</span>' : ''}
-            ${m.message_type === 'announcement' ? '<span class="msg-type-badge announcement">Announcement</span>' : ''}
+            ${m.message_type === 'progress_update' ? `<span class="msg-type-badge progress_update">${t('parent.messages.progress_update')}</span>` : ''}
+            ${m.message_type === 'urgent' ? `<span class="msg-type-badge urgent">${t('parent.messages.urgent')}</span>` : ''}
+            ${m.message_type === 'announcement' ? `<span class="msg-type-badge announcement">${t('parent.messages.announcement')}</span>` : ''}
           </div>
-          <span class="msg-time">${parentMsgTimeAgo(m.created_at)}</span>
+          <span class="msg-time">${parentMsgTimeAgo(m.created_at)} · ${formatMsgDate(m.created_at)}</span>
         </div>
         ${m.subject ? `<div class="msg-subject">${esc(m.subject)}</div>` : ''}
         <div class="msg-preview">${esc((m.body || '').substring(0, 80))}${m.body && m.body.length > 80 ? '...' : ''}</div>
       </div>
     `).join('');
   } catch {
-    list.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">Could not load messages</div>';
+    list.innerHTML = `<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">${t('parent.messages.load_error')}</div>`;
   }
 }
 
 
 function openParentMsgDetail(msg) {
-  document.getElementById('parentMsgDetailSubject').textContent = msg.subject || 'Message';
+  document.getElementById('parentMsgDetailSubject').textContent = msg.subject || t('parent.messages.default_subject');
   document.getElementById('parentMsgDetailMeta').innerHTML = `
     <span class="msg-sender">${esc(msg.sender_name)}</span>
     <span class="msg-role-badge ${msg.sender_role}">${msg.sender_role}</span>
     ${msg.message_type !== 'general' ? `<span class="msg-type-badge ${msg.message_type}">${msg.message_type}</span>` : ''}
-    <span class="msg-time">${parentMsgTimeAgo(msg.created_at)}</span>
+    <span class="msg-time">${parentMsgTimeAgo(msg.created_at)} · ${formatMsgDate(msg.created_at)}</span>
   `;
-  document.getElementById('parentMsgDetailBody').textContent = msg.body;
+  // Render body with receipt link support
+  let bodyHtml = esc(msg.body);
+  bodyHtml = bodyHtml.replace(
+    /\[receipt:(\/parent\/receipt\/[^\]]+)\]/g,
+    `<a href="$1" target="_blank" style="display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:8px 16px;background:#eff6ff;color:#3b82f6;border-radius:8px;text-decoration:none;font-weight:500;font-size:14px;"><span class="material-symbols-outlined" style="font-size:18px;">receipt_long</span> הורד קבלה</a>`
+  );
+  bodyHtml = bodyHtml.replace(/\n/g, '<br>');
+  document.getElementById('parentMsgDetailBody').innerHTML = bodyHtml;
   openModal('parentMsgDetailModal');
   if (!msg.is_read) {
     ParentAPI.put(`/api/messages/${msg.id}/read`).then(() => updateParentMsgBadge()).catch(() => {});
@@ -79,7 +86,7 @@ function openParentMsgDetail(msg) {
 async function parentMarkAllRead() {
   try {
     await ParentAPI.put('/api/messages/read-all');
-    ParentToast.success('All messages marked as read');
+    ParentToast.success(t('parent.messages.all_read'));
     loadParentMsgInbox();
     updateParentMsgBadge();
   } catch { /* ignore */ }
@@ -94,18 +101,18 @@ async function loadParentMsgSent() {
     const res = await ParentAPI.get('/api/messages/sent');
     const msgs = res.data || [];
     if (msgs.length === 0) {
-      list.innerHTML = '<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">outbox</span>No sent messages</div>';
+      list.innerHTML = `<div class="empty-state" style="text-align:center;padding:32px;color:rgba(255,255,255,0.4);"><span class="material-symbols-outlined" style="font-size:40px;display:block;margin-bottom:8px;">outbox</span>${t('parent.messages.no_sent')}</div>`;
       return;
     }
     list.innerHTML = msgs.map(m => {
       const targetLabels = {
-        my_coach: 'Coach', my_team: 'Other Parents', admin: 'Management',
+        my_coach: t('parent.messages.target.my_coach'), my_team: t('parent.messages.target.my_team'), admin: t('parent.messages.target.admin'),
       };
       return `
         <div class="msg-item">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span class="msg-sender">To: ${targetLabels[m.target_type] || m.target_type}</span>
-            <span class="msg-time">${parentMsgTimeAgo(m.created_at)}</span>
+            <span class="msg-time">${parentMsgTimeAgo(m.created_at)} · ${formatMsgDate(m.created_at)}</span>
           </div>
           ${m.subject ? `<div class="msg-subject">${esc(m.subject)}</div>` : ''}
           <div class="msg-preview">${esc((m.body || '').substring(0, 80))}</div>
@@ -113,7 +120,7 @@ async function loadParentMsgSent() {
       `;
     }).join('');
   } catch {
-    list.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">Could not load messages</div>';
+    list.innerHTML = `<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);">${t('parent.messages.load_sent_error')}</div>`;
   }
 }
 
@@ -122,7 +129,7 @@ async function loadParentMsgSent() {
 
 async function sendParentMsg() {
   const body = document.getElementById('parentComposeBody').value.trim();
-  if (!body) { ParentToast.error('Message body is required'); return; }
+  if (!body) { ParentToast.error(t('parent.messages.body_required')); return; }
   try {
     await ParentAPI.post('/api/messages/send', {
       body,
@@ -130,7 +137,7 @@ async function sendParentMsg() {
       message_type: 'general',
       target_type: document.getElementById('parentComposeTarget').value,
     });
-    ParentToast.success('Message sent');
+    ParentToast.success(t('parent.messages.sent'));
     document.getElementById('parentComposeSubject').value = '';
     document.getElementById('parentComposeBody').value = '';
     switchParentMsgTab('sent');
@@ -166,3 +173,5 @@ function parentMsgTimeAgo(dateStr) {
   if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
   return new Date(d).toLocaleDateString();
 }
+
+/* formatMsgDate → shared-utils.js */

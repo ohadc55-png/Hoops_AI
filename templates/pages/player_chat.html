@@ -1,16 +1,16 @@
 {% extends "player_base.html" %}
 {% block title %}HOOPS AI - Player Chat{% endblock %}
 {% block nav_chat %}active{% endblock %}
-{% block header_title %}AI Training Assistant{% endblock %}
+{% block header_title %}<span data-i18n="player.chat.header_title">AI Training Assistant</span>{% endblock %}
 {% block styles %}<link rel="stylesheet" href="/static/css/pages/player-chat.css">{% endblock %}
 
 {% block content %}
 <div class="agent-strip" id="agentStrip">
-  <div class="agent-chip" data-agent="shooting_coach"><span class="dot" style="background:#F87171"></span>מאמן קליעה</div>
-  <div class="agent-chip" data-agent="dribbling_coach"><span class="dot" style="background:#60A5FA"></span>מאמן כדרור</div>
-  <div class="agent-chip" data-agent="passing_coach"><span class="dot" style="background:#A78BFA"></span>מאמן מסירה</div>
-  <div class="agent-chip" data-agent="fitness_coach"><span class="dot" style="background:#34D399"></span>מאמן כושר</div>
-  <div class="agent-chip" data-agent="nutritionist"><span class="dot" style="background:#FBBF24"></span>תזונאי</div>
+  <div class="agent-chip" data-agent="shooting_coach"><span class="dot" style="background:#F87171"></span><span data-i18n="player.chat.agent.shooting_coach">מאמן קליעה</span></div>
+  <div class="agent-chip" data-agent="dribbling_coach"><span class="dot" style="background:#60A5FA"></span><span data-i18n="player.chat.agent.dribbling_coach">מאמן כדרור</span></div>
+  <div class="agent-chip" data-agent="passing_coach"><span class="dot" style="background:#A78BFA"></span><span data-i18n="player.chat.agent.passing_coach">מאמן מסירה</span></div>
+  <div class="agent-chip" data-agent="fitness_coach"><span class="dot" style="background:#34D399"></span><span data-i18n="player.chat.agent.fitness_coach">מאמן כושר</span></div>
+  <div class="agent-chip" data-agent="nutritionist"><span class="dot" style="background:#FBBF24"></span><span data-i18n="player.chat.agent.nutritionist">תזונאי</span></div>
 </div>
 
 <div class="chat-layout">
@@ -32,7 +32,7 @@
     </div>
 
     <div class="chat-input-area" id="chatInput">
-      <textarea id="chatTextarea" placeholder="שאל את המאמן שלך..." rows="1"></textarea>
+      <textarea id="chatTextarea" data-i18n-placeholder="player.chat.input_placeholder" placeholder="שאל את המאמן שלך..." rows="1"></textarea>
       <button class="chat-send-btn" id="sendBtn" disabled>
         <span class="material-symbols-outlined">send</span>
       </button>
@@ -47,20 +47,20 @@
           <span class="material-symbols-outlined">auto_awesome</span>
         </div>
         <div>
-          <div class="agent-info-name" id="agentName">ניתוב אוטומטי</div>
-          <div class="badge badge-primary" style="margin-top:4px;">פעיל</div>
+          <div class="agent-info-name" id="agentName" data-i18n="player.chat.auto_routing">ניתוב אוטומטי</div>
+          <div class="badge badge-primary" style="margin-top:4px;" data-i18n="player.chat.active_badge">פעיל</div>
         </div>
       </div>
-      <div class="agent-info-desc" id="agentDesc">השאלה שלך תנותב אוטומטית למאמן המתאים ביותר לנושא.</div>
+      <div class="agent-info-desc" id="agentDesc" data-i18n="player.chat.auto_routing_desc">השאלה שלך תנותב אוטומטית למאמן המתאים ביותר לנושא.</div>
     </div>
 
     <div class="card" style="flex:1;display:flex;flex-direction:column;">
       <div class="card-header">
         <div class="card-title" style="font-size:var(--text-sm);">
-          <span class="material-symbols-outlined" style="font-size:18px;">history</span> שיחות אחרונות
+          <span class="material-symbols-outlined" style="font-size:18px;">history</span> <span data-i18n="player.chat.recent_conversations">שיחות אחרונות</span>
         </div>
         <button class="btn btn-sm btn-ghost" id="newChatBtn">
-          <span class="material-symbols-outlined" style="font-size:16px;">add</span> חדש
+          <span class="material-symbols-outlined" style="font-size:16px;">add</span> <span data-i18n="player.chat.new_btn">חדש</span>
         </button>
       </div>
       <div class="conversation-list" id="conversationList"></div>

@@ -5,6 +5,7 @@ from src.models.message import Message
 from src.agents.base_agent import BaseAgent, route_to_agent
 from src.constants.agents import AGENTS
 from src.services.context_service import ContextService
+from src.utils.exceptions import NotFoundError
 
 
 class ChatService:
@@ -18,6 +19,8 @@ class ChatService:
         content: str,
         conversation_id: int | None = None,
         coach_context: dict | None = None,
+        file_context: str | None = None,
+        force_agent: str | None = None,
     ) -> dict:
         # Create or get conversation
         if not conversation_id:
@@ -29,18 +32,23 @@ class ChatService:
         else:
             conv = await self.conv_repo.get_by_id(conversation_id)
             if not conv:
-                raise ValueError("Conversation not found")
+                raise NotFoundError("Conversation")
 
-        # Save user message
+        # Save user message (display version — without raw file dump)
         user_msg = Message(conversation_id=conversation_id, role="user", content=content)
         self.session.add(user_msg)
         await self.session.flush()
 
-        # Route to agent and enrich context with team data
-        agent_key = route_to_agent(content)
+        # Route to agent (force_agent overrides auto-routing)
+        agent_key = force_agent if force_agent and force_agent in AGENTS else route_to_agent(content)
         ctx_svc = ContextService(self.session)
         enriched = await ctx_svc.build_context(coach_id, agent_key, content)
         coach_context = {**(coach_context or {}), **enriched}
+        if file_context:
+            existing = coach_context.get("data_context") or ""
+            coach_context["data_context"] = (
+                f"=== UPLOADED FILE DATA ===\n{file_context}\n=== END FILE DATA ===\n\n{existing}"
+            ).strip()
         agent = BaseAgent(agent_key, coach_context)
 
         # Build conversation history

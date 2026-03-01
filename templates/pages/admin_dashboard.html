@@ -1,7 +1,7 @@
 {% extends "admin_base.html" %}
 {% block title %}HOOPS AI — Admin Dashboard{% endblock %}
 {% block nav_dashboard %}active{% endblock %}
-{% block header_title %}Dashboard{% endblock %}
+{% block header_title %}<span data-i18n="admin.header.dashboard">לוח בקרה</span>{% endblock %}
 {% block content %}
 <div class="admin-dashboard">
   <!-- Stats Cards -->
@@ -10,28 +10,28 @@
       <div class="stat-icon"><span class="material-symbols-outlined">groups</span></div>
       <div class="stat-info">
         <div class="stat-value" id="statTeams">0</div>
-        <div class="stat-label">Teams</div>
+        <div class="stat-label" data-i18n="admin.dashboard.stat_teams">Teams</div>
       </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon"><span class="material-symbols-outlined">sports</span></div>
       <div class="stat-info">
         <div class="stat-value" id="statCoaches">0</div>
-        <div class="stat-label">Coaches</div>
+        <div class="stat-label" data-i18n="admin.dashboard.stat_coaches">Coaches</div>
       </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon"><span class="material-symbols-outlined">person</span></div>
       <div class="stat-info">
         <div class="stat-value" id="statPlayers">0</div>
-        <div class="stat-label">Players</div>
+        <div class="stat-label" data-i18n="admin.dashboard.stat_players">Players</div>
       </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon"><span class="material-symbols-outlined">family_restroom</span></div>
       <div class="stat-info">
         <div class="stat-value" id="statParents">0</div>
-        <div class="stat-label">Parents</div>
+        <div class="stat-label" data-i18n="admin.dashboard.stat_parents">Parents</div>
       </div>
     </div>
   </div>
@@ -41,22 +41,22 @@
     <a href="/admin/schedule" class="stat-card stat-card-link">
       <div class="stat-icon"><span class="material-symbols-outlined">calendar_month</span></div>
       <div class="stat-info">
-        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;">Schedule</div>
-        <div class="stat-label">Calendar & Requests</div>
+        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;" data-i18n="admin.dashboard.ql_schedule">Schedule</div>
+        <div class="stat-label" data-i18n="admin.dashboard.ql_schedule_sub">Calendar & Requests</div>
       </div>
     </a>
     <a href="/admin/teams" class="stat-card stat-card-link">
       <div class="stat-icon"><span class="material-symbols-outlined">groups</span></div>
       <div class="stat-info">
-        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;">Teams</div>
-        <div class="stat-label">Manage & Invite</div>
+        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;" data-i18n="admin.dashboard.ql_teams">Teams</div>
+        <div class="stat-label" data-i18n="admin.dashboard.ql_teams_sub">Manage & Invite</div>
       </div>
     </a>
     <a href="/admin/roles" class="stat-card stat-card-link">
       <div class="stat-icon"><span class="material-symbols-outlined">badge</span></div>
       <div class="stat-info">
-        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;">Roles</div>
-        <div class="stat-label">Admin Permissions</div>
+        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;" data-i18n="admin.dashboard.ql_roles">Roles</div>
+        <div class="stat-label" data-i18n="admin.dashboard.ql_roles_sub">Admin Permissions</div>
       </div>
     </a>
   </div>

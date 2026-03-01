@@ -82,33 +82,30 @@ async def create_event(req: CreateEventRequest, admin: User = Depends(get_curren
         raise HTTPException(status_code=400, detail="Title is required")
     if req.event_type not in ("practice", "game", "meeting", "tournament", "team_building", "team_dinner", "social", "tactical_video", "other"):
         raise HTTPException(status_code=400, detail="Invalid event type")
-    try:
-        service = ScheduleService(db)
-        kwargs = dict(
-            title=req.title.strip(),
-            event_type=req.event_type,
-            date=req.date,
-            time_start=req.time_start,
-            time_end=req.time_end,
-            location=req.location,
-            facility_id=req.facility_id,
-            opponent=req.opponent,
-            notes=req.notes,
-            is_away=req.is_away,
-            departure_time=req.departure_time,
-            venue_address=req.venue_address,
+    service = ScheduleService(db)
+    kwargs = dict(
+        title=req.title.strip(),
+        event_type=req.event_type,
+        date=req.date,
+        time_start=req.time_start,
+        time_end=req.time_end,
+        location=req.location,
+        facility_id=req.facility_id,
+        opponent=req.opponent,
+        notes=req.notes,
+        is_away=req.is_away,
+        departure_time=req.departure_time,
+        venue_address=req.venue_address,
+    )
+    if req.repeat_weeks and req.repeat_weeks > 1:
+        events = await service.create_recurring_events(
+            admin_id=admin.id, team_id=req.team_id,
+            repeat_weeks=req.repeat_weeks, **kwargs,
         )
-        if req.repeat_weeks and req.repeat_weeks > 1:
-            events = await service.create_recurring_events(
-                admin_id=admin.id, team_id=req.team_id,
-                repeat_weeks=req.repeat_weeks, **kwargs,
-            )
-            return {"success": True, "data": [_event_to_dict(e) for e in events]}
-        else:
-            event = await service.create_event(admin_id=admin.id, team_id=req.team_id, **kwargs)
-            return {"success": True, "data": _event_to_dict(event)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        return {"success": True, "data": [_event_to_dict(e) for e in events]}
+    else:
+        event = await service.create_event(admin_id=admin.id, team_id=req.team_id, **kwargs)
+        return {"success": True, "data": _event_to_dict(event)}
 
 
 @router.get("/events")
@@ -144,33 +141,24 @@ async def list_team_events(team_id: int, year: int | None = None, month: int | N
 
 @router.put("/events/{event_id}")
 async def update_event(event_id: int, req: UpdateEventRequest, admin: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-    try:
-        service = ScheduleService(db)
-        updates = req.model_dump(exclude_unset=True)
-        event = await service.update_event(event_id, admin.id, **updates)
-        return {"success": True, "data": _event_to_dict(event)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = ScheduleService(db)
+    updates = req.model_dump(exclude_unset=True)
+    event = await service.update_event(event_id, admin.id, **updates)
+    return {"success": True, "data": _event_to_dict(event)}
 
 
 @router.delete("/events/{event_id}")
 async def delete_event(event_id: int, admin: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-    try:
-        service = ScheduleService(db)
-        await service.delete_event(event_id, admin.id)
-        return {"success": True}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = ScheduleService(db)
+    await service.delete_event(event_id, admin.id)
+    return {"success": True}
 
 
 @router.delete("/events/series/{recurrence_group}")
 async def delete_series(recurrence_group: str, admin: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-    try:
-        service = ScheduleService(db)
-        count = await service.delete_series(recurrence_group, admin.id)
-        return {"success": True, "data": {"deleted": count}}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    service = ScheduleService(db)
+    count = await service.delete_series(recurrence_group, admin.id)
+    return {"success": True, "data": {"deleted": count}}
 
 
 # --- Public read endpoint (any role) ---
@@ -200,7 +188,7 @@ async def my_schedule(user: User = Depends(get_current_user_any_role), db: Async
     memberships = await member_repo.get_by_user(user.id)
     team_ids = [m.team_id for m in memberships]
     if not team_ids:
-        return {"success": True, "data": []}
+        return {"success": True, "data": [], "team_ids": []}
     service = ScheduleService(db)
     events = await service.get_teams_schedule(team_ids)
-    return {"success": True, "data": [_event_to_dict(e) for e in events]}
+    return {"success": True, "data": [_event_to_dict(e) for e in events], "team_ids": team_ids}

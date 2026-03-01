@@ -8,6 +8,7 @@ from src.repositories.coach_repository import CoachRepository
 from src.repositories.user_repository import UserRepository
 from src.repositories.team_repository import TeamRepository
 from src.repositories.team_member_repository import TeamMemberRepository
+from src.utils.exceptions import AuthenticationError, ConflictError, ValidationError
 
 settings = get_settings()
 
@@ -42,7 +43,7 @@ class AuthService:
     async def register(self, name: str, email: str, password: str, **kwargs):
         existing = await self.repo.get_by_email(email)
         if existing:
-            raise ValueError("כתובת האימייל כבר רשומה במערכת")
+            raise ConflictError("כתובת האימייל כבר רשומה במערכת")
         coach = await self.repo.create(
             name=name,
             email=email,
@@ -55,9 +56,9 @@ class AuthService:
     async def login(self, email: str, password: str):
         coach = await self.repo.get_by_email(email)
         if not coach:
-            raise ValueError("כתובת האימייל לא נמצאה במערכת")
+            raise AuthenticationError("כתובת האימייל לא נמצאה במערכת")
         if not verify_password(password, coach.password_hash):
-            raise ValueError("הסיסמה שגויה, נסה שנית")
+            raise AuthenticationError("הסיסמה שגויה, נסה שנית")
         token = create_access_token({"sub": str(coach.id)})
         return {"coach": coach, "token": token}
 
@@ -80,7 +81,7 @@ class AuthService:
         # 1. Check coach email not taken
         existing = await self.repo.get_by_email(email)
         if existing:
-            raise ValueError("Email already registered")
+            raise ConflictError("Email already registered")
 
         # 2. Find team by invite
         team_repo = TeamRepository(session)
@@ -90,7 +91,7 @@ class AuthService:
         if not team and invite_code:
             team = await team_repo.get_by_coach_invite_code(invite_code.strip().upper())
         if not team:
-            raise ValueError("קוד ההזמנה או הלינק אינם תקינים")
+            raise ValidationError("קוד ההזמנה או הלינק אינם תקינים")
 
         pw_hash = hash_password(password)
 

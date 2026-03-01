@@ -9,6 +9,7 @@ from src.repositories.standing_carpool_repository import (
 )
 from src.repositories.team_event_repository import TeamEventRepository
 from src.models.team_member import TeamMember
+from src.utils.exceptions import NotFoundError, ForbiddenError, ValidationError, ConflictError
 
 
 class StandingCarpoolService:
@@ -47,9 +48,9 @@ class StandingCarpoolService:
                      notes: str | None = None):
         team_ids = await self._get_parent_team_ids(parent_user_id)
         if team_id not in team_ids:
-            raise ValueError("Not authorized for this team")
+            raise ForbiddenError("Not authorized for this team")
         if max_members < 2 or max_members > 8:
-            raise ValueError("Max members must be between 2 and 8")
+            raise ValidationError("Max members must be between 2 and 8")
 
         carpool = await self.carpool_repo.create(
             team_id=team_id,
@@ -72,9 +73,9 @@ class StandingCarpoolService:
     async def update(self, carpool_id: int, parent_user_id: int, **kwargs):
         carpool = await self.carpool_repo.get_by_id(carpool_id)
         if not carpool or not carpool.is_active:
-            raise ValueError("Carpool not found")
+            raise NotFoundError("Carpool")
         if carpool.organizer_user_id != parent_user_id:
-            raise ValueError("Only the organizer can edit this carpool")
+            raise ForbiddenError("Only the organizer can edit this carpool")
         allowed = {"name", "neighborhood", "max_members", "meeting_point", "notes"}
         filtered = {k: v for k, v in kwargs.items() if k in allowed}
         return await self.carpool_repo.update(carpool_id, **filtered)
@@ -84,9 +85,9 @@ class StandingCarpoolService:
     async def delete(self, carpool_id: int, parent_user_id: int):
         carpool = await self.carpool_repo.get_by_id(carpool_id)
         if not carpool or not carpool.is_active:
-            raise ValueError("Carpool not found")
+            raise NotFoundError("Carpool")
         if carpool.organizer_user_id != parent_user_id:
-            raise ValueError("Only the organizer can delete this carpool")
+            raise ForbiddenError("Only the organizer can delete this carpool")
         await self.carpool_repo.update(carpool_id, is_active=False)
 
     # ── Join ─────────────────────────────────────────────────────
@@ -95,19 +96,19 @@ class StandingCarpoolService:
                    player_id: int | None = None, notes: str | None = None):
         carpool = await self.carpool_repo.get_by_id(carpool_id)
         if not carpool or not carpool.is_active:
-            raise ValueError("Carpool not found")
+            raise NotFoundError("Carpool")
 
         team_ids = await self._get_parent_team_ids(parent_user_id)
         if carpool.team_id not in team_ids:
-            raise ValueError("Not authorized")
+            raise ForbiddenError("Not authorized")
 
         existing = await self.member_repo.get_by_carpool_and_user(carpool_id, parent_user_id)
         if existing:
-            raise ValueError("Already a member of this carpool")
+            raise ConflictError("Already a member of this carpool")
 
         current_count = await self.member_repo.count_by_carpool(carpool_id)
         if current_count >= carpool.max_members:
-            raise ValueError("Carpool is full")
+            raise ConflictError("Carpool is full")
 
         return await self.member_repo.create(
             carpool_id=carpool_id,
@@ -121,7 +122,7 @@ class StandingCarpoolService:
     async def leave(self, carpool_id: int, parent_user_id: int):
         carpool = await self.carpool_repo.get_by_id(carpool_id)
         if not carpool or not carpool.is_active:
-            raise ValueError("Carpool not found")
+            raise NotFoundError("Carpool")
 
         if carpool.organizer_user_id == parent_user_id:
             # Organizer leaving → soft-delete the whole carpool
@@ -129,7 +130,7 @@ class StandingCarpoolService:
         else:
             member = await self.member_repo.get_by_carpool_and_user(carpool_id, parent_user_id)
             if not member:
-                raise ValueError("Not a member of this carpool")
+                raise NotFoundError("Carpool member")
             # Remove all their signups first, then the membership
             await self.signup_repo.delete_all_for_user_in_carpool(carpool_id, parent_user_id)
             await self.member_repo.delete_by_carpool_and_user(carpool_id, parent_user_id)
@@ -140,26 +141,26 @@ class StandingCarpoolService:
                                 event_id: int, notes: str | None = None):
         carpool = await self.carpool_repo.get_by_id(carpool_id)
         if not carpool or not carpool.is_active:
-            raise ValueError("Carpool not found")
+            raise NotFoundError("Carpool")
 
         # Must be a member
         member = await self.member_repo.get_by_carpool_and_user(carpool_id, parent_user_id)
         if not member:
-            raise ValueError("You must join this carpool first")
+            raise ValidationError("You must join this carpool first")
 
         # Event must belong to same team
         event = await self.event_repo.get_by_id(event_id)
         if not event or not event.is_active:
-            raise ValueError("Event not found")
+            raise NotFoundError("Event")
         if event.team_id != carpool.team_id:
-            raise ValueError("Event does not belong to this carpool's team")
+            raise ValidationError("Event does not belong to this carpool's team")
         if event.date < date.today():
-            raise ValueError("Cannot sign up for a past event")
+            raise ValidationError("Cannot sign up for a past event")
 
         # Check duplicate
         existing = await self.signup_repo.get_by_carpool_user_event(carpool_id, parent_user_id, event_id)
         if existing:
-            raise ValueError("Already signed up for this event")
+            raise ConflictError("Already signed up for this event")
 
         return await self.signup_repo.create(
             carpool_id=carpool_id,
@@ -173,7 +174,7 @@ class StandingCarpoolService:
     async def cancel_signup(self, carpool_id: int, parent_user_id: int, event_id: int):
         existing = await self.signup_repo.get_by_carpool_user_event(carpool_id, parent_user_id, event_id)
         if not existing:
-            raise ValueError("Signup not found")
+            raise NotFoundError("Signup")
         await self.signup_repo.delete_by_carpool_user_event(carpool_id, parent_user_id, event_id)
 
     # ── Upcoming events for a carpool ────────────────────────────

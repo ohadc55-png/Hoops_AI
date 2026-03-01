@@ -17,6 +17,9 @@ class CreateClubRequest(BaseModel):
     max_players: int = 150
     region_id: int | None = None
     billing_email: str | None = None
+    billing_tax_id: str | None = None
+    billing_address: str | None = None
+    billing_phone: str | None = None
     notes: str | None = None
 
 
@@ -27,6 +30,9 @@ class UpdateClubRequest(BaseModel):
     max_players: int | None = None
     region_id: int | None = None
     billing_email: str | None = None
+    billing_tax_id: str | None = None
+    billing_address: str | None = None
+    billing_phone: str | None = None
     notes: str | None = None
     storage_quota_video_gb: int | None = None
     storage_quota_media_gb: int | None = None
@@ -67,6 +73,9 @@ async def create_club(
         max_players=req.max_players,
         region_id=req.region_id,
         billing_email=req.billing_email,
+        billing_tax_id=req.billing_tax_id,
+        billing_address=req.billing_address,
+        billing_phone=req.billing_phone,
         notes=req.notes,
     )
     await db.commit()
@@ -156,10 +165,7 @@ async def generate_registration_link(
     db: AsyncSession = Depends(get_db),
 ):
     service = PlatformClubService(db)
-    try:
-        link = await service.generate_registration_link(club_id)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    link = await service.generate_registration_link(club_id)
     await db.commit()
     return {"success": True, "data": link}
 

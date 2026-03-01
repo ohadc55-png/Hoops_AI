@@ -1,0 +1,17 @@
+{% extends "admin_base.html" %}
+{% block title %}HOOPS AI — Coach Profile{% endblock %}
+{% block header_title %}<span id="pageTitle" data-i18n="admin.coach_profile.title">Coach Profile</span>{% endblock %}
+{% block content %}
+<div id="profileContent" style="max-width:900px;margin:0 auto;">
+  <div style="text-align:center;padding:48px;color:var(--text-muted);">
+    <span class="material-symbols-outlined pp-spin" style="font-size:32px;">progress_activity</span>
+    <div style="margin-top:8px;" data-i18n="common.loading">Loading...</div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  const COACH_ID = {{ coach_id }};
+</script>
+<script src="/static/js/admin_coach_profile.js"></script>
+{% endblock %}

@@ -95,26 +95,23 @@ async def create_invoice(
     db: AsyncSession = Depends(get_db),
 ):
     service = PlatformInvoiceService(db)
-    try:
-        due = date.fromisoformat(req.due_date) if req.due_date else None
-        ps = date.fromisoformat(req.period_start) if req.period_start else None
-        pe = date.fromisoformat(req.period_end) if req.period_end else None
+    due = date.fromisoformat(req.due_date) if req.due_date else None
+    ps = date.fromisoformat(req.period_start) if req.period_start else None
+    pe = date.fromisoformat(req.period_end) if req.period_end else None
 
-        invoice = await service.create_invoice(
-            club_id=req.club_id,
-            line_items=[item.model_dump() for item in req.line_items],
-            invoice_type=req.invoice_type,
-            due_date=due,
-            period_start=ps,
-            period_end=pe,
-            notes=req.notes,
-            vat_rate=req.vat_rate,
-        )
-        await db.commit()
-        detail = await service.get_invoice_detail(invoice.id)
-        return {"success": True, "data": detail}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    invoice = await service.create_invoice(
+        club_id=req.club_id,
+        line_items=[item.model_dump() for item in req.line_items],
+        invoice_type=req.invoice_type,
+        due_date=due,
+        period_start=ps,
+        period_end=pe,
+        notes=req.notes,
+        vat_rate=req.vat_rate,
+    )
+    await db.commit()
+    detail = await service.get_invoice_detail(invoice.id)
+    return {"success": True, "data": detail}
 
 
 @router.post("/invoices/{invoice_id}/send")
@@ -124,14 +121,11 @@ async def send_invoice(
     db: AsyncSession = Depends(get_db),
 ):
     service = PlatformInvoiceService(db)
-    try:
-        invoice = await service.send_invoice(invoice_id)
-        if not invoice:
-            raise HTTPException(status_code=404, detail="Invoice not found")
-        await db.commit()
-        return {"success": True, "message": "Invoice sent"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    invoice = await service.send_invoice(invoice_id)
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    await db.commit()
+    return {"success": True, "message": "Invoice sent"}
 
 
 @router.post("/invoices/{invoice_id}/pay")
@@ -142,17 +136,14 @@ async def mark_invoice_paid(
     db: AsyncSession = Depends(get_db),
 ):
     service = PlatformInvoiceService(db)
-    try:
-        invoice = await service.mark_paid(
-            invoice_id, payment_method=req.payment_method, notes=req.notes,
-        )
-        if not invoice:
-            raise HTTPException(status_code=404, detail="Invoice not found")
-        await db.commit()
-        receipt_id = await service.get_linked_receipt_id(invoice_id)
-        return {"success": True, "message": "Invoice marked as paid, receipt created", "receipt_id": receipt_id}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    invoice = await service.mark_paid(
+        invoice_id, payment_method=req.payment_method, notes=req.notes,
+    )
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    await db.commit()
+    receipt_id = await service.get_linked_receipt_id(invoice_id)
+    return {"success": True, "message": "Invoice marked as paid, receipt created", "receipt_id": receipt_id}
 
 
 @router.post("/invoices/{invoice_id}/cancel")
@@ -163,12 +154,9 @@ async def cancel_invoice(
     db: AsyncSession = Depends(get_db),
 ):
     service = PlatformInvoiceService(db)
-    try:
-        result = await service.cancel_invoice(invoice_id, reason=req.reason)
-        await db.commit()
-        return {"success": True, "data": result}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = await service.cancel_invoice(invoice_id, reason=req.reason)
+    await db.commit()
+    return {"success": True, "data": result}
 
 
 # ─── Duplicate / Resend / Reminder ──────────────────────
@@ -181,13 +169,10 @@ async def duplicate_invoice(
 ):
     """Duplicate an invoice as a new draft."""
     service = PlatformInvoiceService(db)
-    try:
-        new_invoice = await service.duplicate_invoice(invoice_id)
-        await db.commit()
-        detail = await service.get_invoice_detail(new_invoice.id)
-        return {"success": True, "data": detail}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    new_invoice = await service.duplicate_invoice(invoice_id)
+    await db.commit()
+    detail = await service.get_invoice_detail(new_invoice.id)
+    return {"success": True, "data": detail}
 
 
 @router.post("/invoices/{invoice_id}/resend")
@@ -198,12 +183,9 @@ async def resend_invoice(
 ):
     """Re-send invoice notification to club admin."""
     service = PlatformInvoiceService(db)
-    try:
-        await service.resend_invoice(invoice_id)
-        await db.commit()
-        return {"success": True, "message": "Invoice re-sent"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    await service.resend_invoice(invoice_id)
+    await db.commit()
+    return {"success": True, "message": "Invoice re-sent"}
 
 
 @router.post("/invoices/{invoice_id}/reminder")
@@ -214,12 +196,9 @@ async def send_reminder(
 ):
     """Send a payment reminder for an unpaid invoice."""
     service = PlatformInvoiceService(db)
-    try:
-        await service.send_reminder(invoice_id)
-        await db.commit()
-        return {"success": True, "message": "Payment reminder sent"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    await service.send_reminder(invoice_id)
+    await db.commit()
+    return {"success": True, "message": "Payment reminder sent"}
 
 
 # ─── PDF Download ───────────────────────────────────────
@@ -254,11 +233,8 @@ async def get_club_billing(
     db: AsyncSession = Depends(get_db),
 ):
     service = PlatformInvoiceService(db)
-    try:
-        data = await service.get_club_billing(club_id)
-        return {"success": True, "data": data}
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    data = await service.get_club_billing(club_id)
+    return {"success": True, "data": data}
 
 
 # ─── Manual Charge ──────────────────────────────────────
@@ -272,19 +248,16 @@ async def manual_charge(
 ):
     """Create and auto-send an invoice for a club (manual charge)."""
     service = PlatformInvoiceService(db)
-    try:
-        due = date.fromisoformat(req.due_date) if req.due_date else None
-        invoice = await service.create_invoice(
-            club_id=club_id,
-            line_items=[item.model_dump() for item in req.line_items],
-            invoice_type="tax_invoice",
-            due_date=due,
-            notes=req.notes,
-            vat_rate=req.vat_rate,
-        )
-        await service.send_invoice(invoice.id)
-        await db.commit()
-        detail = await service.get_invoice_detail(invoice.id)
-        return {"success": True, "data": detail}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    due = date.fromisoformat(req.due_date) if req.due_date else None
+    invoice = await service.create_invoice(
+        club_id=club_id,
+        line_items=[item.model_dump() for item in req.line_items],
+        invoice_type="tax_invoice",
+        due_date=due,
+        notes=req.notes,
+        vat_rate=req.vat_rate,
+    )
+    await service.send_invoice(invoice.id)
+    await db.commit()
+    detail = await service.get_invoice_detail(invoice.id)
+    return {"success": True, "data": detail}

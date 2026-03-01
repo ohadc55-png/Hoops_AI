@@ -197,6 +197,7 @@ async def parent_team(user: User = Depends(get_current_parent), db: AsyncSession
 @router.get("/badge-counts")
 async def parent_badge_counts(user: User = Depends(get_current_parent), db: AsyncSession = Depends(get_db)):
     """Badge counts for parent sidebar: payments, videos, messages."""
+    from datetime import date as date_type
     from sqlalchemy import func, or_
     from src.models.installment import Installment
     from src.models.one_time_charge import OneTimeCharge
@@ -208,18 +209,27 @@ async def parent_badge_counts(user: User = Depends(get_current_parent), db: Asyn
     team_ids, _, child, _ = await _get_parent_context(db, user)
     player_ids = [child.id] if child else []
 
-    # Payments: pending or overdue installments + one-time charges for child
+    # Payments: count distinct plans with any unpaid installment + unpaid charges
+    today = date_type.today()
     payments_count = 0
     if player_ids:
+        # Count distinct plans that have at least one unpaid installment
         res = await db.execute(
-            select(func.count(Installment.id))
-            .where(Installment.player_id.in_(player_ids), Installment.status.in_(["pending", "overdue"]))
+            select(func.count(func.distinct(Installment.plan_id)))
+            .where(
+                Installment.player_id.in_(player_ids),
+                Installment.status.in_(["pending", "overdue"]),
+            )
         )
         payments_count = res.scalar() or 0
 
         res2 = await db.execute(
             select(func.count(OneTimeCharge.id))
-            .where(OneTimeCharge.player_id.in_(player_ids), OneTimeCharge.status.in_(["pending", "overdue"]))
+            .where(
+                OneTimeCharge.player_id.in_(player_ids),
+                OneTimeCharge.status.in_(["pending", "overdue"]),
+                or_(OneTimeCharge.due_date <= today, OneTimeCharge.due_date.is_(None)),
+            )
         )
         payments_count += res2.scalar() or 0
 

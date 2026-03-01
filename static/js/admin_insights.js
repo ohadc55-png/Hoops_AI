@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function switchAgent(agent) {
   currentAgent = agent;
-  document.querySelectorAll('.agent-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.agent-tab').forEach(el => el.classList.remove('active'));
   document.querySelector(`.agent-tab[data-agent="${agent}"]`).classList.add('active');
 
   document.querySelectorAll('.agent-panel').forEach(p => p.style.display = 'none');
@@ -37,7 +37,7 @@ function switchAgent(agent) {
 
 function switchSubTab(agent, subId) {
   const panel = document.getElementById(`panel-${agent}`);
-  panel.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+  panel.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
   panel.querySelector(`.sub-tab[data-sub="${subId}"]`).classList.add('active');
   panel.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
   document.getElementById(subId).classList.add('active');
@@ -63,29 +63,29 @@ function renderMarkdown(text) {
 
 async function loadFinancialDashboard() {
   const card = document.getElementById('finInsightCard');
-  card.innerHTML = '<div class="loading-state">טוען תובנות כלכליות...</div>';
+  card.innerHTML = `<div class="loading-state">${t('admin.insights.fin.loading')}</div>`;
   try {
     const res = await AdminAPI.get('/api/insights/financial/dashboard');
     const d = res.data;
     const summaryHtml = d.data ? `
       <div class="insight-stats">
-        <span class="insight-stat">סה"כ: ₪${(d.data.total_charged || 0).toLocaleString()}</span>
-        <span class="insight-stat paid">שולם: ₪${(d.data.total_paid || 0).toLocaleString()}</span>
-        <span class="insight-stat pending">ממתין: ₪${(d.data.total_pending || 0).toLocaleString()}</span>
-        <span class="insight-stat overdue">באיחור: ₪${(d.data.total_overdue || 0).toLocaleString()}</span>
-        <span class="insight-stat">גבייה: ${d.data.collection_rate || 0}%</span>
+        <span class="insight-stat">${t('admin.insights.fin.total')} ₪${(d.data.total_charged || 0).toLocaleString()}</span>
+        <span class="insight-stat paid">${t('admin.insights.fin.paid')} ₪${(d.data.total_paid || 0).toLocaleString()}</span>
+        <span class="insight-stat pending">${t('admin.insights.fin.pending')} ₪${(d.data.total_pending || 0).toLocaleString()}</span>
+        <span class="insight-stat overdue">${t('admin.insights.fin.overdue')} ₪${(d.data.total_overdue || 0).toLocaleString()}</span>
+        <span class="insight-stat">${t('admin.insights.fin.collection')} ${d.data.collection_rate || 0}%</span>
       </div>
     ` : '';
     const badge = d.overdue_count > 0
-      ? `<span class="insight-badge overdue">${d.overdue_count} הורים באיחור</span>`
-      : '<span class="insight-badge ok">אין איחורים</span>';
+      ? `<span class="insight-badge overdue">${t('admin.insights.fin.parents_overdue', { count: d.overdue_count })}</span>`
+      : `<span class="insight-badge ok">${t('admin.insights.fin.no_overdue')}</span>`;
     card.innerHTML = `
       ${badge}
       ${summaryHtml}
       <div class="insight-text">${renderMarkdown(d.insights)}</div>
     `;
   } catch (e) {
-    card.innerHTML = '<div class="error-state">שגיאה בטעינת תובנות כלכליות</div>';
+    card.innerHTML = `<div class="error-state">${t('admin.insights.fin.load_error')}</div>`;
   }
 }
 
@@ -94,15 +94,15 @@ async function generateFinancialReport() {
   const content = document.getElementById('finReportContent');
   btn.classList.add('loading');
   btn.disabled = true;
-  content.innerHTML = '<div class="loading-state">מייצר דוח כלכלי... (זה עשוי לקחת מספר שניות)</div>';
+  content.innerHTML = `<div class="loading-state">${t('admin.insights.fin.report_loading')}</div>`;
   try {
     const res = await AdminAPI.post('/api/insights/financial/report');
     content.innerHTML = `<div class="report-markdown">${renderMarkdown(res.data.report)}</div>`;
     loadFinancialReportHistory();
-    AdminToast.success('דוח כלכלי נוצר בהצלחה');
+    AdminToast.success(t('admin.insights.fin.report_success'));
   } catch (e) {
-    content.innerHTML = '<div class="error-state">שגיאה ביצירת הדוח</div>';
-    AdminToast.error('שגיאה ביצירת דוח כלכלי');
+    content.innerHTML = `<div class="error-state">${t('admin.insights.fin.report_error')}</div>`;
+    AdminToast.error(t('admin.insights.fin.report_gen_error'));
   }
   btn.classList.remove('loading');
   btn.disabled = false;
@@ -116,7 +116,7 @@ async function sendFinancialChat() {
 
   const container = document.getElementById('finChatMessages');
   container.innerHTML += `<div class="chat-bubble user">${esc(msg)}</div>`;
-  container.innerHTML += `<div class="chat-bubble ai typing">מחשב...</div>`;
+  container.innerHTML += `<div class="chat-bubble ai typing">${t('admin.insights.fin.computing')}</div>`;
   container.scrollTop = container.scrollHeight;
 
   financialChatHistory.push({ role: 'user', content: msg });
@@ -133,23 +133,23 @@ async function sendFinancialChat() {
     container.innerHTML += `<div class="chat-bubble ai">${renderMarkdown(reply)}</div>`;
   } catch (e) {
     container.querySelector('.typing')?.remove();
-    container.innerHTML += `<div class="chat-bubble ai error">שגיאה בקבלת תשובה</div>`;
+    container.innerHTML += `<div class="chat-bubble ai error">${t('admin.insights.fin.chat_error')}</div>`;
   }
   container.scrollTop = container.scrollHeight;
 }
 
 async function sendPaymentReminders() {
   const result = document.getElementById('reminderResult');
-  result.textContent = 'שולח תזכורות...';
+  result.textContent = t('admin.insights.fin.sending_reminders');
   try {
     const res = await AdminAPI.post('/api/insights/financial/send-reminders');
     const sent = res.data.sent || 0;
-    result.textContent = sent > 0 ? `נשלחו ${sent} תזכורות` : 'אין הורים הדורשים תזכורת';
-    if (sent > 0) AdminToast.success(`נשלחו ${sent} תזכורות תשלום`);
-    else AdminToast.info('אין הורים הדורשים תזכורת כרגע');
+    result.textContent = sent > 0 ? t('admin.insights.fin.reminders_sent', { count: sent }) : t('admin.insights.fin.no_reminders_needed');
+    if (sent > 0) AdminToast.success(t('admin.insights.fin.reminder_toast_sent', { count: sent }));
+    else AdminToast.info(t('admin.insights.fin.reminder_toast_none'));
   } catch (e) {
-    result.textContent = 'שגיאה בשליחת תזכורות';
-    AdminToast.error('שגיאה בשליחת תזכורות');
+    result.textContent = t('admin.insights.fin.reminder_error');
+    AdminToast.error(t('admin.insights.fin.reminder_error'));
   }
 }
 
@@ -158,13 +158,13 @@ async function loadFinancialReportHistory() {
   try {
     const res = await AdminAPI.get('/api/insights/reports?agent_type=financial&limit=5');
     if (!res.data || res.data.length === 0) {
-      container.innerHTML = '<div class="empty-state">אין דוחות שמורים</div>';
+      container.innerHTML = `<div class="empty-state">${t('admin.insights.fin.no_saved_reports')}</div>`;
       return;
     }
     container.innerHTML = res.data.map(r => `
       <div class="report-item" onclick="loadSavedReport(${r.id}, 'finReportContent')">
         <span class="report-date">${new Date(r.created_at).toLocaleDateString('he-IL')}</span>
-        <span class="report-type">${r.report_type === 'weekly_auto' ? 'אוטומטי' : 'ידני'}</span>
+        <span class="report-type">${r.report_type === 'weekly_auto' ? t('admin.insights.report_type.auto') : t('admin.insights.report_type.manual')}</span>
         <span class="report-preview">${esc(r.preview)}</span>
       </div>
     `).join('');
@@ -175,19 +175,19 @@ async function loadFinancialReportHistory() {
 
 async function loadProfessionalDashboard() {
   const card = document.getElementById('proInsightCard');
-  card.innerHTML = '<div class="loading-state">טוען תובנות מקצועיות...</div>';
+  card.innerHTML = `<div class="loading-state">${t('admin.insights.pro.loading')}</div>`;
   try {
     const res = await AdminAPI.get('/api/insights/professional/dashboard');
     const d = res.data;
     const badge = d.alert_count > 0
-      ? `<span class="insight-badge warning">${d.alert_count} שחקנים דורשים תשומת לב</span>`
-      : '<span class="insight-badge ok">אין התראות</span>';
+      ? `<span class="insight-badge warning">${t('admin.insights.pro.players_need_attention', { count: d.alert_count })}</span>`
+      : `<span class="insight-badge ok">${t('admin.insights.pro.no_alerts')}</span>`;
     card.innerHTML = `
       ${badge}
       <div class="insight-text">${renderMarkdown(d.insights)}</div>
     `;
   } catch (e) {
-    card.innerHTML = '<div class="error-state">שגיאה בטעינת תובנות מקצועיות</div>';
+    card.innerHTML = `<div class="error-state">${t('admin.insights.pro.load_error')}</div>`;
   }
 }
 
@@ -196,15 +196,15 @@ async function generateProfessionalReport() {
   const content = document.getElementById('proReportContent');
   btn.classList.add('loading');
   btn.disabled = true;
-  content.innerHTML = '<div class="loading-state">מייצר דוח מקצועי... (זה עשוי לקחת מספר שניות)</div>';
+  content.innerHTML = `<div class="loading-state">${t('admin.insights.pro.report_loading')}</div>`;
   try {
     const res = await AdminAPI.post('/api/insights/professional/report');
     content.innerHTML = `<div class="report-markdown">${renderMarkdown(res.data.report)}</div>`;
     loadProfessionalReportHistory();
-    AdminToast.success('דוח מקצועי נוצר בהצלחה');
+    AdminToast.success(t('admin.insights.pro.report_success'));
   } catch (e) {
-    content.innerHTML = '<div class="error-state">שגיאה ביצירת הדוח</div>';
-    AdminToast.error('שגיאה ביצירת דוח מקצועי');
+    content.innerHTML = `<div class="error-state">${t('admin.insights.pro.report_error')}</div>`;
+    AdminToast.error(t('admin.insights.pro.report_gen_error'));
   }
   btn.classList.remove('loading');
   btn.disabled = false;
@@ -245,8 +245,8 @@ function _populateFilterOptions() {
   // Teams — dynamic from data
   const teams = [...new Set(_allPlayers.map(p => p.team_name).filter(Boolean))].sort();
   const teamSel = document.getElementById('filterTeam');
-  teamSel.innerHTML = '<option value="">כל הקבוצות</option>' +
-    teams.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+  teamSel.innerHTML = `<option value="">${t('admin.insights.players.all_teams')}</option>` +
+    teams.map(tm => `<option value="${esc(tm)}">${esc(tm)}</option>`).join('');
   // Positions — hardcoded in HTML, no need to populate
 }
 
@@ -263,7 +263,7 @@ function applyPlayerFilters() {
   });
 
   document.getElementById('playerFilterCount').textContent =
-    filtered.length > 0 ? `${filtered.length} שחקנים` : 'אין תוצאות';
+    filtered.length > 0 ? t('admin.insights.players.count', { count: filtered.length }) : t('admin.insights.players.no_results');
 
   renderPlayerList(filtered);
 }
@@ -271,11 +271,11 @@ function applyPlayerFilters() {
 function renderPlayerList(players) {
   const container = document.getElementById('playerListContainer');
   if (!players.length) {
-    container.innerHTML = '<div class="empty-state-admin">אין שחקנים התואמים את הסינון.</div>';
+    container.innerHTML = `<div class="empty-state-admin">${t('admin.insights.players.empty')}</div>`;
     return;
   }
 
-  const posLabel = { PG: 'מגן', SG: 'שוטר', SF: 'קדמי קטן', PF: 'קדמי גדול', C: 'סנטר' };
+  const posLabel = { PG: t('admin.insights.pos.PG'), SG: t('admin.insights.pos.SG'), SF: t('admin.insights.pos.SF'), PF: t('admin.insights.pos.PF'), C: t('admin.insights.pos.C') };
 
   const rows = players.map(p => {
     const age = _calcAge(p.birth_date);
@@ -293,11 +293,11 @@ function renderPlayerList(players) {
       <td>
         <button class="btn btn-secondary btn-xs" onclick="openPlayerAICard(${p.id})">
           <span class="material-symbols-outlined" style="font-size:14px;">psychology</span>
-          כרטיס AI
+          ${t('admin.insights.players.ai_card')}
         </button>
-        <button class="btn btn-secondary btn-xs" style="opacity:.5;cursor:not-allowed;" title="בקרוב">
+        <button class="btn btn-secondary btn-xs" style="opacity:.5;cursor:not-allowed;" title="${t('admin.insights.players.coming_soon')}">
           <span class="material-symbols-outlined" style="font-size:14px;">description</span>
-          דוח מאמן
+          ${t('admin.insights.players.coach_report')}
         </button>
       </td>
     </tr>`;
@@ -307,11 +307,11 @@ function renderPlayerList(players) {
     <table class="player-list-table">
       <thead>
         <tr>
-          <th>שם</th>
-          <th>קבוצה</th>
-          <th>עמדה</th>
-          <th>תאריך לידה</th>
-          <th>פעולות</th>
+          <th>${t('admin.insights.players.th.name')}</th>
+          <th>${t('admin.insights.players.th.team')}</th>
+          <th>${t('admin.insights.players.th.position')}</th>
+          <th>${t('admin.insights.players.th.dob')}</th>
+          <th>${t('admin.insights.players.th.actions')}</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
@@ -334,7 +334,7 @@ function backToPlayerList() {
 async function loadPlayerCard() { /* kept for back-compat, not used directly */ }
 
 async function _loadPlayerCardById(playerId) {
-  document.getElementById('playerCardInfo').innerHTML = '<div class="loading-state">טוען כרטיס שחקן...</div>';
+  document.getElementById('playerCardInfo').innerHTML = `<div class="loading-state">${t('admin.insights.player_card.loading')}</div>`;
   document.getElementById('playerCardAnalysis').innerHTML = '';
 
   try {
@@ -350,14 +350,14 @@ async function _loadPlayerCardById(playerId) {
         ${p.position ? `<span class="player-pos">${esc(p.position)}</span>` : ''}
         ${p.jersey_number ? `<span class="player-jersey">#${p.jersey_number}</span>` : ''}
         ${playerMeta.team_name ? `<span class="player-team-badge">${esc(playerMeta.team_name)}</span>` : ''}
-        ${age !== null ? `<span class="age-chip">גיל ${age}</span>` : ''}
+        ${age !== null ? `<span class="age-chip">${t('admin.insights.players.age')} ${age}</span>` : ''}
       </div>
     `;
     document.getElementById('playerCardAnalysis').innerHTML = `
       <div class="report-markdown">${renderMarkdown(d.ai_analysis)}</div>
     `;
   } catch (e) {
-    document.getElementById('playerCardInfo').innerHTML = '<div class="error-state">שגיאה בטעינת כרטיס שחקן</div>';
+    document.getElementById('playerCardInfo').innerHTML = `<div class="error-state">${t('admin.insights.player_card.load_error')}</div>`;
   }
 }
 
@@ -369,7 +369,7 @@ async function sendProfessionalChat() {
 
   const container = document.getElementById('proChatMessages');
   container.innerHTML += `<div class="chat-bubble user">${esc(msg)}</div>`;
-  container.innerHTML += `<div class="chat-bubble ai typing">מחשב...</div>`;
+  container.innerHTML += `<div class="chat-bubble ai typing">${t('admin.insights.pro.computing')}</div>`;
   container.scrollTop = container.scrollHeight;
 
   professionalChatHistory.push({ role: 'user', content: msg });
@@ -385,7 +385,7 @@ async function sendProfessionalChat() {
     container.innerHTML += `<div class="chat-bubble ai">${renderMarkdown(reply)}</div>`;
   } catch (e) {
     container.querySelector('.typing')?.remove();
-    container.innerHTML += `<div class="chat-bubble ai error">שגיאה בקבלת תשובה</div>`;
+    container.innerHTML += `<div class="chat-bubble ai error">${t('admin.insights.pro.chat_error')}</div>`;
   }
   container.scrollTop = container.scrollHeight;
 }
@@ -395,13 +395,13 @@ async function loadProfessionalReportHistory() {
   try {
     const res = await AdminAPI.get('/api/insights/reports?agent_type=professional&limit=5');
     if (!res.data || res.data.length === 0) {
-      container.innerHTML = '<div class="empty-state">אין דוחות שמורים</div>';
+      container.innerHTML = `<div class="empty-state">${t('admin.insights.pro.no_saved_reports')}</div>`;
       return;
     }
     container.innerHTML = res.data.map(r => `
       <div class="report-item" onclick="loadSavedReport(${r.id}, 'proReportContent')">
         <span class="report-date">${new Date(r.created_at).toLocaleDateString('he-IL')}</span>
-        <span class="report-type">${r.report_type === 'weekly_auto' ? 'אוטומטי' : 'ידני'}</span>
+        <span class="report-type">${r.report_type === 'weekly_auto' ? t('admin.insights.report_type.auto') : t('admin.insights.report_type.manual')}</span>
         <span class="report-preview">${esc(r.preview)}</span>
       </div>
     `).join('');
@@ -412,11 +412,11 @@ async function loadProfessionalReportHistory() {
 
 async function loadSavedReport(reportId, targetId) {
   const content = document.getElementById(targetId);
-  content.innerHTML = '<div class="loading-state">טוען דוח...</div>';
+  content.innerHTML = `<div class="loading-state">${t('admin.insights.saved_report.loading')}</div>`;
   try {
     const res = await AdminAPI.get(`/api/insights/reports/${reportId}`);
     content.innerHTML = `<div class="report-markdown">${renderMarkdown(res.data.content)}</div>`;
   } catch {
-    content.innerHTML = '<div class="error-state">שגיאה בטעינת הדוח</div>';
+    content.innerHTML = `<div class="error-state">${t('admin.insights.saved_report.load_error')}</div>`;
   }
 }

@@ -1,6 +1,6 @@
 """HOOPS AI - Attendance Repository"""
 from typing import Sequence
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, Integer
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.attendance import Attendance
 from src.repositories.base_repository import BaseRepository
@@ -47,7 +47,7 @@ class AttendanceRepository(BaseRepository[Attendance]):
             select(
                 Attendance.player_id,
                 func.count(Attendance.id).label("total"),
-                func.sum(func.cast(Attendance.present, Attendance.id.type)).label("attended"),
+                func.sum(func.cast(Attendance.present, Integer)).label("attended"),
             )
             .where(Attendance.coach_id == coach_id)
             .group_by(Attendance.player_id)

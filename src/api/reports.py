@@ -44,6 +44,11 @@ class PlayerReportRequest(BaseModel):
     focus_areas: list[str] | None = None
     progress_notes: str | None = None
     recommendations: str | None = None
+    overall_rating: int | None = None
+    personal_improvement_rating: int | None = None
+    personal_improvement_notes: str | None = None
+    team_contribution_rating: int | None = None
+    team_contribution_notes: str | None = None
 
 
 class GeneratePlayerReportRequest(BaseModel):
@@ -186,6 +191,11 @@ def player_report_to_dict(r):
         "focus_areas": r.focus_areas if isinstance(r.focus_areas, list) else [],
         "progress_notes": r.progress_notes, "recommendations": r.recommendations,
         "is_ai_generated": r.is_ai_generated, "created_at": str(r.created_at),
+        "overall_rating": r.overall_rating,
+        "personal_improvement_rating": r.personal_improvement_rating,
+        "personal_improvement_notes": r.personal_improvement_notes,
+        "team_contribution_rating": r.team_contribution_rating,
+        "team_contribution_notes": r.team_contribution_notes,
     }
 
 
@@ -211,6 +221,19 @@ async def generate_player_report(req: GeneratePlayerReportRequest, coach=Depends
         return {"success": True, "data": player_report_to_dict(report)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/players/{report_id}")
+async def update_player_report(report_id: int, req: PlayerReportRequest, coach=Depends(get_current_coach), db: AsyncSession = Depends(get_db)):
+    svc = ReportService(db)
+    existing = await svc.player_reports.get_by_id(report_id)
+    if not existing or existing.coach_id != coach.id:
+        raise HTTPException(status_code=404, detail="Report not found")
+    data = req.model_dump()
+    for k, v in data.items():
+        if hasattr(existing, k):
+            setattr(existing, k, v)
+    return {"success": True, "data": player_report_to_dict(existing)}
 
 
 @router.delete("/players/{report_id}")

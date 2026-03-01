@@ -10,6 +10,7 @@ from src.repositories.user_repository import UserRepository
 from src.repositories.team_repository import TeamRepository
 from src.repositories.team_member_repository import TeamMemberRepository
 from src.services.auth_service import hash_password, verify_password, create_access_token, decode_token
+from src.utils.exceptions import AuthenticationError, ConflictError, ValidationError
 
 
 class ParentAuthService:
@@ -27,7 +28,7 @@ class ParentAuthService:
         # 1. Check email not taken (same email allowed for different roles)
         existing = await self.user_repo.get_by_email_and_role(email, "parent")
         if existing:
-            raise ValueError("כתובת האימייל כבר רשומה במערכת")
+            raise ConflictError("כתובת האימייל כבר רשומה במערכת")
 
         # 2. Find team by parent_invite_code
         team = None
@@ -37,7 +38,7 @@ class ParentAuthService:
             team = await self.team_repo.get_by_parent_invite_token(invite_link_token)
 
         if not team:
-            raise ValueError("קוד ההזמנה או הלינק אינם תקינים")
+            raise ValidationError("קוד ההזמנה או הלינק אינם תקינים")
 
         # 3. Create User with role="parent"
         user = await self.user_repo.create(
@@ -110,9 +111,9 @@ class ParentAuthService:
     async def login_parent(self, email: str, password: str):
         user = await self.user_repo.get_by_email_and_role(email, "parent")
         if not user:
-            raise ValueError("כתובת האימייל לא נמצאה במערכת")
+            raise AuthenticationError("כתובת האימייל לא נמצאה במערכת")
         if not verify_password(password, user.password_hash):
-            raise ValueError("הסיסמה שגויה, נסה שנית")
+            raise AuthenticationError("הסיסמה שגויה, נסה שנית")
         token = create_access_token({"sub": str(user.id), "role": "parent"})
         return {"user": user, "token": token}
 

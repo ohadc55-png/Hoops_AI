@@ -15,9 +15,11 @@ class Event(Base, TimestampMixin):
     coach_id: Mapped[int] = mapped_column(Integer, ForeignKey("coaches.id"), nullable=False, index=True)
     date: Mapped[date_type] = mapped_column(Date, nullable=False)
     time: Mapped[str | None] = mapped_column(String(10), nullable=True)  # "HH:MM"
+    end_time: Mapped[str | None] = mapped_column(String(10), nullable=True)  # "HH:MM"
     event_type: Mapped[str] = mapped_column(String(30), nullable=False)  # practice, game, tournament, meeting
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     opponent: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    location: Mapped[str | None] = mapped_column(String(200), nullable=True)
     facility_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("facilities.id"), nullable=True, index=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     recurrence_group: Mapped[str | None] = mapped_column(String(36), nullable=True, index=True)

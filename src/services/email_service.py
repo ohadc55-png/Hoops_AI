@@ -1,8 +1,11 @@
 """HOOPS AI - Email Service (SMTP)"""
+import logging
 from email.message import EmailMessage
 from email.utils import formataddr
 import aiosmtplib
 from config import get_settings
+
+logger = logging.getLogger(__name__)
 
 
 def _is_configured() -> bool:
@@ -53,7 +56,7 @@ async def send_email(
         )
         return True
     except Exception as e:
-        print(f"[email] Failed to send to {to_email}: {e}")
+        logger.error(f"Failed to send email to {to_email}: {e}")
         return False
 
 

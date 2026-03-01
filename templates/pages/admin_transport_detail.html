@@ -1,23 +1,23 @@
 {% extends "admin_base.html" %}
 {% block title %}HOOPS AI — Transport Detail{% endblock %}
 {% block nav_transport %}active{% endblock %}
-{% block header_title %}Transport Detail{% endblock %}
+{% block header_title %}<span data-i18n="admin.header.transport_detail">פרטי הסעה</span>{% endblock %}
 {% block content %}
 <div class="admin-dashboard">
   <!-- Back Button -->
   <a href="/admin/transport" style="display:inline-flex;align-items:center;gap:var(--sp-1);color:var(--text-secondary);text-decoration:none;margin-bottom:var(--sp-3);font-size:var(--text-sm);">
-    <span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span> Back to Transportation
+    <span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span> <span data-i18n="admin.transport_detail.back_to_transport">Back to Transportation</span>
   </a>
 
   <!-- Event Info Card -->
   <section class="dashboard-section" id="eventInfoCard">
-    <div class="loading-state">Loading event details...</div>
+    <div class="loading-state" data-i18n="admin.transport_detail.loading_event">Loading event details...</div>
   </section>
 
   <!-- Map + Navigation -->
   <section class="dashboard-section" id="mapSection" style="display:none;">
     <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;">
-      <h2><span class="material-symbols-outlined">map</span> Venue Location</h2>
+      <h2><span class="material-symbols-outlined">map</span> <span data-i18n="admin.transport_detail.venue_location_title">Venue Location</span></h2>
       <div id="navButtons" style="display:flex;gap:var(--sp-2);"></div>
     </div>
     <div id="mapContainer" style="border-radius:var(--r-lg);overflow:hidden;height:400px;background:var(--bg-raised);">
@@ -27,26 +27,26 @@
   <!-- Edit Transport Info -->
   <section class="dashboard-section">
     <div class="section-header">
-      <h2><span class="material-symbols-outlined">edit</span> Edit Transport Info</h2>
+      <h2><span class="material-symbols-outlined">edit</span> <span data-i18n="admin.transport_detail.edit_transport_title">Edit Transport Info</span></h2>
     </div>
     <div class="section-content">
       <form id="transportEditForm" onsubmit="return saveTransportInfo(event)">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
           <div class="input-group">
-            <label>Departure Time (שעת יציאה)</label>
+            <label><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">schedule</span> <span data-i18n="admin.transport_detail.form.departure_time">Departure Time (שעת יציאה)</span></label>
             <input type="time" class="input" id="editDepartureTime">
           </div>
           <div class="input-group">
-            <label>Venue Address (כתובת)</label>
-            <input type="text" class="input" id="editVenueAddress" placeholder="Full address for Google Maps">
+            <label><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">location_on</span> <span data-i18n="admin.transport_detail.form.venue_address">Venue Address (כתובת)</span></label>
+            <input type="text" class="input" id="editVenueAddress" data-i18n-placeholder="admin.transport_detail.form.venue_address_placeholder" placeholder="Full address for Google Maps">
           </div>
         </div>
         <div style="margin-top:var(--sp-3);display:flex;gap:var(--sp-2);">
           <button class="btn btn-primary" type="submit">
-            <span class="material-symbols-outlined" style="font-size:18px;">save</span> Save & Notify Team
+            <span class="material-symbols-outlined" style="font-size:18px;">save</span> <span data-i18n="admin.transport_detail.btn_save_notify">Save & Notify Team</span>
           </button>
           <button class="btn btn-ghost" type="button" onclick="updateMap()">
-            <span class="material-symbols-outlined" style="font-size:18px;">map</span> Preview Map
+            <span class="material-symbols-outlined" style="font-size:18px;">map</span> <span data-i18n="admin.transport_detail.btn_preview_map">Preview Map</span>
           </button>
         </div>
       </form>

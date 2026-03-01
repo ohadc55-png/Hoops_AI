@@ -1,26 +1,26 @@
 {% extends "admin_base.html" %}
 {% block title %}HOOPS AI — Support{% endblock %}
 {% block nav_support %}active{% endblock %}
-{% block header_title %}Support{% endblock %}
+{% block header_title %}<span data-i18n="admin.header.support">תמיכה</span>{% endblock %}
 
 {% block content %}
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-4);flex-wrap:wrap;gap:var(--sp-2);">
-  <h2 style="margin:0;">My Support Tickets</h2>
+  <h2 style="margin:0;" data-i18n="admin.support.my_tickets">הפניות שלי</h2>
   <button class="btn btn-primary" onclick="openModal('createTicketModal')">
-    <span class="material-symbols-outlined">add</span> New Ticket
+    <span class="material-symbols-outlined">add</span> <span data-i18n="admin.support.new_ticket">פנייה חדשה</span>
   </button>
 </div>
 
 <!-- Ticket List -->
 <div id="ticketListContainer">
-  <div class="loading-state">Loading tickets...</div>
+  <div class="loading-state" data-i18n="admin.support.loading">טוען פניות...</div>
 </div>
 
 <!-- Ticket Detail View (hidden initially) -->
 <div id="ticketDetailView" style="display:none;">
   <div style="margin-bottom:var(--sp-3);">
     <button class="btn btn-sm" onclick="showList()">
-      <span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span> Back to Tickets
+      <span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span> <span data-i18n="admin.support.back_to_list">חזרה לרשימה</span>
     </button>
   </div>
   <div class="card" id="ticketDetailHeader" style="margin-bottom:var(--sp-3);"></div>
@@ -29,58 +29,55 @@
   <div class="card" id="ticketMessages" style="margin-bottom:var(--sp-3);">
     <div id="messagesBody" style="max-height:400px;overflow-y:auto;padding:var(--sp-3);"></div>
     <div style="padding:var(--sp-3);border-top:1px solid var(--border);">
-      <textarea id="replyInput" class="input" rows="3" placeholder="Type your reply..." style="width:100%;margin-bottom:var(--sp-2);"></textarea>
+      <textarea id="replyInput" class="input" rows="3" data-i18n-placeholder="admin.support.reply_placeholder" placeholder="כתוב תגובה..." style="width:100%;margin-bottom:var(--sp-2);"></textarea>
       <button class="btn btn-primary" onclick="submitClubReply()">
-        <span class="material-symbols-outlined">send</span> Send
+        <span class="material-symbols-outlined">send</span> <span data-i18n="admin.support.btn_send">שלח</span>
       </button>
     </div>
   </div>
 </div>
 
 <!-- Create Ticket Modal -->
-<div class="modal" id="createTicketModal">
-  <div class="modal-backdrop" onclick="closeModal('createTicketModal')"></div>
-  <div class="modal-content" style="max-width:500px;">
+<div class="modal-overlay" id="createTicketModal">
+  <div class="modal" style="max-width:500px;">
     <div class="modal-header">
-      <h3>Create Support Ticket</h3>
-      <button class="btn-icon" onclick="closeModal('createTicketModal')">
-        <span class="material-symbols-outlined">close</span>
-      </button>
+      <h3 data-i18n="admin.support.create_title">יצירת פנייה</h3>
+      <button class="btn-icon" onclick="closeModal('createTicketModal')"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label>Subject</label>
-        <input type="text" id="ticketSubject" class="input" placeholder="Brief description of your issue">
+        <label data-i18n="admin.support.form.subject">נושא</label>
+        <input type="text" id="ticketSubject" class="input" data-i18n-placeholder="admin.support.form.subject_placeholder" placeholder="תיאור קצר של הבעיה">
       </div>
       <div class="form-group">
-        <label>Category</label>
+        <label data-i18n="admin.support.form.category">קטגוריה</label>
         <select id="ticketCategory" class="input">
-          <option value="general">General</option>
-          <option value="billing">Billing</option>
-          <option value="technical">Technical</option>
-          <option value="feature_request">Feature Request</option>
-          <option value="account">Account</option>
-          <option value="bug_report">Bug Report</option>
-          <option value="onboarding">Onboarding</option>
+          <option value="general" data-i18n="admin.support.cat.general">כללי</option>
+          <option value="billing" data-i18n="admin.support.cat.billing">חיובים</option>
+          <option value="technical" data-i18n="admin.support.cat.technical">טכני</option>
+          <option value="feature_request" data-i18n="admin.support.cat.feature_request">בקשת תכונה</option>
+          <option value="account" data-i18n="admin.support.cat.account">חשבון</option>
+          <option value="bug_report" data-i18n="admin.support.cat.bug_report">דיווח באג</option>
+          <option value="onboarding" data-i18n="admin.support.cat.onboarding">הצטרפות</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Priority</label>
+        <label data-i18n="admin.support.form.priority">עדיפות</label>
         <select id="ticketPriority" class="input">
-          <option value="low">Low</option>
-          <option value="medium" selected>Medium</option>
-          <option value="high">High</option>
-          <option value="urgent">Urgent</option>
+          <option value="low" data-i18n="admin.support.priority.low">נמוך</option>
+          <option value="medium" selected data-i18n="admin.support.priority.medium">בינוני</option>
+          <option value="high" data-i18n="admin.support.priority.high">גבוה</option>
+          <option value="urgent" data-i18n="admin.support.priority.urgent">דחוף</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Message</label>
-        <textarea id="ticketBody" class="input" rows="4" placeholder="Describe your issue in detail..."></textarea>
+        <label data-i18n="admin.support.form.message">הודעה</label>
+        <textarea id="ticketBody" class="input" rows="4" data-i18n-placeholder="admin.support.form.message_placeholder" placeholder="פרט את הבעיה..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="closeModal('createTicketModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="submitCreateTicket()">Create Ticket</button>
+      <button class="btn" onclick="closeModal('createTicketModal')" data-i18n="btn.cancel">ביטול</button>
+      <button class="btn btn-primary" onclick="submitCreateTicket()" data-i18n="admin.support.btn_create">צור פנייה</button>
     </div>
   </div>
 </div>

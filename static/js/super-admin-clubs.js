@@ -54,11 +54,7 @@ function renderClubTable(clubs) {
 }
 
 
-function formatDate(dateStr) {
-  if (!dateStr) return '—';
-  const d = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z');
-  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-}
+/* formatDate → shared-utils.js */
 
 
 function debounce(fn, ms) {

@@ -16,14 +16,14 @@ function loadLeaderboard() {
     const grid = document.getElementById('leaderboardGrid');
 
     const attHtml = renderRanking(
-      '\uD83D\uDD25 Attendance Kings',
+      '\uD83D\uDD25 ' + t('player.leaderboard.attendance_kings'),
       'local_fire_department',
       data.attendance || [],
       renderStreakMetric
     );
 
     const drillHtml = renderRanking(
-      '\uD83D\uDCAA Drill Champions',
+      '\uD83D\uDCAA ' + t('player.leaderboard.drill_champions'),
       'military_tech',
       data.drills || [],
       renderDrillMetric
@@ -32,7 +32,7 @@ function loadLeaderboard() {
     grid.innerHTML = attHtml + drillHtml;
   }).catch(() => {
     document.getElementById('leaderboardGrid').innerHTML =
-      '<div class="empty-state-player"><span class="material-symbols-outlined">error</span>Could not load leaderboard</div>';
+      '<div class="empty-state-player"><span class="material-symbols-outlined">error</span>' + t('player.leaderboard.load_error') + '</div>';
   });
 }
 
@@ -42,7 +42,7 @@ function renderRanking(title, icon, entries, metricFn) {
       <div class="section-header"><h2><span class="material-symbols-outlined">${icon}</span> ${title}</h2></div>
       <div class="empty-state-player" style="padding:var(--sp-6);">
         <span class="material-symbols-outlined">emoji_events</span>
-        No data yet
+        ${t('player.leaderboard.no_data')}
       </div>
     </section>`;
   }
@@ -58,7 +58,7 @@ function renderRanking(title, icon, entries, metricFn) {
     return `<div class="${classes.join(' ')}">
       <div class="lb-rank">${medal || '#' + rank}</div>
       <div class="lb-jersey">${e.jersey != null ? '#' + e.jersey : ''}</div>
-      <div class="lb-name">${esc(e.name)}${e.is_me ? ' <span class="lb-you">(You)</span>' : ''}</div>
+      <div class="lb-name">${esc(e.name)}${e.is_me ? ' <span class="lb-you">' + t('player.leaderboard.you') + '</span>' : ''}</div>
       <div class="lb-pos">${esc(e.position || '')}</div>
       <div class="lb-metric">${metricFn(e)}</div>
     </div>`;
@@ -69,9 +69,9 @@ function renderRanking(title, icon, entries, metricFn) {
     <div class="lb-header-row">
       <div class="lb-rank"></div>
       <div class="lb-jersey"></div>
-      <div class="lb-name">Player</div>
-      <div class="lb-pos">Pos</div>
-      <div class="lb-metric">Score</div>
+      <div class="lb-name">${t('player.leaderboard.col_player')}</div>
+      <div class="lb-pos">${t('player.leaderboard.col_pos')}</div>
+      <div class="lb-metric">${t('player.leaderboard.col_score')}</div>
     </div>
     ${rows}
   </section>`;

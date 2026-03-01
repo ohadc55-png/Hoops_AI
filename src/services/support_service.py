@@ -7,6 +7,7 @@ from src.models.support_ticket import (
 )
 from src.utils.feature_gate import get_club_id_for_admin
 from src.services.notification_service import NotificationService
+from src.utils.exceptions import NotFoundError, ValidationError
 
 
 class SupportService:
@@ -36,7 +37,7 @@ class SupportService:
         # Resolve club_id from admin user
         club_id = await get_club_id_for_admin(user_id, self.session)
         if not club_id:
-            raise ValueError("No club associated with this admin account")
+            raise NotFoundError("Club")
 
         ticket = await self.ticket_repo.create(
             club_id=club_id,
@@ -98,7 +99,7 @@ class SupportService:
         if ticket.club_id != club_id:
             return None
         if ticket.status in ("closed",):
-            raise ValueError("Cannot reply to a closed ticket")
+            raise ValidationError("Cannot reply to a closed ticket")
 
         msg = TicketMessage(
             ticket_id=ticket_id,
@@ -188,7 +189,7 @@ class SupportService:
 
     async def update_ticket_status(self, ticket_id: int, status: str) -> dict | None:
         if status not in TICKET_STATUSES:
-            raise ValueError(f"Invalid status: {status}")
+            raise ValidationError(f"Invalid status: {status}")
         ticket = await self.ticket_repo.update(ticket_id, status=status)
         if not ticket:
             return None

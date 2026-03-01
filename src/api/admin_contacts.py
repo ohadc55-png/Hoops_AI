@@ -8,6 +8,7 @@ from src.api.admin_auth import get_current_admin
 from src.models.user import User
 from src.models.team import Team
 from src.models.team_member import TeamMember
+from src.models.coach import Coach
 
 router = APIRouter(prefix="/api/admin", tags=["admin-contacts"])
 
@@ -72,6 +73,13 @@ async def admin_contacts(
             "team_name": m.team.name if m.team else None,
             "joined_at": str(m.joined_at),
         }
+
+        # Coach-specific data — add coach_id for profile linking
+        if m.role_in_team == "coach" and m.user_id:
+            coach_stmt = select(Coach.id).where(Coach.user_id == m.user_id)
+            coach_result = await db.execute(coach_stmt)
+            coach_row = coach_result.first()
+            contact["coach_id"] = coach_row[0] if coach_row else None
 
         # Player-specific data
         if m.role_in_team == "player" and m.player:

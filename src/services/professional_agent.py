@@ -11,10 +11,13 @@ PROFESSIONAL_SYSTEM_PROMPT = """אתה האנליסט המקצועי של מוע
 
 כללים:
 - דבר בעברית
+- יש לך גישה לנתוני כלל השחקנים במחלקה, לדוחות, להערכות, ולתוצאות משחקים
 - היה מקצועי וספציפי — ציין שמות שחקנים, מספרים, מגמות
 - זהה דפוסים: שחקנים מתפתחים, שחקנים בסיכון, מאמנים פעילים/לא פעילים
 - נוכחות נמוכה = דגל אדום (חולה? בעיה? סכנת עזיבה?)
 - הצע פעולות קונקרטיות למנהל המקצועי
+- השתמש בנתונים האמיתיים שקיבלת — לעולם אל תמציא מידע
+- כאשר שואלים "מי השחקן הטוב ביותר?" — נתח את הנתונים ותן תשובה מנומקת
 
 סיווג שחקנים:
 - ⭐ כוכב עולה — ביצועים מעולים, מגמת שיפור
@@ -129,20 +132,41 @@ class ProfessionalAgent:
         }
 
     async def chat(self, admin_id: int, user_message: str, history: list | None = None) -> str:
-        """Free chat with professional agent."""
-        data = await self.collector.get_professional_snapshot(admin_id)
+        """Free chat with professional agent — uses full club data for accurate responses."""
+        data = await self.collector.get_rich_professional_context(admin_id)
 
-        context = f"""נתוני המועדון:
-{json.dumps(data, ensure_ascii=False, indent=2, default=str)}
+        # Format context — keep it informative but capped
+        teams_summary = json.dumps(data["teams_overview"], ensure_ascii=False, default=str)
+        players_data = json.dumps(data["players"][:40], ensure_ascii=False, default=str)
+        games_data = json.dumps(data["recent_games"][:15], ensure_ascii=False, default=str)
+        alerts_data = json.dumps(data["attendance_alerts"][:10], ensure_ascii=False, default=str)
+
+        context = f"""=== נתוני המועדון המלאים ===
+
+סקירת קבוצות ({data['total_teams']} קבוצות):
+{teams_summary}
+
+שחקנים ({len(data['players'])} שחקנים — כולל הערכות ודוחות):
+{players_data}
+
+תוצאות משחקים אחרונים ({len(data['recent_games'])} משחקים):
+{games_data}
+
+התראות נוכחות (שחקנים מתחת ל-70%):
+{alerts_data}
 """
+        # Trim if too long (avoid token overflow)
+        if len(context) > 12000:
+            context = context[:12000] + "\n[נתונים נחתכו בגלל אורך]"
+
         messages = [
-            {"role": "system", "content": PROFESSIONAL_SYSTEM_PROMPT + "\n\nהקשר:\n" + context},
+            {"role": "system", "content": PROFESSIONAL_SYSTEM_PROMPT + "\n\n" + context},
         ]
         if history:
             messages.extend(history)
         messages.append({"role": "user", "content": user_message})
 
-        return await chat_completion(messages=messages, max_tokens=1500)
+        return await chat_completion(messages=messages, max_tokens=2000)
 
     async def send_attendance_alerts(self, admin_id: int) -> int:
         """Send alerts about players with concerning attendance."""

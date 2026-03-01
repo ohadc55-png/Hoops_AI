@@ -159,7 +159,7 @@ async function openCreateModal() {
     <div class="line-item-row" style="display:flex;gap:var(--sp-2);margin-bottom:var(--sp-2);align-items:center;">
       <input type="text" class="input li-desc" placeholder="Description" style="flex:3;">
       <input type="number" class="input li-qty" placeholder="Qty" value="1" min="1" style="flex:1;">
-      <input type="number" class="input li-price" placeholder="Price (VAT incl.)" step="0.01" min="0" style="flex:1;">
+      <input type="number" class="input li-price" placeholder="Price" step="0.01" min="0" style="flex:1;">
     </div>
   `;
   // Wire club change to auto-fill line item
@@ -527,7 +527,7 @@ async function downloadPDF(id) {
 
 function formatILS(n) {
   if (n == null) return '—';
-  return new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS' }).format(n);
+  return '₪' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function typeLabel(t) {

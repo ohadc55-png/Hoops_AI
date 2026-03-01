@@ -3,18 +3,25 @@
  * Welcome card with next event, attendance streak, drill progress, leaderboard preview
  */
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
 document.addEventListener('DOMContentLoaded', () => {
   if (!PlayerAPI.token) return;
   loadWelcome();
   loadDrillProgress();
   loadLeaderboardPreview();
+
+  // Re-render dynamic content on language change
+  if (typeof I18N !== 'undefined') {
+    I18N.onLanguageChange(() => {
+      loadWelcome();
+      loadDrillProgress();
+      loadLeaderboardPreview();
+    });
+  }
 });
 
 function loadWelcome() {
   const name = PlayerAPI.user?.name || 'Player';
-  document.getElementById('welcomeName').textContent = `Hey ${esc(name)}!`;
+  document.getElementById('welcomeName').textContent = t('player.dashboard.welcome', { name: esc(name) });
 
   // Load team info for welcome card
   PlayerAPI.get('/api/player/team').then(res => {
@@ -30,8 +37,10 @@ function loadWelcome() {
     if (events.length > 0) {
       const e = events[0];
       const d = new Date(e.date + 'T00:00:00');
+      const lang = (typeof I18N !== 'undefined' && I18N.getLang() === 'he') ? 'he-IL' : 'en-US';
+      const dateStr = d.toLocaleDateString(lang, { month: 'short', day: 'numeric' }) + (e.time ? (I18N.getLang() === 'he' ? ' ב-' : ' at ') + e.time : '');
       document.getElementById('welcomeNext').textContent =
-        `Next: ${e.title} — ${MONTHS[d.getMonth()]} ${d.getDate()}${e.time ? ' at ' + e.time : ''}`;
+        t('player.dashboard.next_event', { title: e.title, date: dateStr });
     }
   }).catch(() => {});
 
@@ -97,19 +106,19 @@ function loadDrillProgress() {
     statsEl.innerHTML = `
       <div class="dp-stat">
         <span class="dp-stat-num">${drills.length}</span>
-        <span class="dp-stat-label">Total</span>
+        <span class="dp-stat-label">${t('player.dashboard.drill_total')}</span>
       </div>
       <div class="dp-stat dp-pending">
         <span class="dp-stat-num">${pending + rejected}</span>
-        <span class="dp-stat-label">Pending</span>
+        <span class="dp-stat-label">${t('player.dashboard.drill_pending')}</span>
       </div>
       <div class="dp-stat dp-review">
         <span class="dp-stat-num">${underReview}</span>
-        <span class="dp-stat-label">Under Review</span>
+        <span class="dp-stat-label">${t('player.dashboard.drill_under_review')}</span>
       </div>
       <div class="dp-stat dp-approved">
         <span class="dp-stat-num">${approved}</span>
-        <span class="dp-stat-label">Approved</span>
+        <span class="dp-stat-label">${t('player.dashboard.drill_approved')}</span>
       </div>
     `;
 
@@ -117,17 +126,17 @@ function loadDrillProgress() {
     const recent = drills.filter(d => d.status !== 'pending').slice(0, 3);
     const recentEl = document.getElementById('drillProgressRecent');
     if (recent.length === 0) {
-      recentEl.innerHTML = '<p style="color:var(--text-muted);font-size:var(--text-sm);margin-top:var(--sp-3);">No activity yet — upload a video to get started!</p>';
+      recentEl.innerHTML = '<p style="color:var(--text-muted);font-size:var(--text-sm);margin-top:var(--sp-3);">' + t('player.dashboard.drill_no_activity') + '</p>';
       return;
     }
 
     const statusMap = {
-      video_uploaded: { icon: 'hourglass_top', label: 'Under Review', cls: 'review' },
-      approved:       { icon: 'check_circle',  label: 'Approved',     cls: 'approved' },
-      rejected:       { icon: 'replay',        label: 'Try Again',    cls: 'rejected' },
+      video_uploaded: { icon: 'hourglass_top', label: t('player.dashboard.drill_under_review'), cls: 'review' },
+      approved:       { icon: 'check_circle',  label: t('player.dashboard.drill_approved'),     cls: 'approved' },
+      rejected:       { icon: 'replay',        label: t('player.drills.status.try_again'),      cls: 'rejected' },
     };
 
-    recentEl.innerHTML = '<h4 style="font-size:var(--text-sm);font-weight:600;margin:var(--sp-3) 0 var(--sp-2);color:var(--text-secondary);">Recent Activity</h4>' +
+    recentEl.innerHTML = '<h4 style="font-size:var(--text-sm);font-weight:600;margin:var(--sp-3) 0 var(--sp-2);color:var(--text-secondary);">' + t('player.dashboard.recent_activity') + '</h4>' +
       recent.map(d => {
         const s = statusMap[d.status] || statusMap.video_uploaded;
         return `<div class="dp-recent-item">
@@ -160,7 +169,7 @@ function loadLeaderboardPreview() {
 
     const attCol = att.length > 0
       ? `<div class="lb-preview-col">
-          <h4 class="lb-preview-title">\uD83D\uDD25 Attendance Kings</h4>
+          <h4 class="lb-preview-title">\uD83D\uDD25 ${t('player.dashboard.attendance_kings')}</h4>
           ${att.map((e, i) => `<div class="lb-preview-row${e.is_me ? ' lb-me' : ''}">
             <span class="lb-preview-medal">${LB_MEDALS[i + 1]}</span>
             <span class="lb-preview-name">${esc(e.name)}</span>
@@ -170,7 +179,7 @@ function loadLeaderboardPreview() {
 
     const drillCol = drills.length > 0
       ? `<div class="lb-preview-col">
-          <h4 class="lb-preview-title">\uD83D\uDCAA Drill Champions</h4>
+          <h4 class="lb-preview-title">\uD83D\uDCAA ${t('player.dashboard.drill_champions')}</h4>
           ${drills.map((e, i) => `<div class="lb-preview-row${e.is_me ? ' lb-me' : ''}">
             <span class="lb-preview-medal">${LB_MEDALS[i + 1]}</span>
             <span class="lb-preview-name">${esc(e.name)}</span>

@@ -1,20 +1,20 @@
 {% extends "player_base.html" %}
 {% block title %}HOOPS AI — Player Dashboard{% endblock %}
 {% block nav_dashboard %}active{% endblock %}
-{% block header_title %}Dashboard{% endblock %}
+{% block header_title %}<span data-i18n="player.nav.dashboard">Dashboard</span>{% endblock %}
 {% block content %}
 <div class="player-dashboard">
   <!-- Welcome Card -->
   <div class="welcome-card" id="welcomeCard">
     <div class="welcome-content">
-      <h1 id="welcomeName">Welcome!</h1>
+      <h1 id="welcomeName">...</h1>
       <p class="welcome-team" id="welcomeTeam"></p>
       <div class="welcome-next" id="welcomeNext"></div>
       <!-- Attendance Streak -->
       <div class="streak-display" id="streakDisplay" style="display:none;">
         <span class="streak-flame" id="streakFlame"></span>
         <span class="streak-count" id="streakCount"></span>
-        <span class="streak-tooltip">רצף הגעות לאימונים!</span>
+        <span class="streak-tooltip" dir="auto" data-i18n="player.dashboard.streak_tooltip">רצף הגעות לאימונים!</span>
       </div>
     </div>
     <div class="welcome-icon">
@@ -25,8 +25,8 @@
   <!-- Drill Progress Summary -->
   <section class="dashboard-section drill-progress-section" id="drillProgressSection" style="display:none;margin-top:var(--sp-6);">
     <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;">
-      <h2><span class="material-symbols-outlined">fitness_center</span> My Drill Progress</h2>
-      <a href="/player/drills" style="color:var(--primary);font-size:var(--text-sm);text-decoration:none;">View All →</a>
+      <h2><span class="material-symbols-outlined">fitness_center</span> <span data-i18n="player.dashboard.my_drill_progress">My Drill Progress</span></h2>
+      <a href="/player/drills" style="color:var(--primary);font-size:var(--text-sm);text-decoration:none;" data-i18n="player.dashboard.view_all">View All →</a>
     </div>
     <div class="drill-progress-stats" id="drillProgressStats"></div>
     <div class="drill-progress-recent" id="drillProgressRecent"></div>
@@ -35,8 +35,8 @@
   <!-- Leaderboard Preview -->
   <section class="dashboard-section" id="leaderboardPreview" style="display:none;margin-top:var(--sp-6);">
     <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;">
-      <h2><span class="material-symbols-outlined">leaderboard</span> Team Rankings</h2>
-      <a href="/player/leaderboard" style="color:var(--primary);font-size:var(--text-sm);text-decoration:none;">View Full →</a>
+      <h2><span class="material-symbols-outlined">leaderboard</span> <span data-i18n="player.dashboard.team_rankings">Team Rankings</span></h2>
+      <a href="/player/leaderboard" style="color:var(--primary);font-size:var(--text-sm);text-decoration:none;" data-i18n="player.dashboard.view_full">View Full →</a>
     </div>
     <div class="lb-preview-grid" id="lbPreviewGrid"></div>
   </section>
@@ -46,29 +46,29 @@
     <a href="/player/schedule" class="stat-card" style="text-decoration:none;cursor:pointer;">
       <div class="stat-icon"><span class="material-symbols-outlined">calendar_month</span></div>
       <div class="stat-info">
-        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;">Schedule</div>
-        <div class="stat-label">View Calendar</div>
+        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;" data-i18n="player.nav.schedule">Schedule</div>
+        <div class="stat-label" data-i18n="player.dashboard.ql_view_calendar">View Calendar</div>
       </div>
     </a>
     <a href="/player/drills" class="stat-card" style="text-decoration:none;cursor:pointer;">
       <div class="stat-icon"><span class="material-symbols-outlined">fitness_center</span></div>
       <div class="stat-info">
-        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;">Drills</div>
-        <div class="stat-label">Team Library</div>
+        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;" data-i18n="player.nav.drills">Drills</div>
+        <div class="stat-label" data-i18n="player.dashboard.ql_team_library">Team Library</div>
       </div>
     </a>
     <a href="/player/reports" class="stat-card" style="text-decoration:none;cursor:pointer;">
       <div class="stat-icon"><span class="material-symbols-outlined">assessment</span></div>
       <div class="stat-info">
-        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;">Reports</div>
-        <div class="stat-label">My Assessments</div>
+        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;" data-i18n="player.nav.reports">Reports</div>
+        <div class="stat-label" data-i18n="player.dashboard.ql_my_assessments">My Assessments</div>
       </div>
     </a>
     <a href="/player/team" class="stat-card" style="text-decoration:none;cursor:pointer;">
       <div class="stat-icon"><span class="material-symbols-outlined">groups</span></div>
       <div class="stat-info">
-        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;">Team</div>
-        <div class="stat-label">Roster & Info</div>
+        <div class="stat-label" style="font-size:var(--text-base);font-weight:600;" data-i18n="player.nav.team">Team</div>
+        <div class="stat-label" data-i18n="player.dashboard.ql_roster_info">Roster & Info</div>
       </div>
     </a>
   </div>

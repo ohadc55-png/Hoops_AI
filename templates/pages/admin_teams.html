@@ -1,19 +1,19 @@
 {% extends "admin_base.html" %}
 {% block title %}HOOPS AI — Teams{% endblock %}
 {% block nav_teams %}active{% endblock %}
-{% block header_title %}Teams{% endblock %}
+{% block header_title %}<span data-i18n="admin.header.teams">קבוצות</span>{% endblock %}
 {% block styles %}<link rel="stylesheet" href="/static/css/pages/player-profile.css">{% endblock %}
 {% block content %}
 <div class="admin-dashboard">
   <section class="dashboard-section">
     <div class="section-header">
-      <h2><span class="material-symbols-outlined">groups</span> Teams</h2>
+      <h2><span class="material-symbols-outlined">groups</span> <span data-i18n="admin.teams.section_title">Teams</span></h2>
       <button class="btn btn-primary btn-sm" onclick="openCreateTeamModal()">
-        <span class="material-symbols-outlined">add</span> Create Team
+        <span class="material-symbols-outlined">add</span> <span data-i18n="admin.teams.btn_create_team">Create Team</span>
       </button>
     </div>
     <div class="section-content" id="teamsContent">
-      <div class="loading-state">Loading teams...</div>
+      <div class="loading-state" data-i18n="admin.teams.loading">Loading teams...</div>
     </div>
   </section>
 </div>
@@ -22,7 +22,7 @@
 <div class="modal-overlay" id="createTeamModal">
   <div class="modal">
     <div class="modal-header">
-      <h3>Create Team</h3>
+      <h3 data-i18n="admin.teams.modal_create_title">Create Team</h3>
       <button class="btn-icon" onclick="closeModal('createTeamModal')">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -30,41 +30,41 @@
     <div class="modal-body">
       <form id="createTeamForm" onsubmit="return handleCreateTeam(event)">
         <div class="input-group">
-          <label>Team Name *</label>
-          <input type="text" class="input" id="teamName" placeholder="e.g. Warriors U14" required>
+          <label data-i18n="admin.teams.form.team_name">Team Name *</label>
+          <input type="text" class="input" id="teamName" data-i18n-placeholder="admin.teams.form.team_name_placeholder" placeholder="e.g. Warriors U14" required>
         </div>
         <div class="input-group">
-          <label>Club Name</label>
-          <input type="text" class="input" id="teamClub" placeholder="e.g. Maccabi Haifa">
+          <label data-i18n="admin.teams.form.club_name">Club Name</label>
+          <input type="text" class="input" id="teamClub" data-i18n-placeholder="admin.teams.form.club_name_placeholder" placeholder="e.g. Maccabi Haifa">
         </div>
         <div class="input-group">
-          <label>Age Group</label>
+          <label data-i18n="admin.teams.form.age_group">Age Group</label>
           <select class="input" id="teamAgeGroup">
-            <option value="">Select...</option>
+            <option value="" data-i18n="admin.teams.form.select">Select...</option>
             <option value="U8">U8</option>
             <option value="U10">U10</option>
             <option value="U12">U12</option>
             <option value="U14">U14</option>
             <option value="U16">U16</option>
             <option value="U18">U18</option>
-            <option value="Senior">Senior</option>
+            <option value="Senior" data-i18n="admin.teams.form.senior">Senior</option>
           </select>
         </div>
         <div class="input-group">
-          <label>Level</label>
+          <label data-i18n="admin.teams.form.level">Level</label>
           <select class="input" id="teamLevel">
-            <option value="">Select...</option>
-            <option value="recreational">Recreational</option>
-            <option value="competitive">Competitive</option>
-            <option value="elite">Elite</option>
-            <option value="professional">Professional</option>
+            <option value="" data-i18n="admin.teams.form.select">Select...</option>
+            <option value="recreational" data-i18n="admin.teams.form.level_recreational">Recreational</option>
+            <option value="competitive" data-i18n="admin.teams.form.level_competitive">Competitive</option>
+            <option value="elite" data-i18n="admin.teams.form.level_elite">Elite</option>
+            <option value="professional" data-i18n="admin.teams.form.level_professional">Professional</option>
           </select>
         </div>
       </form>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('createTeamModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="document.getElementById('createTeamForm').requestSubmit()">Create Team</button>
+      <button class="btn btn-ghost" onclick="closeModal('createTeamModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="document.getElementById('createTeamForm').requestSubmit()" data-i18n="admin.teams.btn_create_team">Create Team</button>
     </div>
   </div>
 </div>
@@ -72,7 +72,7 @@
 <div class="modal-overlay" id="playerProfileModal">
   <div class="modal" style="max-width:640px;">
     <div class="modal-header">
-      <h2 class="modal-title" id="profileModalTitle">Player Profile</h2>
+      <h2 class="modal-title" id="profileModalTitle" data-i18n="admin.teams.player_profile_title">Player Profile</h2>
       <button class="modal-close" onclick="closeModal('playerProfileModal')"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body" id="playerProfileContent" style="max-height:70vh;overflow-y:auto;"></div>

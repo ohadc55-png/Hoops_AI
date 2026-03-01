@@ -18,10 +18,10 @@ async function loadTeamsFilter() {
     const res = await AdminAPI.get('/api/teams');
     const teams = res.data || [];
     const sel = document.getElementById('filterTeam');
-    teams.forEach(t => {
+    teams.forEach(tm => {
       const opt = document.createElement('option');
-      opt.value = t.id;
-      opt.textContent = t.name;
+      opt.value = tm.id;
+      opt.textContent = tm.name;
       sel.appendChild(opt);
     });
   } catch { /* ignore */ }
@@ -40,11 +40,11 @@ async function loadPlayers() {
   try {
     const res = await AdminAPI.get(url);
     _players = res.data || [];
-    document.getElementById('playersCount').textContent = _players.length + ' players';
+    document.getElementById('playersCount').textContent = t('admin.player_dev.count', { count: _players.length });
     renderPlayers();
   } catch {
     document.getElementById('playersContent').innerHTML =
-      '<div class="empty-state-admin"><span class="material-symbols-outlined">error</span><h3>Could not load players</h3></div>';
+      `<div class="empty-state-admin"><span class="material-symbols-outlined">error</span><h3>${t('admin.player_dev.empty.load_error')}</h3></div>`;
   }
 }
 
@@ -62,14 +62,14 @@ function renderPlayers() {
   if (!_players.length) {
     el.innerHTML = `<div class="empty-state-admin">
       <span class="material-symbols-outlined">person_off</span>
-      <h3>No players found</h3>
-      <p>Try changing your filters</p>
+      <h3>${t('admin.player_dev.empty.no_players')}</h3>
+      <p>${t('admin.player_dev.empty.no_players_desc')}</p>
     </div>`;
     return;
   }
 
   const rows = _players.map(p => `<tr class="contacts-row" style="cursor:pointer;" onclick="openPlayerDetail(${p.player_id})">
-    <td>${esc(p.name)}</td>
+    <td><a href="/admin/player/${p.player_id}" onclick="event.stopPropagation();" style="color:var(--primary);text-decoration:none;font-weight:600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${esc(p.name)}</a></td>
     <td><span class="badge badge-neutral">${esc(p.position || '-')}</span></td>
     <td>${p.jersey_number != null ? '#' + p.jersey_number : '-'}</td>
     <td>${esc(p.team_name || '')}</td>
@@ -79,7 +79,7 @@ function renderPlayers() {
 
   el.innerHTML = `<table class="contacts-table">
     <thead><tr>
-      <th>Name</th><th>Position</th><th>Jersey</th><th>Team</th><th>Age</th><th>Height</th>
+      <th>${t('admin.player_dev.th.name')}</th><th>${t('admin.player_dev.th.position')}</th><th>${t('admin.player_dev.th.jersey')}</th><th>${t('admin.player_dev.th.team')}</th><th>${t('admin.player_dev.th.age')}</th><th>${t('admin.player_dev.th.height')}</th>
     </tr></thead>
     <tbody>${rows}</tbody>
   </table>`;
@@ -95,7 +95,7 @@ async function openPlayerDetail(playerId) {
   const evalCountEl = document.getElementById('evalCount');
 
   switchTab('profile');
-  profileEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-muted);"><span class="material-symbols-outlined pp-spin" style="font-size:32px;">progress_activity</span><div style="margin-top:8px;">Loading...</div></div>';
+  profileEl.innerHTML = `<div style="text-align:center;padding:32px;color:var(--text-muted);"><span class="material-symbols-outlined pp-spin" style="font-size:32px;">progress_activity</span><div style="margin-top:8px;">${t('admin.player_dev.empty.loading')}</div></div>`;
   reportsEl.innerHTML = '';
   evalsEl.innerHTML = '';
   countEl.style.display = 'none';
@@ -123,7 +123,7 @@ async function openPlayerDetail(playerId) {
     if (evals.length) { evalCountEl.textContent = evals.length; evalCountEl.style.display = ''; }
     renderEvaluationsTab(evals);
   } catch {
-    profileEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-muted);"><span class="material-symbols-outlined" style="font-size:32px;">error</span><p>Could not load player data</p></div>';
+    profileEl.innerHTML = `<div style="text-align:center;padding:32px;color:var(--text-muted);"><span class="material-symbols-outlined" style="font-size:32px;">error</span><p>${t('admin.player_dev.empty.load_player_error')}</p></div>`;
   }
 }
 
@@ -142,17 +142,19 @@ function switchTab(tab) {
 
 /* ───── Evaluations Tab ───── */
 
-const EVAL_CATS = [
-  { field: 'offensive_rating', label: 'Offensive' },
-  { field: 'defensive_rating', label: 'Defensive' },
-  { field: 'iq_rating', label: 'Basketball IQ' },
-  { field: 'social_rating', label: 'Social' },
-  { field: 'leadership_rating', label: 'Leadership' },
-  { field: 'work_ethic_rating', label: 'Work Ethic' },
-  { field: 'fitness_rating', label: 'Fitness' },
-  { field: 'improvement_rating', label: 'Improvement' },
-  { field: 'leaving_risk', label: 'Leaving Risk' },
-];
+function getEvalCats() {
+  return [
+    { field: 'offensive_rating', label: t('admin.player_dev.eval.cat.offensive') },
+    { field: 'defensive_rating', label: t('admin.player_dev.eval.cat.defensive') },
+    { field: 'iq_rating', label: t('admin.player_dev.eval.cat.basketball_iq') },
+    { field: 'social_rating', label: t('admin.player_dev.eval.cat.social') },
+    { field: 'leadership_rating', label: t('admin.player_dev.eval.cat.leadership') },
+    { field: 'work_ethic_rating', label: t('admin.player_dev.eval.cat.work_ethic') },
+    { field: 'fitness_rating', label: t('admin.player_dev.eval.cat.fitness') },
+    { field: 'improvement_rating', label: t('admin.player_dev.eval.cat.improvement') },
+    { field: 'leaving_risk', label: t('admin.player_dev.eval.cat.leaving_risk') },
+  ];
+}
 
 function ratingColor(val, isRisk) {
   if (isRisk) return val <= 3 ? 'var(--success,#22c55e)' : val <= 6 ? 'var(--warning,#fbbf24)' : 'var(--error,#ef4444)';
@@ -162,12 +164,12 @@ function ratingColor(val, isRisk) {
 function renderEvaluationsTab(evals) {
   const el = document.getElementById('evaluationsTabContent');
   if (!evals.length) {
-    el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-muted);"><span class="material-symbols-outlined" style="font-size:40px;">analytics</span><p style="margin-top:8px;">No evaluations for this player yet</p></div>';
+    el.innerHTML = `<div style="text-align:center;padding:32px;color:var(--text-muted);"><span class="material-symbols-outlined" style="font-size:40px;">analytics</span><p style="margin-top:8px;">${t('admin.player_dev.eval.empty')}</p></div>`;
     return;
   }
-  const periodLabels = { weekly: 'Weekly', monthly: 'Monthly', semi_annual: 'Semi-Annual', annual: 'Annual' };
+  const periodLabels = { weekly: t('admin.player_dev.eval.period.weekly'), monthly: t('admin.player_dev.eval.period.monthly'), semi_annual: t('admin.player_dev.eval.period.semi_annual'), annual: t('admin.player_dev.eval.period.annual') };
   el.innerHTML = evals.map((ev, i) => {
-    const cats = EVAL_CATS.filter(c => ev[c.field] != null);
+    const cats = getEvalCats().filter(c => ev[c.field] != null);
     const nonRiskCats = cats.filter(c => c.field !== 'leaving_risk');
     const avg = nonRiskCats.length ? (nonRiskCats.reduce((s, c) => s + ev[c.field], 0) / nonRiskCats.length).toFixed(1) : '-';
     const date = ev.created_at ? ev.created_at.split('T')[0] : '';
@@ -182,7 +184,7 @@ function renderEvaluationsTab(evals) {
         </div>
         <div style="text-align:right;">
           <span style="font-size:20px;font-weight:700;color:${ratingColor(parseFloat(avg), false)}">${avg}</span>
-          <div style="font-size:10px;color:var(--text-muted)">avg</div>
+          <div style="font-size:10px;color:var(--text-muted)">${t('admin.player_dev.eval.avg')}</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;">
@@ -202,7 +204,7 @@ function renderEvaluationsTab(evals) {
         }).join('')}
       </div>
       ${ev.overall_notes ? `<div style="margin-top:10px;font-size:13px;color:var(--text-secondary);line-height:1.5;">${esc(ev.overall_notes)}</div>` : ''}
-      ${ev.potential_notes ? `<div style="margin-top:6px;font-size:13px;color:var(--info,#60a5fa);line-height:1.5;"><strong>Potential:</strong> ${esc(ev.potential_notes)}</div>` : ''}
+      ${ev.potential_notes ? `<div style="margin-top:6px;font-size:13px;color:var(--info,#60a5fa);line-height:1.5;"><strong>${t('admin.player_dev.eval.potential')}</strong> ${esc(ev.potential_notes)}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -212,54 +214,72 @@ function renderEvaluationsTab(evals) {
 async function openReportRequestModal() {
   // Populate teams
   const teamSel = document.getElementById('rrTeam');
-  teamSel.innerHTML = '<option value="">Select team...</option>';
+  teamSel.innerHTML = `<option value="">${t('admin.player_dev.rr.select_team')}</option>`;
   try {
     const res = await AdminAPI.get('/api/teams');
-    (res.data || []).forEach(t => {
+    const teams = res.data || [];
+    // Add "all teams" option
+    if (teams.length > 1) {
+      const allOpt = document.createElement('option');
+      allOpt.value = 'all';
+      allOpt.textContent = 'כל הקבוצות';
+      teamSel.appendChild(allOpt);
+    }
+    teams.forEach(tm => {
       const opt = document.createElement('option');
-      opt.value = t.id;
-      opt.textContent = t.name;
+      opt.value = tm.id;
+      opt.textContent = tm.name;
       teamSel.appendChild(opt);
     });
+    // Store teams for later use
+    teamSel._teams = teams;
   } catch {}
 
   // Default due date: 7 days from now
   const due = new Date();
   due.setDate(due.getDate() + 7);
   document.getElementById('rrDueDate').value = due.toISOString().split('T')[0];
-  document.getElementById('rrCoach').innerHTML = '<option value="">All coaches in team</option>';
+  document.getElementById('rrCoach').innerHTML = `<option value="">${t('admin.player_dev.rr.all_coaches')}</option>`;
   document.getElementById('rrInstructions').value = '';
 
   openModal('reportRequestModal');
 }
 
 async function sendReportRequest() {
-  const teamId = document.getElementById('rrTeam').value;
+  const teamSel = document.getElementById('rrTeam');
+  const teamId = teamSel.value;
   const coachId = document.getElementById('rrCoach').value;
   const periodType = document.getElementById('rrPeriodType').value;
   const dueDate = document.getElementById('rrDueDate').value;
   const instructions = document.getElementById('rrInstructions').value;
 
-  if (!teamId) { AdminToast.error('Select a team'); return; }
-  if (!dueDate) { AdminToast.error('Set a due date'); return; }
+  if (!teamId) { AdminToast.error(t('admin.player_dev.rr.select_team_error')); return; }
+  if (!dueDate) { AdminToast.error(t('admin.player_dev.rr.due_date_error')); return; }
+
+  // Collect team IDs to send requests for
+  const teamIds = teamId === 'all'
+    ? (teamSel._teams || []).map(tm => tm.id)
+    : [parseInt(teamId)];
 
   try {
-    await AdminAPI.post('/api/admin/evaluations/requests', {
-      team_id: parseInt(teamId),
-      coach_id: coachId ? parseInt(coachId) : null,
-      period_type: periodType,
-      due_date: dueDate,
-      instructions: instructions || null,
-    });
+    for (const tid of teamIds) {
+      await AdminAPI.post('/api/admin/evaluations/requests', {
+        team_id: tid,
+        coach_id: coachId ? parseInt(coachId) : null,
+        period_type: periodType,
+        due_date: dueDate,
+        instructions: instructions || null,
+      });
+    }
     closeModal('reportRequestModal');
-    AdminToast.success('Report request sent to coaches!');
-  } catch { AdminToast.error('Failed to send request'); }
+    AdminToast.success(teamIds.length > 1 ? `בקשות נשלחו ל-${teamIds.length} קבוצות` : t('admin.player_dev.rr.success'));
+  } catch { AdminToast.error(t('admin.player_dev.rr.error')); }
 }
 
 function renderReportsTab(reports) {
   const el = document.getElementById('reportsTabContent');
   if (!reports.length) {
-    el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-muted);"><span class="material-symbols-outlined" style="font-size:40px;">description</span><p style="margin-top:8px;">No reports written for this player yet</p></div>';
+    el.innerHTML = `<div style="text-align:center;padding:32px;color:var(--text-muted);"><span class="material-symbols-outlined" style="font-size:40px;">description</span><p style="margin-top:8px;">${t('admin.player_dev.reports.empty')}</p></div>`;
     return;
   }
 
@@ -288,18 +308,18 @@ function renderReportsTab(reports) {
           </div>
         </div>
       </div>
-      ${listHtml(r.strengths, 'Strengths', 'thumb_up', 'var(--success,#22c55e)')}
-      ${listHtml(r.weaknesses, 'Weaknesses', 'trending_down', 'var(--error,#ef4444)')}
-      ${listHtml(r.focus_areas, 'Focus Areas', 'target', 'var(--warning,#fbbf24)')}
+      ${listHtml(r.strengths, t('admin.player_dev.reports.strengths'), 'thumb_up', 'var(--success,#22c55e)')}
+      ${listHtml(r.weaknesses, t('admin.player_dev.reports.weaknesses'), 'trending_down', 'var(--error,#ef4444)')}
+      ${listHtml(r.focus_areas, t('admin.player_dev.reports.focus_areas'), 'target', 'var(--warning,#fbbf24)')}
       ${r.recommendations ? `<div style="margin-top:10px;">
         <div style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--info,#60a5fa);margin-bottom:4px;">
-          <span class="material-symbols-outlined" style="font-size:16px;">lightbulb</span>Recommendations
+          <span class="material-symbols-outlined" style="font-size:16px;">lightbulb</span>${t('admin.player_dev.reports.recommendations')}
         </div>
         <p style="font-size:13px;color:var(--text-secondary);margin:0;line-height:1.6;">${esc(r.recommendations)}</p>
       </div>` : ''}
       ${r.progress_notes ? `<div style="margin-top:10px;">
         <div style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">
-          <span class="material-symbols-outlined" style="font-size:16px;">edit_note</span>Progress Notes
+          <span class="material-symbols-outlined" style="font-size:16px;">edit_note</span>${t('admin.player_dev.reports.progress_notes')}
         </div>
         <p style="font-size:13px;color:var(--text-secondary);margin:0;line-height:1.6;">${esc(r.progress_notes)}</p>
       </div>` : ''}

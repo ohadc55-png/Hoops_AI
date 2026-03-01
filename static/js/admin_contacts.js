@@ -19,10 +19,10 @@ async function loadTeamsFilter() {
     const res = await AdminAPI.get('/api/teams');
     const teams = res.data || [];
     const sel = document.getElementById('filterTeam');
-    teams.forEach(t => {
+    teams.forEach(tm => {
       const opt = document.createElement('option');
-      opt.value = t.id;
-      opt.textContent = t.name;
+      opt.value = tm.id;
+      opt.textContent = tm.name;
       sel.appendChild(opt);
     });
   } catch { /* ignore */ }
@@ -40,11 +40,11 @@ async function loadContacts() {
   try {
     const res = await AdminAPI.get(url);
     _contacts = res.data || [];
-    document.getElementById('contactsCount').textContent = _contacts.length + ' contacts';
+    document.getElementById('contactsCount').textContent = t('admin.contacts.count', { count: _contacts.length });
     renderContacts();
   } catch {
     document.getElementById('contactsContent').innerHTML =
-      '<div class="empty-state-admin">Could not load contacts</div>';
+      `<div class="empty-state-admin">${t('admin.contacts.empty.load_error')}</div>`;
   }
 }
 
@@ -54,8 +54,8 @@ function renderContacts() {
   if (_contacts.length === 0) {
     el.innerHTML = `<div class="empty-state-admin">
       <span class="material-symbols-outlined">person_off</span>
-      <h3>No contacts found</h3>
-      <p>Try changing your filters or invite members to your teams</p>
+      <h3>${t('admin.contacts.empty.no_contacts')}</h3>
+      <p>${t('admin.contacts.empty.no_contacts_desc')}</p>
     </div>`;
     return;
   }
@@ -75,20 +75,30 @@ function renderContacts() {
       if (pd.jersey_number) parts.push('#' + pd.jersey_number);
       if (pd.birth_date) {
         const age = calcAge(pd.birth_date);
-        if (age) parts.push('Age ' + age);
+        if (age) parts.push(t('admin.contacts.age_prefix') + ' ' + age);
       }
       if (pd.height) parts.push(pd.height + 'cm');
       if (pd.weight) parts.push(pd.weight + 'kg');
       if (parts.length) extra = `<div class="contact-extra">${esc(parts.join(' / '))}</div>`;
     }
     if (c.role === 'parent' && c.linked_child) {
-      extra = `<div class="contact-extra">Parent of <strong>${esc(c.linked_child.name)}</strong></div>`;
+      extra = `<div class="contact-extra">${t('admin.contacts.parent_of')} <strong>${esc(c.linked_child.name)}</strong></div>`;
     }
 
     const phone = (c.role === 'player' && c.player_data?.phone) || '';
 
+    // Build name cell — clickable for players and coaches
+    let nameCell;
+    if (c.role === 'player' && c.player_data?.player_id) {
+      nameCell = `<a href="/admin/player/${c.player_data.player_id}" style="color:var(--primary);text-decoration:none;font-weight:600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${esc(c.name)}</a>`;
+    } else if (c.role === 'coach' && c.coach_id) {
+      nameCell = `<a href="/admin/coach/${c.coach_id}" style="color:var(--primary);text-decoration:none;font-weight:600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${esc(c.name)}</a>`;
+    } else {
+      nameCell = esc(c.name);
+    }
+
     return `<tr class="contacts-row">
-      <td class="contacts-cell">${esc(c.name)}</td>
+      <td class="contacts-cell">${nameCell}</td>
       <td class="contacts-cell">${esc(c.email)}</td>
       <td class="contacts-cell">${roleBadge(c.role)}</td>
       <td class="contacts-cell">${esc(c.team_name || '')}</td>
@@ -102,7 +112,7 @@ function renderContacts() {
     <table class="contacts-table">
       <thead>
         <tr>
-          <th>Name</th><th>Email</th><th>Role</th><th>Team</th><th>Phone</th><th>Details</th><th>Joined</th>
+          <th>${t('admin.contacts.th.name')}</th><th>${t('admin.contacts.th.email')}</th><th>${t('admin.contacts.th.role')}</th><th>${t('admin.contacts.th.team')}</th><th>${t('admin.contacts.th.phone')}</th><th>${t('admin.contacts.th.details')}</th><th>${t('admin.contacts.th.joined')}</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
@@ -139,15 +149,6 @@ function calcAge(bd) {
 }
 
 
-function formatDate(s) {
-  if (!s) return '';
-  try { return new Date(s).toLocaleDateString(); } catch { return s; }
-}
+/* formatDate → shared-utils.js */
 
-
-function esc(s) {
-  if (!s) return '';
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
+/* esc → shared-utils.js */

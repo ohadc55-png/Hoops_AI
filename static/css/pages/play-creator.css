@@ -195,3 +195,9 @@
   .pc-sidebar { display: none; }
   .plays-grid { grid-template-columns: 1fr; }
 }
+
+
+/* === RTL OVERRIDES === */
+[dir="rtl"] .pc-left-toolbar { left: auto; right: var(--sp-2); }
+[dir="rtl"] .pc-right-toolbar { right: auto; left: var(--sp-2); }
+[dir="rtl"] .play-new-badge { right: auto; left: 8px; }

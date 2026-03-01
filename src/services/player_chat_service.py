@@ -7,6 +7,7 @@ from src.models.message import Message
 from src.agents.player_agent import PlayerAgent, route_to_player_agent
 from src.constants.player_agents import PLAYER_AGENTS
 from src.services.player_context_service import PlayerContextService
+from src.utils.exceptions import NotFoundError
 
 
 class PlayerChatService:
@@ -33,7 +34,7 @@ class PlayerChatService:
         else:
             conv = await self._get_conversation(conversation_id)
             if not conv or conv.user_id != user_id:
-                raise ValueError("Conversation not found")
+                raise NotFoundError("Conversation")
 
         # Save user message
         user_msg = Message(conversation_id=conversation_id, role="user", content=content)

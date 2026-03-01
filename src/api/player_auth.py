@@ -69,31 +69,28 @@ async def register_player(req: PlayerRegisterRequest, db: AsyncSession = Depends
                 "team": {"id": result["team"].id, "name": result["team"].name},
             },
         }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
     except Exception:
         raise HTTPException(status_code=500, detail="Registration failed. Please try again.")
 
 
 @router.post("/login")
 async def login_player(req: PlayerLoginRequest, db: AsyncSession = Depends(get_db)):
-    try:
-        service = PlayerAuthService(db)
-        result = await service.login_player(req.email, req.password)
-        return {
-            "success": True,
-            "data": {
-                "token": result["token"],
-                "user": {
-                    "id": result["user"].id,
-                    "name": result["user"].name,
-                    "email": result["user"].email,
-                    "role": result["user"].role,
-                },
+    service = PlayerAuthService(db)
+    result = await service.login_player(req.email, req.password)
+    user = result["user"]
+    return {
+        "success": True,
+        "data": {
+            "token": result["token"],
+            "user": {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "role": user.role,
             },
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
+            "language": user.preferred_language,
+        },
+    }
 
 
 @router.get("/me")
@@ -102,6 +99,7 @@ async def player_me(user: User = Depends(get_current_player)):
         "success": True,
         "data": {
             "id": user.id, "name": user.name, "email": user.email, "role": user.role,
+            "language": user.preferred_language,
         },
     }
 
@@ -117,3 +115,16 @@ async def update_player_profile(req: PlayerProfileUpdateRequest, user: User = De
             "id": updated.id, "name": updated.name, "email": updated.email, "role": updated.role,
         },
     }
+
+
+class LanguageRequest(BaseModel):
+    language: str
+
+
+@router.put("/language")
+async def update_player_language(req: LanguageRequest, user: User = Depends(get_current_player), db: AsyncSession = Depends(get_db)):
+    if req.language not in ("he", "en"):
+        raise HTTPException(status_code=400, detail="Language must be 'he' or 'en'")
+    from src.repositories.user_repository import UserRepository
+    await UserRepository(db).update(user.id, preferred_language=req.language)
+    return {"success": True, "data": {"language": req.language}}

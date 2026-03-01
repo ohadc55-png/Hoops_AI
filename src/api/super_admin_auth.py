@@ -43,44 +43,38 @@ async def register_super_admin(req: SuperAdminRegisterRequest, db: AsyncSession 
         raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
     if not req.name.strip():
         raise HTTPException(status_code=400, detail="Name is required")
-    try:
-        service = SuperAdminAuthService(db)
-        result = await service.register(name=req.name, email=req.email, password=req.password, phone=req.phone)
-        return {
-            "success": True,
-            "data": {
-                "token": result["token"],
-                "user": {
-                    "id": result["admin"].id,
-                    "name": result["admin"].name,
-                    "email": result["admin"].email,
-                    "role": "super_admin",
-                },
+    service = SuperAdminAuthService(db)
+    result = await service.register(name=req.name, email=req.email, password=req.password, phone=req.phone)
+    return {
+        "success": True,
+        "data": {
+            "token": result["token"],
+            "user": {
+                "id": result["admin"].id,
+                "name": result["admin"].name,
+                "email": result["admin"].email,
+                "role": "super_admin",
             },
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        },
+    }
 
 
 @router.post("/login")
 async def login_super_admin(req: SuperAdminLoginRequest, db: AsyncSession = Depends(get_db)):
-    try:
-        service = SuperAdminAuthService(db)
-        result = await service.login(req.email, req.password)
-        return {
-            "success": True,
-            "data": {
-                "token": result["token"],
-                "user": {
-                    "id": result["admin"].id,
-                    "name": result["admin"].name,
-                    "email": result["admin"].email,
-                    "role": "super_admin",
-                },
+    service = SuperAdminAuthService(db)
+    result = await service.login(req.email, req.password)
+    return {
+        "success": True,
+        "data": {
+            "token": result["token"],
+            "user": {
+                "id": result["admin"].id,
+                "name": result["admin"].name,
+                "email": result["admin"].email,
+                "role": "super_admin",
             },
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
+        },
+    }
 
 
 @router.get("/profile")

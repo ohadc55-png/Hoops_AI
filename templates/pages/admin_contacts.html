@@ -1,26 +1,26 @@
 {% extends "admin_base.html" %}
 {% block title %}HOOPS AI — Contacts{% endblock %}
 {% block nav_contacts %}active{% endblock %}
-{% block header_title %}Contacts{% endblock %}
+{% block header_title %}<span data-i18n="admin.header.contacts">אנשי קשר</span>{% endblock %}
 {% block content %}
 <div class="admin-contacts">
   <!-- Filter Bar -->
   <div class="contacts-filter-bar">
     <div class="contacts-filter-left">
       <select class="select" id="filterTeam" onchange="applyFilters()" style="min-width:160px;">
-        <option value="">All Teams</option>
+        <option value="" data-i18n="admin.contacts.filter_all_teams">All Teams</option>
       </select>
       <div class="contacts-role-tabs" id="roleTabs">
-        <button class="role-tab active" data-role="" onclick="setRoleFilter(this)">All</button>
-        <button class="role-tab" data-role="coach" onclick="setRoleFilter(this)">Coaches</button>
-        <button class="role-tab" data-role="player" onclick="setRoleFilter(this)">Players</button>
-        <button class="role-tab" data-role="parent" onclick="setRoleFilter(this)">Parents</button>
+        <button class="role-tab active" data-role="" onclick="setRoleFilter(this)" data-i18n="admin.contacts.tab_all">All</button>
+        <button class="role-tab" data-role="coach" onclick="setRoleFilter(this)" data-i18n="admin.contacts.tab_coaches">Coaches</button>
+        <button class="role-tab" data-role="player" onclick="setRoleFilter(this)" data-i18n="admin.contacts.tab_players">Players</button>
+        <button class="role-tab" data-role="parent" onclick="setRoleFilter(this)" data-i18n="admin.contacts.tab_parents">Parents</button>
       </div>
     </div>
     <div class="contacts-filter-right">
       <div class="contacts-search-wrap">
         <span class="material-symbols-outlined">search</span>
-        <input type="text" class="input" id="searchInput" placeholder="Search name or email..." oninput="debounceSearch()">
+        <input type="text" class="input" id="searchInput" data-i18n-placeholder="admin.contacts.search_placeholder" placeholder="Search name or email..." oninput="debounceSearch()">
       </div>
       <span class="contacts-count" id="contactsCount">0 contacts</span>
     </div>
@@ -30,7 +30,7 @@
   <div class="contacts-table-wrap" id="contactsContent">
     <div class="empty-state-admin">
       <span class="material-symbols-outlined">hourglass_empty</span>
-      <h3>Loading...</h3>
+      <h3 data-i18n="admin.contacts.loading">Loading...</h3>
     </div>
   </div>
 </div>

@@ -10,12 +10,20 @@ from src.api.auth import get_current_coach
 router = APIRouter(prefix="/api/practice", tags=["practice"])
 
 
+class InlineSegment(BaseModel):
+    segment_type: str
+    title: str
+    duration_minutes: int = 10
+    notes: str | None = None
+
+
 class SessionRequest(BaseModel):
     date: str
     title: str
     focus: str | None = None
     notes: str | None = None
     total_duration: int = 90
+    segments: list[InlineSegment] = []
 
 
 class SegmentRequest(BaseModel):
@@ -35,6 +43,15 @@ class GenerateRequest(BaseModel):
     focus: str
     duration: int = 90
     date: str | None = None
+    language: str = "he"
+
+
+class SummaryRequest(BaseModel):
+    goal_achieved: str              # 'yes' | 'partial' | 'no'
+    what_worked: str
+    what_didnt_work: str
+    standout_players: list[str] = []
+    attention_players: list[str] = []
 
 
 def session_to_dict(s):
@@ -43,6 +60,11 @@ def session_to_dict(s):
         "focus": s.focus, "notes": s.notes,
         "total_duration": s.total_duration,
         "is_ai_generated": s.is_ai_generated, "created_at": str(s.created_at),
+        "goal_achieved": s.goal_achieved,
+        "what_worked": s.what_worked,
+        "what_didnt_work": s.what_didnt_work,
+        "standout_players": s.standout_players or [],
+        "attention_players": s.attention_players or [],
     }
     if hasattr(s, "segments") and s.segments:
         data["segments"] = [
@@ -70,7 +92,17 @@ async def create_session(req: SessionRequest, coach=Depends(get_current_coach), 
         coach.id, date=date.fromisoformat(req.date), title=req.title,
         focus=req.focus, notes=req.notes, total_duration=req.total_duration,
     )
-    return {"success": True, "data": session_to_dict(session)}
+    # Create inline segments if provided
+    for i, seg in enumerate(req.segments):
+        await service.add_segment(
+            session.id,
+            segment_type=seg.segment_type, title=seg.title,
+            duration_minutes=seg.duration_minutes, notes=seg.notes,
+            order_index=i,
+        )
+    # Reload with segments via selectinload to avoid async lazy-load error
+    full = await service.get_session(session.id)
+    return {"success": True, "data": session_to_dict(full)}
 
 
 @router.get("/{session_id}")
@@ -116,7 +148,26 @@ async def generate_session(req: GenerateRequest, coach=Depends(get_current_coach
     service = PracticeService(db)
     try:
         d = date.fromisoformat(req.date) if req.date else None
-        session = await service.ai_generate_session(coach.id, req.focus, req.duration, d)
+        session = await service.ai_generate_session(coach.id, req.focus, req.duration, d, language=req.language)
         return {"success": True, "data": session_to_dict(session)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/{session_id}/summary")
+async def save_session_summary(
+    session_id: int, req: SummaryRequest,
+    coach=Depends(get_current_coach), db: AsyncSession = Depends(get_db)
+):
+    service = PracticeService(db)
+    existing = await service.get_session(session_id)
+    if not existing or existing.coach_id != coach.id:
+        raise HTTPException(status_code=404, detail="Session not found")
+    existing.goal_achieved = req.goal_achieved
+    existing.what_worked = req.what_worked
+    existing.what_didnt_work = req.what_didnt_work
+    existing.standout_players = req.standout_players[:2] if req.standout_players else []
+    existing.attention_players = req.attention_players[:2] if req.attention_players else []
+    await db.flush()
+    full = await service.get_session(session_id)
+    return {"success": True, "data": session_to_dict(full)}

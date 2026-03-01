@@ -1,15 +1,15 @@
 {% extends "player_base.html" %}
 {% block title %}HOOPS AI — Team{% endblock %}
 {% block nav_team %}active{% endblock %}
-{% block header_title %}Team{% endblock %}
+{% block header_title %}<span data-i18n="player.nav.team">Team</span>{% endblock %}
 {% block content %}
 <div class="player-dashboard">
   <section class="dashboard-section">
     <div class="section-header">
-      <h2><span class="material-symbols-outlined">groups</span> Team</h2>
+      <h2><span class="material-symbols-outlined">groups</span> <span data-i18n="player.nav.team">Team</span></h2>
     </div>
     <div class="section-content" id="teamContent">
-      <div class="loading-state">Loading team info...</div>
+      <div class="loading-state" data-i18n="player.team.loading">Loading team info...</div>
     </div>
   </section>
 </div>
@@ -31,7 +31,7 @@ async function loadTeam() {
     const teams = data.teams || [];
 
     if (roster.length === 0 && teams.length === 0) {
-      el.innerHTML = '<div class="empty-state-player"><span class="material-symbols-outlined">groups</span>No team info available</div>';
+      el.innerHTML = `<div class="empty-state-player"><span class="material-symbols-outlined">groups</span>${I18N.t('player.team.no_info')}</div>`;
       return;
     }
 
@@ -39,7 +39,7 @@ async function loadTeam() {
     if (teams.length > 0) {
       html += teams.map(t => `<div style="margin-bottom:var(--sp-4);">
         <strong>${esc(t.name)}</strong>${t.club_name ? ' — ' + esc(t.club_name) : ''}
-        <span class="text-sm text-secondary" style="margin-left:var(--sp-2);">${t.member_count} members</span>
+        <span class="text-sm text-secondary" style="margin-left:var(--sp-2);">${t.member_count} ${I18N.t('player.team.members')}</span>
       </div>`).join('');
     }
 
@@ -53,7 +53,7 @@ async function loadTeam() {
 
     el.innerHTML = html;
   } catch {
-    el.innerHTML = '<div class="empty-state-player">Could not load team info</div>';
+    el.innerHTML = `<div class="empty-state-player">${I18N.t('player.team.load_error')}</div>`;
   }
 }
 </script>

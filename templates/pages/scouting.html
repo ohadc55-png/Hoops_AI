@@ -13,20 +13,20 @@
   <div id="gridView">
     <div class="scouting-header">
       <button class="btn btn-primary" onclick="openUploadModal()">
-        <span class="material-symbols-outlined">upload</span> Upload Video
+        <span class="material-symbols-outlined">upload</span> <span data-i18n="coach.scouting.btn.upload_video">Upload Video</span>
       </button>
       <div class="scouting-filters" id="typeFilters">
-        <button class="filter-btn active" data-type="">All</button>
-        <button class="filter-btn" data-type="game">Game</button>
-        <button class="filter-btn" data-type="practice">Practice</button>
-        <button class="filter-btn" data-type="opponent_scout">Scout</button>
-        <button class="filter-btn" data-type="highlight">Highlight</button>
+        <button class="filter-btn active" data-type="" data-i18n="coach.scouting.filter.all">All</button>
+        <button class="filter-btn" data-type="game" data-i18n="event.game">Game</button>
+        <button class="filter-btn" data-type="practice" data-i18n="event.practice">Practice</button>
+        <button class="filter-btn" data-type="opponent_scout" data-i18n="coach.scouting.filter.scout">Scout</button>
+        <button class="filter-btn" data-type="highlight" data-i18n="coach.scouting.filter.highlight">Highlight</button>
       </div>
-      <input type="text" class="input scouting-search" id="videoSearch" placeholder="Search videos...">
+      <input type="text" class="input scouting-search" id="videoSearch" data-i18n-placeholder="coach.scouting.search_placeholder" placeholder="Search videos...">
     </div>
     <div class="quota-bar" id="quotaBar"></div>
     <div class="video-grid" id="videoGrid">
-      <p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: var(--sp-8);">Loading videos...</p>
+      <p style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: var(--sp-8);" data-i18n="coach.scouting.loading_videos">Loading videos...</p>
     </div>
   </div>
 
@@ -34,21 +34,37 @@
   <div id="analysisView" class="analysis-view">
     <div class="analysis-header">
       <button class="btn btn-ghost" onclick="backToGrid()">
-        <span class="material-symbols-outlined">arrow_back</span> Back
+        <span class="material-symbols-outlined">arrow_back</span> <span data-i18n="btn.back">Back</span>
       </button>
-      <h2 id="analysisTitle">Video Title</h2>
-      <button class="btn btn-ghost" id="shareBtn" onclick="toggleShare()" title="Share with team">
+      <h2 id="analysisTitle" data-i18n="coach.scouting.video_title">Video Title</h2>
+      <button class="btn btn-ghost" id="shareBtn" onclick="toggleShare()" data-i18n-title="coach.scouting.share.share_with_team" title="Share with team">
         <span class="material-symbols-outlined">share</span>
       </button>
-      <button class="btn btn-ghost" id="shareParentsBtn" onclick="toggleShareParents()" title="Share with parents">
+      <button class="btn btn-ghost" id="shareParentsBtn" onclick="toggleShareParents()" data-i18n-title="scouting.share.parents_tooltip_share" title="Share with parents">
         <span class="material-symbols-outlined">family_restroom</span>
       </button>
       <span class="video-expiry-info" id="videoExpiryInfo"></span>
-      <button class="btn btn-ghost" id="keepForeverBtn" onclick="toggleKeepForever()" title="Keep forever">
+      <button class="btn btn-ghost" id="keepForeverBtn" onclick="toggleKeepForever()" data-i18n-title="scouting.expiry.keep_forever_tooltip" title="Keep forever">
         <span class="material-symbols-outlined">all_inclusive</span>
       </button>
       <button class="btn btn-ghost" style="color:#ef4444" onclick="deleteCurrentVideo()">
         <span class="material-symbols-outlined">delete</span>
+      </button>
+      <!-- Phase 4 Controls -->
+      <div class="zoom-controls">
+        <button class="btn btn-ghost btn-sm" onclick="zoomOut()" data-i18n-title="coach.scouting.zoom.zoom_out" title="Zoom Out (-)"><span class="material-symbols-outlined">zoom_out</span></button>
+        <span class="zoom-badge" id="zoomBadge" style="display:none;">1.0x</span>
+        <button class="btn btn-ghost btn-sm" onclick="zoomIn()" data-i18n-title="coach.scouting.zoom.zoom_in" title="Zoom In (+)"><span class="material-symbols-outlined">zoom_in</span></button>
+        <button class="btn btn-ghost btn-sm" onclick="resetZoom()" data-i18n-title="coach.scouting.zoom.reset_zoom" title="Reset Zoom (0)"><span class="material-symbols-outlined">fit_screen</span></button>
+      </div>
+      <button class="btn btn-ghost" id="comparisonBtn" onclick="toggleComparisonMode()" data-i18n-title="coach.scouting.btn.compare_videos" title="Compare Videos">
+        <span class="material-symbols-outlined">compare</span>
+      </button>
+      <button class="btn btn-ghost" id="exportBtn" onclick="exportClipWithAnnotations()" data-i18n-title="coach.scouting.btn.export_clip" title="Export Clip with Annotations">
+        <span class="material-symbols-outlined">download</span>
+      </button>
+      <button class="btn btn-ghost" onclick="toggleShortcutsOverlay()" data-i18n-title="coach.scouting.btn.keyboard_shortcuts" title="Keyboard Shortcuts (?)">
+        <span class="material-symbols-outlined">keyboard</span>
       </button>
     </div>
 
@@ -60,34 +76,68 @@
           <div class="tools-sidebar" id="toolsSidebar">
             <!-- Drawing Tools -->
             <div class="tools-section">
-              <div class="tools-section-label">Draw</div>
+              <div class="tools-section-label" data-i18n="coach.scouting.tools.draw">Draw</div>
               <div class="tools-grid">
-                <button class="draw-tool-btn" data-tool="freehand" onclick="setDrawTool(this)" title="Freehand">
+                <button class="draw-tool-btn" data-tool="freehand" onclick="setDrawTool(this)" data-i18n-title="scouting.draw.tool.freehand" title="Freehand">
                   <span class="material-symbols-outlined">draw</span>
                 </button>
-                <button class="draw-tool-btn" data-tool="arrow" onclick="setDrawTool(this)" title="Arrow">
+                <button class="draw-tool-btn" data-tool="arrow" onclick="setDrawTool(this)" data-i18n-title="scouting.draw.tool.arrow" title="Arrow">
                   <span class="material-symbols-outlined">arrow_forward</span>
                 </button>
-                <button class="draw-tool-btn" data-tool="circle" onclick="setDrawTool(this)" title="Circle">
+                <button class="draw-tool-btn" data-tool="circle" onclick="setDrawTool(this)" data-i18n-title="scouting.draw.tool.circle" title="Circle">
                   <span class="material-symbols-outlined">circle</span>
                 </button>
-                <button class="draw-tool-btn" data-tool="text" onclick="setDrawTool(this)" title="Text">
+                <button class="draw-tool-btn" data-tool="text" onclick="setDrawTool(this)" data-i18n-title="scouting.draw.tool.text" title="Text">
                   <span class="material-symbols-outlined">text_fields</span>
                 </button>
-                <button class="draw-tool-btn spotlight-tool-btn" data-tool="spotlight" onclick="setDrawTool(this)" title="Spotlight">
+                <div style="position:relative;">
+                  <button class="draw-tool-btn" data-tool="player_marker" onclick="setDrawTool(this)" data-i18n-title="coach.scouting.tools.player_marker_title" title="Player Marker [M]">
+                    <span class="material-symbols-outlined">person_pin</span>
+                  </button>
+                  <button class="pm-config-btn" onclick="togglePlayerMarkerPopover()" data-i18n-title="coach.scouting.tools.configure_marker" title="Configure marker">▾</button>
+                  <div class="pm-popover" id="playerMarkerPopover">
+                    <div class="pm-row">
+                      <button class="pm-team-btn active" data-team="offense" onclick="setPlayerMarkerTeam('offense')" data-i18n-title="scouting.marker.offense" title="Offense">OFF</button>
+                      <button class="pm-team-btn" data-team="defense" onclick="setPlayerMarkerTeam('defense')" data-i18n-title="scouting.marker.defense" title="Defense">DEF</button>
+                    </div>
+                    <div class="pm-row">
+                      <button class="pm-num-btn active" data-num="1" onclick="setPlayerMarkerNumber(1)">1</button>
+                      <button class="pm-num-btn" data-num="2" onclick="setPlayerMarkerNumber(2)">2</button>
+                      <button class="pm-num-btn" data-num="3" onclick="setPlayerMarkerNumber(3)">3</button>
+                      <button class="pm-num-btn" data-num="4" onclick="setPlayerMarkerNumber(4)">4</button>
+                      <button class="pm-num-btn" data-num="5" onclick="setPlayerMarkerNumber(5)">5</button>
+                    </div>
+                  </div>
+                </div>
+                <button class="draw-tool-btn spotlight-tool-btn" data-tool="spotlight" onclick="setDrawTool(this)" data-i18n-title="coach.scouting.tools.spotlight_title" title="Spotlight [S]">
                   <span class="material-symbols-outlined">highlight</span>
+                </button>
+                <button class="draw-tool-btn" id="courtOverlayBtn" onclick="toggleCourtOverlay()" data-i18n-title="coach.scouting.tools.court_overlay" title="Court Overlay">
+                  <span class="material-symbols-outlined">grid_on</span>
                 </button>
                 <input type="color" class="draw-color-input" id="drawColor" value="#FF0000" onchange="setDrawColor(this.value)">
               </div>
+              <!-- Stroke width & opacity -->
+              <div class="tools-sliders">
+                <div class="slider-row">
+                  <span class="slider-label" data-i18n-title="coach.scouting.tools.stroke_width" title="Stroke width">W</span>
+                  <input type="range" min="1" max="8" value="3" class="tools-slider" id="strokeWidth" oninput="setStrokeWidth(this.value)">
+                  <span class="stroke-width-preview" id="strokeWidthPreview"></span>
+                </div>
+                <div class="slider-row">
+                  <span class="slider-label" data-i18n-title="coach.scouting.tools.opacity" title="Opacity">O</span>
+                  <input type="range" min="20" max="100" value="100" class="tools-slider" id="drawOpacity" oninput="setDrawOpacity(this.value)">
+                </div>
+              </div>
               <div class="tools-actions">
                 <span class="spotlight-status" id="spotlightStatus"></span>
-                <button class="draw-tool-btn spotlight-done-btn" id="spotlightDoneBtn" onclick="finishSpotlight()" title="Done" style="display:none;">
+                <button class="draw-tool-btn spotlight-done-btn" id="spotlightDoneBtn" onclick="finishSpotlight()" data-i18n-title="coach.scouting.tools.done" title="Done" style="display:none;">
                   <span class="material-symbols-outlined">check</span>
                 </button>
-                <button class="draw-tool-btn" onclick="undoDraw()" title="Undo">
+                <button class="draw-tool-btn" onclick="undoDraw()" data-i18n-title="coach.scouting.tools.undo" title="Undo [Ctrl+Z]">
                   <span class="material-symbols-outlined">undo</span>
                 </button>
-                <button class="draw-tool-btn" onclick="clearDrawings()" title="Clear All">
+                <button class="draw-tool-btn" onclick="clearDrawings()" data-i18n-title="coach.scouting.tools.clear_all" title="Clear All">
                   <span class="material-symbols-outlined">delete_sweep</span>
                 </button>
               </div>
@@ -95,29 +145,30 @@
             <div class="tools-divider"></div>
             <!-- Tag Buttons -->
             <div class="tools-section">
-              <div class="tools-section-label">Tag</div>
+              <div class="tools-section-label" data-i18n="coach.scouting.tools.tag">Tag</div>
               <div class="tools-grid tags-grid">
                 <button class="tag-btn" data-action="pick_and_roll" onclick="quickTag(this)">PnR</button>
                 <button class="tag-btn" data-action="isolation" onclick="quickTag(this)">ISO</button>
-                <button class="tag-btn" data-action="fast_break" onclick="quickTag(this)">Fast Break</button>
-                <button class="tag-btn" data-action="defense" onclick="quickTag(this)">Defense</button>
+                <button class="tag-btn" data-action="fast_break" onclick="quickTag(this)" data-i18n="coach.scouting.tag.fast_break">Fast Break</button>
+                <button class="tag-btn" data-action="defense" onclick="quickTag(this)" data-i18n="coach.scouting.tag.defense">Defense</button>
                 <button class="tag-btn" data-action="three_pointer" onclick="quickTag(this)">3PT</button>
-                <button class="tag-btn" data-action="post_up" onclick="quickTag(this)">Post Up</button>
-                <button class="tag-btn" data-action="screen" onclick="quickTag(this)">Screen</button>
+                <button class="tag-btn" data-action="post_up" onclick="quickTag(this)" data-i18n="coach.scouting.tag.post_up">Post Up</button>
+                <button class="tag-btn" data-action="screen" onclick="quickTag(this)" data-i18n="coach.scouting.tag.screen">Screen</button>
                 <button class="tag-btn" data-action="turnover" onclick="quickTag(this)">TO</button>
-                <button class="tag-btn" data-action="rebound" onclick="quickTag(this)">Reb</button>
-                <button class="tag-btn" data-action="transition" onclick="quickTag(this)">Trans</button>
+                <button class="tag-btn" data-action="rebound" onclick="quickTag(this)" data-i18n="coach.scouting.tag.rebound">Reb</button>
+                <button class="tag-btn" data-action="transition" onclick="quickTag(this)" data-i18n="coach.scouting.tag.transition">Trans</button>
                 <button class="tag-btn" data-action="free_throw" onclick="quickTag(this)">FT</button>
                 <button class="tag-btn" data-action="out_of_bounds" onclick="quickTag(this)">OOB</button>
-                <button class="tag-btn" data-action="other" onclick="quickTag(this)">Other</button>
+                <button class="tag-btn" data-action="other" onclick="quickTag(this)" data-i18n="coach.scouting.tag.other">Other</button>
               </div>
             </div>
           </div>
 
           <!-- Video -->
           <div class="video-container" id="videoContainer">
-            <video id="scoutingPlayer" class="video-js vjs-default-skin" playsinline></video>
+            <video id="scoutingPlayer" class="video-js vjs-default-skin" playsinline crossorigin="anonymous"></video>
             <canvas id="telestratorCanvas" class="telestrator-canvas"></canvas>
+            <div class="speed-badge" id="speedBadge">1x</div>
           </div>
         </div>
 
@@ -129,7 +180,7 @@
               <div class="timeline-progress" id="timelineProgress"></div>
             </div>
           </div>
-          <!-- Annotation Track (resizable bars like video editor) -->
+          <!-- Annotation Track -->
           <div class="annotation-track" id="annotationTrack"></div>
           <div class="timeline-row">
             <div class="ann-track-spacer"></div>
@@ -138,6 +189,30 @@
               <span id="timelineDuration">0:00</span>
             </div>
           </div>
+          <!-- I/O Point Bar -->
+          <div class="clip-io-bar" id="clipIOBar" style="display:none;"></div>
+          <!-- Export Progress -->
+          <div class="export-progress" id="exportProgress" style="display:none;">
+            <div class="export-progress-label" data-i18n="coach.scouting.export.exporting">Exporting clip...</div>
+            <div class="export-progress-bar"><div class="export-progress-fill"></div></div>
+            <button class="btn btn-ghost btn-sm" onclick="cancelExport()" data-i18n="btn.cancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Panel -->
+      <div class="comparison-panel" id="comparisonPanel" style="display:none;">
+        <div class="comp-header">
+          <h3 id="compTitle2" data-i18n="coach.scouting.comparison.select_video">Select video to compare</h3>
+          <label class="comp-sync-label"><input type="checkbox" id="compSync" checked onchange="if(this.checked) _setupCompSync()"> <span data-i18n="coach.scouting.comparison.sync">Sync</span></label>
+        </div>
+        <div class="comp-video-picker">
+          <select class="input" id="compVideoSelect" onchange="loadComparisonVideo(this.value)">
+            <option value="" data-i18n="scouting.comparison.choose_video">Choose video...</option>
+          </select>
+        </div>
+        <div class="comp-video-container" id="compVideo2Container">
+          <p style="color:var(--text-muted);text-align:center;padding:var(--sp-6);font-size:0.85rem;" data-i18n="coach.scouting.comparison.pick_video">Pick a video to compare</p>
         </div>
       </div>
 
@@ -145,9 +220,30 @@
       <div class="clips-sidebar">
         <div class="clips-sidebar-title">
           <span class="material-symbols-outlined">movie_filter</span>
-          Clips <span id="clipCount" style="color:var(--text-muted);font-weight:400;"></span>
+          <span data-i18n="coach.scouting.clips.title">Clips</span> <span id="clipCount" style="color:var(--text-muted);font-weight:400;"></span>
         </div>
+        <!-- Tab Switcher: Clips / Playlists -->
+        <div class="clips-tab-bar">
+          <button class="clips-tab-btn active" data-tab="clips" onclick="switchClipSidebarTab('clips')" data-i18n="coach.scouting.clips.tab_clips">Clips</button>
+          <button class="clips-tab-btn" data-tab="playlists" onclick="switchClipSidebarTab('playlists')" data-i18n="coach.scouting.clips.tab_playlists">Playlists</button>
+          <button class="btn-icon" onclick="selectAllClips()" data-i18n-title="coach.scouting.clips.select_all" title="Select All"><span class="material-symbols-outlined" style="font-size:1rem;">select_all</span></button>
+        </div>
+        <!-- Batch Action Bar -->
+        <div class="batch-bar" id="batchBar" style="display:none;">
+          <span class="batch-count" data-i18n="scouting.batch.selected">0 selected</span>
+          <button class="btn btn-ghost btn-sm" onclick="batchDeleteClips()"><span class="material-symbols-outlined" style="font-size:0.9rem;">delete</span></button>
+          <button class="btn btn-ghost btn-sm" onclick="batchRateClips('positive')">👍</button>
+          <button class="btn btn-ghost btn-sm" onclick="batchRateClips('negative')">👎</button>
+          <button class="btn btn-ghost btn-sm" onclick="deselectAllClips()"><span class="material-symbols-outlined" style="font-size:0.9rem;">deselect</span></button>
+        </div>
+        <!-- Clip Filter Chips -->
+        <div id="clipFilterChips" class="clip-filter-chips" style="display:none;"></div>
         <div id="clipsList"></div>
+        <!-- Compile Button -->
+        <button class="btn btn-primary btn-sm compile-clips-btn" id="compileClipsBtn" style="display:none;" onclick="openCompileModal()">
+          <span class="material-symbols-outlined" style="font-size:1rem;">movie_edit</span>
+          <span data-i18n="scouting.compile.btn">ייצר סרטון</span>
+        </button>
       </div>
     </div>
   </div>
@@ -157,38 +253,44 @@
 <div class="modal-overlay" id="uploadModal">
   <div class="modal" style="max-width: 520px;">
     <div class="modal-header">
-      <h2>Upload Video</h2>
+      <h2 data-i18n="coach.scouting.modal.upload_title">Upload Video</h2>
       <button class="modal-close" onclick="cancelUploadModal()"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body">
       <div class="upload-zone" id="uploadZone">
         <span class="material-symbols-outlined">cloud_upload</span>
-        <p>Drag & drop video or click to browse</p>
-        <p style="font-size:0.75rem;color:var(--text-muted);">MP4, MOV, WebM — up to 500MB</p>
+        <p data-i18n="scouting.upload.drag_or_click">Drag &amp; drop video or click to browse</p>
+        <p style="font-size:0.75rem;color:var(--text-muted);" data-i18n="scouting.upload.formats">MP4, MOV, WebM — up to 500MB</p>
         <input type="file" id="videoFileInput" accept=".mp4,.mov,.webm" style="display:none">
       </div>
       <div class="upload-progress" id="uploadProgress">
         <div class="upload-progress-bar"><div class="upload-progress-fill" id="uploadProgressFill"></div></div>
-        <div class="upload-progress-text" id="uploadProgressText">Uploading... 0%</div>
+        <div class="upload-progress-text" id="uploadProgressText" data-i18n="coach.scouting.upload.progress_text">Uploading... 0%</div>
       </div>
-      <div class="form-group"><label class="label">Title</label><input type="text" class="input" id="uploadTitle" placeholder="e.g. Game vs Maccabi"></div>
-      <div class="form-group"><label class="label">Type</label>
-        <select class="input" id="uploadType"><option value="game">Game</option><option value="practice">Practice</option><option value="opponent_scout">Opponent Scout</option><option value="highlight">Highlight</option><option value="other">Other</option></select>
+      <div class="form-group"><label class="label" data-i18n="coach.knowledge.field.title">Title</label><input type="text" class="input" id="uploadTitle" data-i18n-placeholder="coach.scouting.upload.title_placeholder" placeholder="e.g. Game vs Maccabi"></div>
+      <div class="form-group"><label class="label" data-i18n="coach.schedule.field.type">Type</label>
+        <select class="input" id="uploadType">
+          <option value="game" data-i18n="event.game">Game</option>
+          <option value="practice" data-i18n="event.practice">Practice</option>
+          <option value="opponent_scout" data-i18n="coach.scouting.type.opponent_scout">Opponent Scout</option>
+          <option value="highlight" data-i18n="coach.scouting.filter.highlight">Highlight</option>
+          <option value="other" data-i18n="event.other">Other</option>
+        </select>
       </div>
-      <div class="form-group"><label class="label">Opponent (optional)</label><input type="text" class="input" id="uploadOpponent" placeholder="e.g. Maccabi Tel Aviv"></div>
-      <div class="form-group"><label class="label">Game Date (optional)</label><input type="date" class="input" id="uploadDate"></div>
-      <div class="form-group"><label class="label">Team</label><select class="input" id="uploadTeam"><option value="">Select team...</option></select></div>
+      <div class="form-group"><label class="label" data-i18n="coach.scouting.upload.field.opponent">Opponent (optional)</label><input type="text" class="input" id="uploadOpponent" data-i18n-placeholder="coach.scouting.upload.opponent_placeholder" placeholder="e.g. Maccabi Tel Aviv"></div>
+      <div class="form-group"><label class="label" data-i18n="coach.scouting.upload.field.game_date">Game Date (optional)</label><input type="date" class="input" id="uploadDate"></div>
+      <div class="form-group"><label class="label" data-i18n="coach.schedule.field.team">Team</label><select class="input" id="uploadTeam"><option value="" data-i18n="coach.scouting.upload.select_team">Select team...</option></select></div>
       <div class="form-group">
         <label class="keep-forever-toggle">
           <input type="checkbox" id="uploadKeepForever">
           <span class="material-symbols-outlined" style="font-size:1.1rem;">all_inclusive</span>
-          Keep forever <span style="color:var(--text-muted);font-weight:400;">(no auto-delete after 14 days)</span>
+          <span data-i18n="coach.scouting.upload.keep_forever">Keep forever</span> <span style="color:var(--text-muted);font-weight:400;" data-i18n="coach.scouting.upload.keep_forever_note">(no auto-delete after 14 days)</span>
         </label>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="cancelUploadModal()">Cancel</button>
-      <button class="btn btn-primary" id="uploadSubmitBtn" onclick="submitUpload()" disabled>Upload</button>
+      <button class="btn btn-ghost" onclick="cancelUploadModal()" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" id="uploadSubmitBtn" onclick="submitUpload()" disabled data-i18n="btn.upload">Upload</button>
     </div>
   </div>
 </div>
@@ -197,13 +299,13 @@
 <div class="modal-overlay" id="clipModal">
   <div class="modal" style="max-width: 480px;">
     <div class="modal-header">
-      <h2>Tag Clip</h2>
+      <h2 data-i18n="coach.scouting.modal.tag_clip">Tag Clip</h2>
       <button class="modal-close" onclick="closeModal('clipModal')"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="modal-body">
       <div style="display:flex;gap:var(--sp-4);margin-bottom:var(--sp-3);align-items:flex-end;">
         <div class="form-group" style="flex:1">
-          <label class="label">Start</label>
+          <label class="label" data-i18n="coach.scouting.clip.field.start">Start</label>
           <div class="clip-time-control">
             <button class="clip-time-btn" onclick="adjustClipTime('start',-1)"><span class="material-symbols-outlined">remove</span></button>
             <input type="text" class="input clip-time-input" id="clipStart" placeholder="0:00" onchange="onClipTimeChange()">
@@ -211,11 +313,11 @@
           </div>
         </div>
         <div class="form-group" style="flex:0 0 auto;">
-          <label class="label" style="text-align:center;">Duration</label>
+          <label class="label" style="text-align:center;" data-i18n="coach.scouting.clip.field.duration">Duration</label>
           <div class="clip-duration-badge" id="clipDuration">10s</div>
         </div>
         <div class="form-group" style="flex:1">
-          <label class="label">End</label>
+          <label class="label" data-i18n="coach.scouting.clip.field.end">End</label>
           <div class="clip-time-control">
             <button class="clip-time-btn" onclick="adjustClipTime('end',-1)"><span class="material-symbols-outlined">remove</span></button>
             <input type="text" class="input clip-time-input" id="clipEnd" placeholder="0:00" onchange="onClipTimeChange()">
@@ -223,24 +325,147 @@
           </div>
         </div>
       </div>
-      <div class="form-group"><label class="label">Action Type</label><select class="input" id="clipAction"></select></div>
+      <div class="form-group"><label class="label" data-i18n="coach.scouting.clip.field.action_type">Action Type</label><select class="input" id="clipAction"></select></div>
       <div class="form-group">
-        <label class="label">Rating</label>
+        <label class="label" data-i18n="coach.scouting.clip.field.rating">Rating</label>
         <div style="display:flex;gap:var(--sp-2);">
           <button class="tag-btn" id="ratingPos" onclick="setRating('positive')" style="flex:1;justify-content:center;">
-            <span class="material-symbols-outlined">thumb_up</span> Positive
+            <span class="material-symbols-outlined">thumb_up</span> <span data-i18n="scouting.rating.positive">Positive</span>
           </button>
           <button class="tag-btn" id="ratingNeg" onclick="setRating('negative')" style="flex:1;justify-content:center;">
-            <span class="material-symbols-outlined">thumb_down</span> Negative
+            <span class="material-symbols-outlined">thumb_down</span> <span data-i18n="scouting.rating.negative">Negative</span>
           </button>
         </div>
       </div>
-      <div class="form-group"><label class="label">Tag Players</label><div class="clip-modal-players" id="clipPlayers"></div></div>
-      <div class="form-group"><label class="label">Notes (optional)</label><textarea class="input" id="clipNotes" rows="2" placeholder="Quick note..."></textarea></div>
+      <div class="form-group"><label class="label" data-i18n="coach.scouting.clip.field.tag_players">Tag Players</label><div class="clip-modal-players" id="clipPlayers"></div></div>
+      <div class="form-group"><label class="label" data-i18n="coach.scouting.clip.field.notes">Notes (optional)</label><textarea class="input" id="clipNotes" rows="2" data-i18n-placeholder="coach.scouting.clip.notes_placeholder" placeholder="Quick note..."></textarea></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('clipModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveClip()">Save Clip</button>
+      <button class="btn btn-ghost" onclick="closeModal('clipModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-ghost" id="clipPreviewBtn" onclick="previewClip()" data-i18n="scouting.clip.preview">Preview</button>
+      <button class="btn btn-primary" onclick="stopClipPreview(); saveClip()" data-i18n="coach.scouting.clip.btn.save_clip">Save Clip</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COMPILE CLIPS MODAL ═══ -->
+<div class="modal-overlay" id="compileModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <h3 data-i18n="scouting.compile.title">יצירת סרטון מקליפים</h3>
+      <button class="modal-close" onclick="closeModal('compileModal')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group" style="margin-bottom:var(--sp-3);">
+        <label data-i18n="scouting.compile.video_title">כותרת הסרטון</label>
+        <input type="text" class="input" id="compileTitle">
+      </div>
+      <div style="display:flex;gap:var(--sp-2);margin-bottom:var(--sp-3);">
+        <div class="input-group" style="flex:1;">
+          <label data-i18n="scouting.compile.sort_by">מיון</label>
+          <select class="select" id="compileSortBy" onchange="renderCompileClipList()">
+            <option value="chrono" data-i18n="scouting.compile.sort_chrono">כרונולוגי</option>
+            <option value="action" data-i18n="scouting.compile.sort_action">לפי תיוג</option>
+            <option value="rating" data-i18n="scouting.compile.sort_rating">לפי דירוג</option>
+          </select>
+        </div>
+        <div class="input-group" style="flex:1;">
+          <label data-i18n="scouting.compile.filter">סינון</label>
+          <select class="select" id="compileFilter" onchange="renderCompileClipList()">
+            <option value="" data-i18n="scouting.compile.filter_all">הכל</option>
+          </select>
+        </div>
+      </div>
+      <label style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-3);cursor:pointer;font-size:0.85rem;color:var(--text-secondary);">
+        <input type="checkbox" id="compileShowTags" checked style="accent-color:var(--primary);width:16px;height:16px;">
+        <span data-i18n="scouting.compile.show_tags">הצג תיוג על הסרטון</span>
+      </label>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-2);">
+        <button class="btn btn-ghost btn-sm" onclick="compileToggleAll(true)" data-i18n="scouting.compile.select_all">בחר הכל</button>
+        <button class="btn btn-ghost btn-sm" onclick="compileToggleAll(false)" data-i18n="scouting.compile.deselect_all">בטל הכל</button>
+      </div>
+      <div id="compileClipList" style="max-height:280px;overflow-y:auto;"></div>
+      <div id="compileSummary" style="text-align:center;color:var(--text-muted);font-size:0.82rem;margin-top:var(--sp-2);"></div>
+      <!-- Progress (hidden until generating) -->
+      <div id="compileProgress" style="display:none;margin-top:var(--sp-3);">
+        <div id="compileProgressLabel" style="text-align:center;font-size:0.82rem;margin-bottom:var(--sp-1);"></div>
+        <div style="background:var(--bg-surface);border-radius:var(--r-md);height:8px;overflow:hidden;">
+          <div id="compileProgressFill" style="height:100%;background:var(--primary);border-radius:var(--r-md);width:0%;transition:width 0.2s linear;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('compileModal')" data-i18n="btn.cancel">Cancel</button>
+      <button class="btn btn-primary" id="compileGenerateBtn" onclick="startCompilation()">
+        <span class="material-symbols-outlined" style="font-size:1rem;">movie_edit</span>
+        <span data-i18n="scouting.compile.generate">ייצר סרטון</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DELETE ORIGINAL MODAL ═══ -->
+<div class="modal-overlay" id="compileDeleteModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h3 data-i18n="scouting.compile.delete_title">מחיקת סרטון מקורי</h3>
+    </div>
+    <div class="modal-body" style="text-align:center;">
+      <span class="material-symbols-outlined" style="font-size:3rem;color:var(--primary);margin-bottom:var(--sp-2);">check_circle</span>
+      <p style="font-weight:600;margin-bottom:var(--sp-3);" data-i18n="scouting.compile.success">הסרטון נוצר בהצלחה!</p>
+      <p style="color:var(--text-muted);" data-i18n="scouting.compile.delete_msg">האם למחוק את הסרטון המקורי כדי לחסוך מקום אחסון?</p>
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-danger" onclick="compileDeleteOriginal()">
+        <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
+        <span data-i18n="scouting.compile.delete_original">מחק מקורי</span>
+      </button>
+      <button class="btn btn-primary" onclick="compileKeepOriginal()">
+        <span data-i18n="scouting.compile.keep_original">השאר מקורי</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ KEYBOARD SHORTCUTS OVERLAY ═══ -->
+<div class="shortcuts-overlay" id="shortcutsOverlay">
+  <div class="shortcuts-panel">
+    <div class="shortcuts-header">
+      <h3 data-i18n="coach.scouting.shortcuts.title">Keyboard Shortcuts</h3>
+      <button class="btn-icon" onclick="toggleShortcutsOverlay()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="shortcuts-grid">
+      <div class="shortcut-group">
+        <h4 data-i18n="coach.scouting.shortcuts.group.playback">Playback</h4>
+        <div class="shortcut-row"><kbd>Space</kbd><span data-i18n="coach.scouting.shortcuts.play_pause">Play / Pause</span></div>
+        <div class="shortcut-row"><kbd>←</kbd> / <kbd>→</kbd><span data-i18n="coach.scouting.shortcuts.seek">±5s / ±1 frame (paused)</span></div>
+        <div class="shortcut-row"><kbd>Shift+←/→</kbd><span data-i18n="coach.scouting.shortcuts.seek_1s">±1 second</span></div>
+        <div class="shortcut-row"><kbd>,</kbd> / <kbd>.</kbd><span data-i18n="coach.scouting.shortcuts.frame_step">Previous / Next frame</span></div>
+        <div class="shortcut-row"><kbd>[</kbd> / <kbd>]</kbd><span data-i18n="coach.scouting.shortcuts.speed_change">Slower / Faster speed</span></div>
+        <div class="shortcut-row"><kbd>1</kbd>-<kbd>5</kbd><span data-i18n="coach.scouting.shortcuts.speed_preset">Speed: 0.25x - 2x</span></div>
+      </div>
+      <div class="shortcut-group">
+        <h4 data-i18n="coach.scouting.shortcuts.group.drawing">Drawing Tools</h4>
+        <div class="shortcut-row"><kbd>D</kbd><span data-i18n="coach.scouting.shortcuts.draw_freehand">Freehand draw</span></div>
+        <div class="shortcut-row"><kbd>A</kbd><span data-i18n="scouting.draw.tool.arrow">Arrow</span></div>
+        <div class="shortcut-row"><kbd>C</kbd><span data-i18n="scouting.draw.tool.circle">Circle</span></div>
+        <div class="shortcut-row"><kbd>T</kbd><span data-i18n="scouting.draw.tool.text">Text</span></div>
+        <div class="shortcut-row"><kbd>S</kbd><span data-i18n="scouting.draw.tool.spotlight">Spotlight</span></div>
+        <div class="shortcut-row"><kbd>M</kbd><span data-i18n="scouting.draw.tool.player_marker">Player Marker</span></div>
+        <div class="shortcut-row"><kbd>Ctrl+Z</kbd><span data-i18n="coach.scouting.shortcuts.undo">Undo</span></div>
+        <div class="shortcut-row"><kbd>Ctrl+C/V</kbd><span data-i18n="coach.scouting.shortcuts.copy_paste">Copy / Paste annotation</span></div>
+        <div class="shortcut-row"><kbd>Del</kbd><span data-i18n="coach.scouting.shortcuts.delete">Delete selected</span></div>
+        <div class="shortcut-row"><kbd>Esc</kbd><span data-i18n="coach.scouting.shortcuts.deselect">Deselect tool</span></div>
+      </div>
+      <div class="shortcut-group">
+        <h4 data-i18n="coach.scouting.shortcuts.group.clipping">Clipping &amp; Zoom</h4>
+        <div class="shortcut-row"><kbd>I</kbd><span data-i18n="coach.scouting.shortcuts.set_in">Set In-point</span></div>
+        <div class="shortcut-row"><kbd>O</kbd><span data-i18n="coach.scouting.shortcuts.set_out">Set Out-point</span></div>
+        <div class="shortcut-row"><kbd>+</kbd> / <kbd>-</kbd><span data-i18n="coach.scouting.shortcuts.zoom">Zoom in / out</span></div>
+        <div class="shortcut-row"><kbd>0</kbd><span data-i18n="coach.scouting.shortcuts.reset_zoom">Reset zoom</span></div>
+        <div class="shortcut-row"><kbd>Ctrl+Scroll</kbd><span data-i18n="coach.scouting.shortcuts.scroll_zoom">Scroll zoom</span></div>
+        <div class="shortcut-row"><kbd>?</kbd><span data-i18n="coach.scouting.shortcuts.toggle_overlay">Toggle this overlay</span></div>
+      </div>
     </div>
   </div>
 </div>
@@ -249,5 +474,6 @@
 
 {% block scripts %}
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+<script src="/static/js/scouting-telestrator.js"></script>
 <script src="/static/js/scouting.js"></script>
 {% endblock %}

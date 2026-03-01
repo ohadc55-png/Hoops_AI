@@ -43,7 +43,7 @@ function renderByAgent(agents) {
       <div style="padding:var(--sp-2) 0;border-bottom:1px solid var(--border);">
         <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
           <span style="text-transform:capitalize;font-weight:500;">${esc(name)}</span>
-          <span class="text-muted text-sm">${a.calls} calls · ${formatTokens(a.tokens_in + a.tokens_out)} tokens · $${a.cost.toFixed(3)}</span>
+          <span class="text-muted text-sm">${a.calls} ${a.calls === 1 ? 'call' : 'calls'} · ${formatTokens(a.tokens_in + a.tokens_out)} tokens · $${a.cost.toFixed(3)}</span>
         </div>
         <div style="height:4px;background:var(--bg-card);border-radius:2px;">
           <div style="height:100%;width:${pct}%;background:var(--primary);border-radius:2px;"></div>

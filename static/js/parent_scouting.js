@@ -23,7 +23,7 @@ async function loadFeed() {
     renderFeed();
   } catch (e) {
     console.error('Feed load error:', e);
-    document.getElementById('feedList').innerHTML = '<p class="feed-empty">Failed to load video feed</p>';
+    document.getElementById('feedList').innerHTML = `<p class="feed-empty">${t('parent.scouting.feed_error')}</p>`;
   }
 }
 
@@ -34,7 +34,7 @@ function renderFeed() {
   if (!_feedClips.length) {
     el.innerHTML = `<div class="feed-empty">
       <span class="material-symbols-outlined">videocam_off</span>
-      No videos shared yet. The coach will share game footage when available.
+      ${t('parent.scouting.no_clips')}
     </div>`;
     return;
   }
@@ -146,7 +146,7 @@ async function openClipViewer(clipId) {
     });
   } catch (e) {
     console.error('Clip viewer error:', e);
-    ParentToast.error('Failed to load clip');
+    ParentToast.error(t('parent.scouting.clip_error'));
   }
 }
 
@@ -219,23 +219,7 @@ function renderClipAnnotations(videoTime) {
 }
 
 /* ═══ Utilities ══════════════════════════════════════════ */
-function timeAgo(ts) {
-  if (!ts) return '';
-  const d = new Date(ts.endsWith('Z') ? ts : ts + 'Z');
-  const diff = (Date.now() - d.getTime()) / 1000;
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-  if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
-  return d.toLocaleDateString();
-}
-
-function esc(str) {
-  if (!str) return '';
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
-}
-
-function openModal(id) { document.getElementById(id)?.classList.add('active'); }
-function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+/* timeAgo → shared-utils.js */
+/* esc → shared-utils.js */
+/* openModal → shared-utils.js */
+/* closeModal → shared-utils.js */
