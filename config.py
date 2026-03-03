@@ -3,6 +3,7 @@ HOOPS AI - Configuration
 """
 import os
 from pathlib import Path
+from pydantic import model_validator
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 
@@ -11,22 +12,6 @@ BASE_DIR = Path(__file__).resolve().parent
 # Persistent data directory: RAILWAY_VOLUME_DIR for production, BASE_DIR for local dev
 _volume_dir = os.environ.get("RAILWAY_VOLUME_DIR")
 DATA_DIR = Path(_volume_dir) if _volume_dir else BASE_DIR
-
-
-def _resolve_database_url() -> str:
-    """Build async DATABASE_URL from environment.
-
-    Railway provides postgresql://...; we convert to postgresql+asyncpg://.
-    Local dev (no env var) falls back to SQLite.
-    """
-    raw = os.environ.get("DATABASE_URL", "")
-    if raw.startswith("postgresql://"):
-        return raw.replace("postgresql://", "postgresql+asyncpg://", 1)
-    if raw.startswith("postgres://"):
-        return raw.replace("postgres://", "postgresql+asyncpg://", 1)
-    if raw:
-        return raw  # Already has driver prefix (e.g. sqlite+aiosqlite://)
-    return f"sqlite+aiosqlite:///{DATA_DIR / 'database' / 'hoops_ai.db'}"
 
 
 class Settings(BaseSettings):
@@ -40,7 +25,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
 
-    DATABASE_URL: str = _resolve_database_url()
+    DATABASE_URL: str = f"sqlite+aiosqlite:///{DATA_DIR / 'database' / 'hoops_ai.db'}"
 
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4"
@@ -87,6 +72,16 @@ class Settings(BaseSettings):
     CHROMA_DIR: str = str(DATA_DIR / "database" / "chroma")
 
     model_config = {"env_file": str(BASE_DIR / ".env"), "extra": "ignore"}
+
+    @model_validator(mode="after")
+    def _fix_database_url(self):
+        """Convert Railway's postgresql:// to postgresql+asyncpg:// for async SQLAlchemy."""
+        url = self.DATABASE_URL
+        if url.startswith("postgresql://"):
+            self.DATABASE_URL = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        elif url.startswith("postgres://"):
+            self.DATABASE_URL = url.replace("postgres://", "postgresql+asyncpg://", 1)
+        return self
 
 
 @lru_cache
